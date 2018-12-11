@@ -6,12 +6,12 @@
 
     <parent>
         <groupId>com.kalix.exam</groupId>
-        <artifactId>exam-manage-parent</artifactId>
+        <artifactId>manage-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.kalix.exam</groupId>
-    <artifactId>exam-manage-dao</artifactId>
+    <artifactId>exam-manage-api</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
     

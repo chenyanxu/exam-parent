@@ -18,7 +18,7 @@
     <modules>
         <module>system-parent</module>
         <module>core-parent</module>
-        <module>exam-manage-parent</module>
+        <module>manage-parent</module>
     </modules>
     <dependencyManagement>
         <dependencies>

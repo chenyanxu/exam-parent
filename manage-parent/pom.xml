@@ -11,8 +11,8 @@
     </parent>
 
     <groupId>com.kalix.exam</groupId>
-    <artifactId>exam-manage-parent</artifactId>
-    <name>Kalix Exam Manage</name>
+    <artifactId>manage-parent</artifactId>
+    <name>Kalix Exam Question</name>
     <packaging>pom</packaging>
 
     <modules>
@@ -23,10 +23,5 @@
         <module>exam-manage-biz</module>
         <module>exam-manage-rest</module>
     </modules>
-
-    <dependencyManagement>
-        <dependencies>
-
-        </dependencies>
-    </dependencyManagement>
+    
 </project>

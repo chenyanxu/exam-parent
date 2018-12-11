@@ -12,6 +12,7 @@
 
     <groupId>com.kalix.exam</groupId>
     <artifactId>exam-core-etc</artifactId>
+    <description>ETC</description>
     <name>Kalix Exam Core ETC</name>
     <packaging>bundle</packaging>
 
