@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.kalix.exam</groupId>
+        <artifactId>system-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.kalix.exam</groupId>
+    <artifactId>dict-parent</artifactId>
+    <name>Kalix Exam System Dict Parent</name>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>exam-system-dict-entities</module>
+        <module>exam-system-dict-api</module>
+        <module>exam-system-dict-dao</module>
+        <module>exam-system-dict-biz</module>
+        <module>exam-system-dict-rest</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.kalix.exam</groupId>
+                <artifactId>exam-system-dict-entities</artifactId>
+                <version>${project.exam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.kalix.exam</groupId>
+                <artifactId>exam-system-dict-api</artifactId>
+                <version>${project.exam.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

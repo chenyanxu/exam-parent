@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+
+    <reference id="examDictBeanService"
+               interface="com.kalix.exam.system.dict.api.biz.IExamDictBeanService"/>
+    <camelContext id="examDictCamel" xmlns="http://camel.apache.org/schema/blueprint">
+
+        <restConfiguration component="servlet" bindingMode="json">
+            <dataFormatProperty key="prettyPrint" value="${rest.pretty}"/>
+        </restConfiguration>
+
+        <rest path="/exam/dicts" consumes="application/json;charset=utf-8" produces="application/json">
+            <description>exam dict rest service</description>
+
+            <get id="route-getAllExamDict" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find all ExamDict</description>
+                <to uri="bean:examDictBeanService?method=getAllEntityByQuery(${header.page},${header.limit},${header.jsonStr},${header.sort})"/>
+            </get>
+
+            <post id="route-addExamDict" type="com.kalix.exam.system.dict.entities.ExamDictBean"
+                  outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Create a ExamDict</description>
+                <to uri="bean:examDictBeanService?method=saveEntity"/>
+            </post>
+        </rest>
+        <rest path="/exam/dicts/{id}" consumes="application/json;charset=utf-8" produces="application/json">
+
+            <get id="route-getExamDict" type="com.kalix.exam.system.dict.entities.ExamDictBean">
+                <description>Find ExamDict by id</description>
+                <to uri="bean:examDictBeanService?method=getEntity(${header.id})"/>
+            </get>
+
+            <put id="route-updateExamDict" type="com.kalix.exam.system.dict.entities.ExamDictBean"
+                 outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Updates a ExamDict</description>
+                <to uri="bean:examDictBeanService?method=updateEntity"/>
+            </put>
+
+            <delete id="route-deleteExamDict"
+                    outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Delete a ExamDict</description>
+                <to uri="bean:examDictBeanService?method=deleteEntity(${header.id})"/>
+            </delete>
+        </rest>
+        <rest path="/exam/dicts/cache/list" consumes="application/json;charset=utf-8"
+              produces="application/json;charset=utf-8">
+            <get id="route-getAllExamDictInCache">
+                <description>Find all dicts</description>
+                <to uri="bean:examDictBeanService?method=getAllEntity()"/>
+            </get>
+        </rest>
+        <rest path="/exam/dicts/types/list" consumes="application/json;charset=utf-8"
+              produces="application/json;charset=utf-8">
+            <get id="route-getAllExamDictTypes">
+                <description>Find all dicts</description>
+                <to uri="bean:examDictBeanService?method=getDictTypes(${header.query})"/>
+            </get>
+        </rest>
+
+        <rest path="/exam/dicts/types/labels" consumes="application/json;charset=utf-8"
+              produces="application/json;charset=utf-8">
+            <get id="route-getValueByTypeAndLabel">
+                <description>Find dict Value By Type and Label</description>
+                <to uri="bean:examDictBeanService?method=getValueByTypeAndLabel(${header.type},${header.label})"/>
+            </get>
+        </rest>
+        <rest path="/exam/dicts/types/values" consumes="application/json;charset=utf-8"
+              produces="application/json;charset=utf-8">
+            <get id="route-getLabelByTypeAndValue">
+                <description>Find dict Label By Type and Value</description>
+                <to uri="bean:examDictBeanService?method=getLabelByTypeAndValue(${header.type},${header.value})"/>
+            </get>
+        </rest>
+    </camelContext>
+</blueprint>

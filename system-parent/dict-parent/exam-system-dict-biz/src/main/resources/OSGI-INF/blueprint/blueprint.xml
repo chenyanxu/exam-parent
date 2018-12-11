@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns:jpa="http://aries.apache.org/xmlns/jpa/v2.0.0"
+           xmlns:tx="http://aries.apache.org/xmlns/transactions/v1.2.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+    <jpa:enable/>
+    <tx:enable-annotations/>
+
+    <reference id="examDictBeanDao" interface="com.kalix.exam.system.dict.api.dao.IExamDictBeanDao"/>
+
+    <!--字典服务注册-->
+    <bean id="examDictBeanServiceImpl" class="com.kalix.exam.system.dict.biz.ExamDictBeanServiceImpl">
+        <property name="dao" ref="examDictBeanDao"/>
+    </bean>
+    <service id="examDictBeanService" ref="examDictBeanServiceImpl"
+             interface="com.kalix.exam.system.dict.api.biz.IExamDictBeanService"/>
+</blueprint>
