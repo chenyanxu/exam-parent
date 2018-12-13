@@ -23,5 +23,34 @@
         <module>exam-manage-biz</module>
         <module>exam-manage-rest</module>
     </modules>
-    
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.kalix.admin.core</groupId>
+                <artifactId>admin-core-api</artifactId>
+                <version>${project.admin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.kalix.enrolment.question</groupId>
+                <artifactId>enrolment-question-api</artifactId>
+                <version>${project.enrolment.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.kalix.exam</groupId>
+                <artifactId>exam-manage-entities</artifactId>
+                <version>${project.exam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.kalix.exam</groupId>
+                <artifactId>exam-manage-api</artifactId>
+                <version>${project.exam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.kalix.exam</groupId>
+                <artifactId>exam-manage-dto</artifactId>
+                <version>${project.exam.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>

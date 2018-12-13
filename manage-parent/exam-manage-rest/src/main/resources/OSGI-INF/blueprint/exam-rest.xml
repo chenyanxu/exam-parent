@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+    <reference id="examCreateBeanService" interface="com.kalix.exam.manage.api.biz.IExamCreateBeanService"/>
+    <reference id="examExamineeBeanService" interface="com.kalix.exam.manage.api.biz.IExamExamineeBeanService"/>
+    <camelContext id="examCreateCamel" xmlns="http://camel.apache.org/schema/blueprint">
+        <restConfiguration component="servlet" bindingMode="json">
+            <dataFormatProperty key="prettyPrint" value="${rest.pretty}"/>
+        </restConfiguration>
+
+        <!-- defines the rest services using the context-path /exam -->
+        <rest path="/examcreates" consumes="application/json;charset=utf-8" produces="application/json">
+            <description>examcreate rest service</description>
+            <!-- this is a rest GET to find all exam -->
+            <get id="route-getAllExams" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find all Exams</description>
+                <to uri="bean:examCreateBeanService?method=getAllEntityByQuery(${header.page},${header.limit},${header.jsonStr},${header.sort})"/>
+            </get>
+
+            <get uri="/enroment/papers" id="route-getExamPaper" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find all Exam Papers</description>
+                <to uri="bean:examCreateBeanService?method=getAllExamPaper"/>
+            </get>
+            <!-- this is a rest POST to create a exam -->
+            <post id="route-addExam" type="com.kalix.exam.manage.entities.ExamCreateBean"
+                  outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Create a Exam</description>
+                <to uri="bean:examCreateBeanService?method=saveEntity"/>
+            </post>
+
+            <post uri="/examorguser" id="route-addExamOrgUser" type="com.kalix.exam.manage.dto.ExamOrgDto"
+                  outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Add a Exam User</description>
+                <to uri="bean:examExamineeBeanService?method=saveExaminee"/>
+            </post>
+        </rest>
+        <!--<rest path="/examcreates/enroment/papers" consumes="application/json;charset=utf-8" produces="application/json">-->
+            <!--<get id="route-getExamPaper" outType="com.kalix.framework.core.api.persistence.JsonData">-->
+                <!--<description>Find all Exam Papers</description>-->
+                <!--<to uri="bean:examCreateBeanService?method=getAllExamPaper"/>-->
+            <!--</get>-->
+        <!--</rest>-->
+        <rest path="/examcreates/{id}" consumes="application/json;charset=utf-8" produces="application/json">
+            <!-- this is a rest GET to view a exam by the given id -->
+            <get  id="route-getExam" outType="com.kalix.exam.manage.entities.ExamCreateBean">
+                <description>Find Exam by id</description>
+                <to uri="bean:examCreateBeanService?method=getEntity(${header.id})"/>
+            </get>
+            <!-- this is a rest PUT to update a exam -->
+            <put  id="route-updateExam" type="com.kalix.exam.manage.entities.ExamCreateBean"
+                 outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Updates a Exam</description>
+                <to uri="bean:examCreateBeanService?method=updateEntity"/>
+            </put>
+            <!-- this is a rest DELETE to delete a exam -->
+            <delete  id="route-deleteExam"
+                    outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Delete a Exam</description>
+                <to uri="bean:examCreateBeanService?method=deleteEntity(${header.id})"/>
+            </delete>
+        </rest>
+    </camelContext>
+</blueprint>

@@ -12,7 +12,21 @@
 
     <groupId>com.kalix.exam</groupId>
     <artifactId>exam-manage-api</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <name>Kalix Exam Manage API</name>
+    <packaging>bundle</packaging>
 
-    
+    <properties>
+        <bundle.symbolicName>com.kalix.exam.manage.api</bundle.symbolicName>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.kalix.exam</groupId>
+            <artifactId>exam-manage-entities</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.kalix.exam</groupId>
+            <artifactId>exam-manage-dto</artifactId>
+        </dependency>
+    </dependencies>
 </project>
