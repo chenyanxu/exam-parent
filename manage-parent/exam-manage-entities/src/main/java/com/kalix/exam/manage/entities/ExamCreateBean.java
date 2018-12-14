@@ -11,8 +11,9 @@ public class ExamCreateBean extends PersistentEntity {
     private String name;  // 考试名
     private String subject;  // 考试科目
     private Integer duration; // 考试时长
-    private String papername; // 考卷名
+    private String paperName; // 考卷名
     private Long paperId;  // 考卷Id
+    private String distributeStat; // 考生分配状态
 
     public String getName() {
         return name;
@@ -38,12 +39,12 @@ public class ExamCreateBean extends PersistentEntity {
         this.duration = duration;
     }
 
-    public String getPapername() {
-        return papername;
+    public String getPaperName() {
+        return paperName;
     }
 
-    public void setPapername(String papername) {
-        this.papername = papername;
+    public void setPaperName(String paperName) {
+        this.paperName = paperName;
     }
 
     public Long getPaperId() {
@@ -52,5 +53,13 @@ public class ExamCreateBean extends PersistentEntity {
 
     public void setPaperId(Long paperId) {
         this.paperId = paperId;
+    }
+
+    public String getDistributeStat() {
+        return distributeStat;
+    }
+
+    public void setDistributeStat(String distributeStat) {
+        this.distributeStat = distributeStat;
     }
 }

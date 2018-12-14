@@ -15,6 +15,7 @@ public class ExamExamineeBean extends PersistentEntity {
     private Date endTime;  // 考试结束时间
     private Long examId; // 考试Id
     private Integer totalScore; // 考试成绩
+    private Long orgId; // 考生所在机构Id
 
     public Long getUserId() {
         return userId;
@@ -62,5 +63,13 @@ public class ExamExamineeBean extends PersistentEntity {
 
     public void setTotalScore(Integer totalScore) {
         this.totalScore = totalScore;
+    }
+
+    public Long getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(Long orgId) {
+        this.orgId = orgId;
     }
 }

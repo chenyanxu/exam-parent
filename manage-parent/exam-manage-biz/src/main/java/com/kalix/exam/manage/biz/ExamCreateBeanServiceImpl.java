@@ -5,11 +5,12 @@ import com.kalix.exam.manage.api.dao.IExamCreateBeanDao;
 import com.kalix.exam.manage.dto.ExamPagerDto;
 import com.kalix.exam.manage.entities.ExamCreateBean;
 import com.kalix.framework.core.api.persistence.JsonData;
-import com.kalix.framework.core.impl.biz.GenericBizServiceImpl;
+import com.kalix.framework.core.api.persistence.JsonStatus;
+import com.kalix.framework.core.impl.biz.ShiroGenericBizServiceImpl;
 
 import java.util.List;
 
-public class ExamCreateBeanServiceImpl extends GenericBizServiceImpl<IExamCreateBeanDao, ExamCreateBean> implements IExamCreateBeanService {
+public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamCreateBeanDao, ExamCreateBean> implements IExamCreateBeanService {
 
     @Override
     public JsonData getAllExamPaper() {
@@ -22,5 +23,11 @@ public class ExamCreateBeanServiceImpl extends GenericBizServiceImpl<IExamCreate
         }
         jsonData.setData(examPapers);
         return jsonData;
+    }
+
+    @Override
+    public void afterDeleteEntity(Long id, JsonStatus status) {
+        dao.updateNativeQuery("delete from exam_examinee where examid=" + id);
+        super.afterDeleteEntity(id, status);
     }
 }

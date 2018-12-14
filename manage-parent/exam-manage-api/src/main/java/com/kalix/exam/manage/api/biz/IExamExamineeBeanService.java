@@ -9,4 +9,6 @@ public interface IExamExamineeBeanService extends IBizService<ExamExamineeBean> 
     JsonStatus saveExaminee(ExamOrgDto examOrgDto);
 
     void deleteByExamId(Long examId);
+
+    java.util.Map<String, Object> getExamOrgTree(Long examId);
 }

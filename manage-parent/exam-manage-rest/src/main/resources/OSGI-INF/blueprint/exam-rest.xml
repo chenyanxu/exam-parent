@@ -23,6 +23,7 @@
                 <description>Find all Exam Papers</description>
                 <to uri="bean:examCreateBeanService?method=getAllExamPaper"/>
             </get>
+
             <!-- this is a rest POST to create a exam -->
             <post id="route-addExam" type="com.kalix.exam.manage.entities.ExamCreateBean"
                   outType="com.kalix.framework.core.api.persistence.JsonStatus">
@@ -35,6 +36,11 @@
                 <description>Add a Exam User</description>
                 <to uri="bean:examExamineeBeanService?method=saveExaminee"/>
             </post>
+
+            <get uri="/examorgtree" id="route-getExamOrgTree" outType="java.util.Map">
+                <description>Find all Exam OrgTree</description>
+                <to uri="bean:examExamineeBeanService?method=getExamOrgTree(${header.examId})"/>
+            </get>
         </rest>
         <!--<rest path="/examcreates/enroment/papers" consumes="application/json;charset=utf-8" produces="application/json">-->
             <!--<get id="route-getExamPaper" outType="com.kalix.framework.core.api.persistence.JsonData">-->
