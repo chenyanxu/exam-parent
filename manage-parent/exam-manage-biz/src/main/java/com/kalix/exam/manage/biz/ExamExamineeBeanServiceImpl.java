@@ -4,14 +4,17 @@ import com.kalix.admin.core.api.biz.IOrganizationBeanService;
 import com.kalix.admin.core.api.biz.IUserBeanService;
 import com.kalix.admin.core.dto.model.OrganizationDTO;
 import com.kalix.admin.core.entities.UserBean;
+import com.kalix.enrolment.question.api.biz.IQuestionCommonBizService;
 import com.kalix.exam.manage.api.biz.IExamCreateBeanService;
 import com.kalix.exam.manage.api.biz.IExamExamineeBeanService;
 import com.kalix.exam.manage.api.dao.IExamExamineeBeanDao;
 import com.kalix.exam.manage.dto.ExamOrgDto;
 import com.kalix.exam.manage.entities.ExamCreateBean;
 import com.kalix.exam.manage.entities.ExamExamineeBean;
+import com.kalix.framework.core.api.persistence.JsonData;
 import com.kalix.framework.core.api.persistence.JsonStatus;
 import com.kalix.framework.core.impl.biz.ShiroGenericBizServiceImpl;
+import com.kalix.framework.core.util.SerializeUtil;
 
 import javax.persistence.Transient;
 import java.util.*;
@@ -21,6 +24,7 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
     private IUserBeanService userBeanService;
     private IExamCreateBeanService examCreateBeanService;
     private IOrganizationBeanService organizationBeanService;
+    private IQuestionCommonBizService questionCommonBizService;
 
     public void setUserBeanService(IUserBeanService userBeanService) {
         this.userBeanService = userBeanService;
@@ -32,6 +36,10 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
 
     public void setOrganizationBeanService(IOrganizationBeanService organizationBeanService) {
         this.organizationBeanService = organizationBeanService;
+    }
+
+    public void setQuestionCommonBizService(IQuestionCommonBizService questionCommonBizService) {
+        this.questionCommonBizService = questionCommonBizService;
     }
 
     @Override
@@ -96,6 +104,7 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
                     userIds.add(user.getId());
                     examExamineeBean = new ExamExamineeBean();
                     examExamineeBean.setExamId(examId);
+                    // 0:未考 1:已考
                     examExamineeBean.setState("未考");
                     examExamineeBean.setUserId(user.getId());
                     examExamineeBean.setOrgId(Long.parseLong(orgId));
@@ -121,6 +130,48 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
         map.put("treeData", organizationDTO);
         map.put("orgIds", orgIds);
         return map;
+    }
+
+    @Override
+    public JsonData getAllSelfExaming(String jsonStr) {
+        String name = "";
+        if (jsonStr != null && !jsonStr.isEmpty()) {
+            Map<String, Object> jsonMap = SerializeUtil.jsonToMap(jsonStr);
+            name = (String)jsonMap.get("%name%");
+        }
+        Long currentUserId = shiroService.getCurrentUserId();
+        String sql = "select a.id,a.name,a.subject,a.duration,a.paperId " +
+                " from exam_create a,exam_examinee b " +
+                " where b.examid=a.id  and  b.userid=?" +
+                " and b.state='未考'";
+        if (name != null && !name.isEmpty()) {
+            sql += " and a.name like'%"+name+"%'";
+        }
+        List<ExamCreateBean> examings = dao.findByNativeSql(sql, ExamCreateBean.class, currentUserId);
+        JsonData jsonData = new JsonData();
+        if (examings == null) {
+            jsonData.setTotalCount(0L);
+        } else {
+            jsonData.setTotalCount(Long.valueOf(examings.size()));
+        }
+        jsonData.setData(examings);
+        return jsonData;
+    }
+
+    @Override
+    public Map<String, Object> getExamingPaper(Long paperId, Long examId) {
+        System.out.println("paperId======" + paperId);
+        System.out.println("examId======" + examId);
+        if (paperId == null || examId == null) {
+            return new HashMap<>();
+        }
+        Map<String, Object> paperMap = questionCommonBizService.autoCreateTestPaperMap(paperId, examId);
+        Long userId = shiroService.getCurrentUserId();
+        dao.updateNativeQuery("update exam_examinee set state='已考',starttime=current_timestamp where userid=" + userId + " and examid=" + examId);
+        paperMap.put("paperId", paperId);
+        paperMap.put("examId", examId);
+
+        return paperMap;
     }
 
     private void updateDistributeStat(Long examId) {

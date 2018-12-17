@@ -25,6 +25,10 @@
             <artifactId>admin-core-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.kalix.enrolment.question</groupId>
+            <artifactId>enrolment-question-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.kalix.exam</groupId>
             <artifactId>exam-manage-api</artifactId>
         </dependency>

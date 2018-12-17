@@ -5,5 +5,9 @@ import com.kalix.framework.core.api.biz.IBizService;
 import com.kalix.framework.core.api.persistence.JsonData;
 
 public interface IExamCreateBeanService extends IBizService<ExamCreateBean> {
+    /**
+     * 获取所有考卷模板
+     * @return
+     */
     JsonData getAllExamPaper();
 }

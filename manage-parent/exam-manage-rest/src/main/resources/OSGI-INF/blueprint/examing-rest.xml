@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+    <reference id="examAnswerBeanService" interface="com.kalix.exam.manage.api.biz.IExamAnswerBeanService"/>
+    <camelContext id="examingCamel" xmlns="http://camel.apache.org/schema/blueprint">
+        <restConfiguration component="servlet" bindingMode="json">
+            <dataFormatProperty key="prettyPrint" value="${rest.pretty}"/>
+        </restConfiguration>
+
+        <!-- defines the rest services using the context-path /exam -->
+        <rest path="/examings" consumes="application/json;charset=utf-8" produces="application/json">
+            <description>exam answer rest service</description>
+            <!-- this is a rest GET to find all exam answer-->
+            <get id="route-getAllExamAnswers" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find all ExamAnswers</description>
+                <to uri="bean:examAnswerBeanService?method=getAllEntityByQuery(${header.page},${header.limit},${header.jsonStr},${header.sort})"/>
+            </get>
+
+            <get uri="/self" id="route-getAllSelfExaming" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find all SelfExaming</description>
+                <to uri="bean:examExamineeBeanService?method=getAllSelfExaming(${header.jsonStr})"/>
+            </get>
+
+            <get uri="/paper" id="route-getAllPaperExaming" outType="java.util.Map">
+                <description>Find all PaperExaming</description>
+                <to uri="bean:examExamineeBeanService?method=getExamingPaper(${header.paperId}, ${header.examId})"/>
+            </get>
+            <!-- this is a rest POST to create a exam answer-->
+            <post id="route-addExamAnswer" type="com.kalix.exam.manage.entities.ExamAnswerBean"
+                  outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Create a Exam Answer</description>
+                <to uri="bean:examAnswerBeanService?method=saveEntity"/>
+            </post>
+        </rest>
+        <rest path="/examings/{id}" consumes="application/json;charset=utf-8" produces="application/json">
+            <!-- this is a rest GET to view a exam by the given id -->
+            <get  id="route-getExamAnswer" outType="com.kalix.exam.manage.entities.ExamAnswerBean">
+                <description>Find Exam Answer by id</description>
+                <to uri="bean:examAnswerBeanService?method=getEntity(${header.id})"/>
+            </get>
+            <!-- this is a rest PUT to update a exam Answer-->
+            <put  id="route-updateExamAnswer" type="com.kalix.exam.manage.entities.ExamAnswerBean"
+                 outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Updates a Exam Answer</description>
+                <to uri="bean:examAnswerBeanService?method=updateEntity"/>
+            </put>
+            <!-- this is a rest DELETE to delete a exam Answer-->
+            <delete  id="route-deleteExamAnswer"
+                    outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Delete a Exam Answer</description>
+                <to uri="bean:examAnswerBeanService?method=deleteEntity(${header.id})"/>
+            </delete>
+        </rest>
+    </camelContext>
+</blueprint>

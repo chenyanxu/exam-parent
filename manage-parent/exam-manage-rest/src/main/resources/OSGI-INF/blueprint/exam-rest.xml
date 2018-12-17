@@ -42,12 +42,7 @@
                 <to uri="bean:examExamineeBeanService?method=getExamOrgTree(${header.examId})"/>
             </get>
         </rest>
-        <!--<rest path="/examcreates/enroment/papers" consumes="application/json;charset=utf-8" produces="application/json">-->
-            <!--<get id="route-getExamPaper" outType="com.kalix.framework.core.api.persistence.JsonData">-->
-                <!--<description>Find all Exam Papers</description>-->
-                <!--<to uri="bean:examCreateBeanService?method=getAllExamPaper"/>-->
-            <!--</get>-->
-        <!--</rest>-->
+
         <rest path="/examcreates/{id}" consumes="application/json;charset=utf-8" produces="application/json">
             <!-- this is a rest GET to view a exam by the given id -->
             <get  id="route-getExam" outType="com.kalix.exam.manage.entities.ExamCreateBean">
