@@ -7,7 +7,6 @@ import com.kalix.exam.manage.entities.ExamAnswerBean;
 import com.kalix.framework.core.impl.biz.ShiroGenericBizServiceImpl;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamAnswerBeanDao, ExamAnswerBean> implements IExamAnswerBeanService {
