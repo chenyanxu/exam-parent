@@ -6,7 +6,9 @@ public class ExamQuesDto extends BaseDTO {
     // 考题标题
     private String title;
     // 考题标题序号
-    private String titleNum;
+    private Integer titleNum;
+    // 每题分数
+    private Integer perScore;
     // 试题Id
     private Long quesid;
     // 试题序号
@@ -26,12 +28,20 @@ public class ExamQuesDto extends BaseDTO {
         this.title = title;
     }
 
-    public String getTitleNum() {
+    public Integer getTitleNum() {
         return titleNum;
     }
 
-    public void setTitleNum(String titleNum) {
+    public void setTitleNum(Integer titleNum) {
         this.titleNum = titleNum;
+    }
+
+    public Integer getPerScore() {
+        return perScore;
+    }
+
+    public void setPerScore(Integer perScore) {
+        this.perScore = perScore;
     }
 
     public Long getQuesid() {

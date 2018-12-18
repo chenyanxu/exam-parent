@@ -21,6 +21,8 @@ public class ExamAnswerBean extends PersistentEntity {
     private String readoverBy;  // 批阅人
     private Date readoverOn;  // 批阅时间
     private Integer titleNum;  // 标题号
+    private Integer quesNum;  // 题序号
+    private String title;  // 标题
 
     public Long getExamId() {
         return examId;
@@ -116,5 +118,21 @@ public class ExamAnswerBean extends PersistentEntity {
 
     public void setTitleNum(Integer titleNum) {
         this.titleNum = titleNum;
+    }
+
+    public Integer getQuesNum() {
+        return quesNum;
+    }
+
+    public void setQuesNum(Integer quesNum) {
+        this.quesNum = quesNum;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

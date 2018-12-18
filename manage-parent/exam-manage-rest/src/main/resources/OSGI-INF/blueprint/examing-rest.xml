@@ -33,6 +33,12 @@
                 <description>Create a Exam Answer</description>
                 <to uri="bean:examAnswerBeanService?method=saveEntity"/>
             </post>
+
+            <post uri="/commitexaming" id="route-addExamOrgUser" type="com.kalix.exam.manage.dto.ExamingDto"
+                  outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Add a Exam User</description>
+                <to uri="bean:examAnswerBeanService?method=commitExaming"/>
+            </post>
         </rest>
         <rest path="/examings/{id}" consumes="application/json;charset=utf-8" produces="application/json">
             <!-- this is a rest GET to view a exam by the given id -->
