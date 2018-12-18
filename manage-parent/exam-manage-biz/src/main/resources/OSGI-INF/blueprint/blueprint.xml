@@ -14,7 +14,7 @@
 
     <reference id="userBeanService" interface="com.kalix.admin.core.api.biz.IUserBeanService"/>
     <reference id="organizationBeanService" interface="com.kalix.admin.core.api.biz.IOrganizationBeanService"/>
-    <reference id="questionCommonBizService" interface="com.kalix.enrolment.question.api.biz.IQuestionCommonBizService"/>
+
     <reference id="examExamineeBeanDao" interface="com.kalix.exam.manage.api.dao.IExamExamineeBeanDao"/>
     <service id="examExamineeBeanService" interface="com.kalix.exam.manage.api.biz.IExamExamineeBeanService"
              ref="examExamineeBeanServiceImpl">
@@ -25,15 +25,16 @@
         <property name="userBeanService" ref="userBeanService"/>
         <property name="examCreateBeanService" ref="examCreateBeanServiceImpl"/>
         <property name="organizationBeanService" ref="organizationBeanService"/>
-        <property name="questionCommonBizService" ref="questionCommonBizService"/>
     </bean>
 
     <reference id="examAnswerBeanDao" interface="com.kalix.exam.manage.api.dao.IExamAnswerBeanDao"/>
+    <reference id="questionCommonBizService" interface="com.kalix.enrolment.question.api.biz.IQuestionCommonBizService"/>
     <service id="examAnswerBeanService" interface="com.kalix.exam.manage.api.biz.IExamAnswerBeanService" ref="examAnswerBeanServiceImpl">
     </service>
 
     <bean id="examAnswerBeanServiceImpl" class="com.kalix.exam.manage.biz.ExamAnswerBeanServiceImpl">
         <property name="dao" ref="examAnswerBeanDao"/>
+        <property name="questionCommonBizService" ref="questionCommonBizService"/>
     </bean>
 </blueprint>
 

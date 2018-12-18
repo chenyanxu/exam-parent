@@ -25,7 +25,7 @@
 
             <get uri="/paper" id="route-getAllPaperExaming" outType="java.util.Map">
                 <description>Find all PaperExaming</description>
-                <to uri="bean:examExamineeBeanService?method=getExamingPaper(${header.paperId}, ${header.examId})"/>
+                <to uri="bean:examAnswerBeanService?method=getExamingPaper(${header.paperId}, ${header.examId})"/>
             </get>
             <!-- this is a rest POST to create a exam answer-->
             <post id="route-addExamAnswer" type="com.kalix.exam.manage.entities.ExamAnswerBean"

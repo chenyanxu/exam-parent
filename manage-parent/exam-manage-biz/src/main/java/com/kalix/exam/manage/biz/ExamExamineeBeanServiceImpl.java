@@ -24,7 +24,7 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
     private IUserBeanService userBeanService;
     private IExamCreateBeanService examCreateBeanService;
     private IOrganizationBeanService organizationBeanService;
-    private IQuestionCommonBizService questionCommonBizService;
+
 
     public void setUserBeanService(IUserBeanService userBeanService) {
         this.userBeanService = userBeanService;
@@ -36,10 +36,6 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
 
     public void setOrganizationBeanService(IOrganizationBeanService organizationBeanService) {
         this.organizationBeanService = organizationBeanService;
-    }
-
-    public void setQuestionCommonBizService(IQuestionCommonBizService questionCommonBizService) {
-        this.questionCommonBizService = questionCommonBizService;
     }
 
     @Override
@@ -156,22 +152,6 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
         }
         jsonData.setData(examings);
         return jsonData;
-    }
-
-    @Override
-    public Map<String, Object> getExamingPaper(Long paperId, Long examId) {
-        System.out.println("paperId======" + paperId);
-        System.out.println("examId======" + examId);
-        if (paperId == null || examId == null) {
-            return new HashMap<>();
-        }
-        Map<String, Object> paperMap = questionCommonBizService.autoCreateTestPaperMap(paperId, examId);
-        Long userId = shiroService.getCurrentUserId();
-        dao.updateNativeQuery("update exam_examinee set state='已考',starttime=current_timestamp where userid=" + userId + " and examid=" + examId);
-        paperMap.put("paperId", paperId);
-        paperMap.put("examId", examId);
-
-        return paperMap;
     }
 
     private void updateDistributeStat(Long examId) {

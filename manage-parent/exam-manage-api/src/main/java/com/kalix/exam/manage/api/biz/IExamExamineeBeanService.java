@@ -30,11 +30,4 @@ public interface IExamExamineeBeanService extends IBizService<ExamExamineeBean> 
      */
     JsonData getAllSelfExaming(String jsonStr);
 
-    /**
-     * 生成考卷
-     * @param paperId
-     * @param examId
-     * @return
-     */
-    Map<String, Object> getExamingPaper(Long paperId, Long examId);
 }
