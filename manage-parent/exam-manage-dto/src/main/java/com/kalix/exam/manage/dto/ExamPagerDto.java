@@ -7,6 +7,7 @@ public class ExamPagerDto extends BaseDTO {
 //    private Long id;
     private String title;
     private String label;
+    private String value;
 
 //    public Long getId() {
 //        return id;
@@ -30,5 +31,13 @@ public class ExamPagerDto extends BaseDTO {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }

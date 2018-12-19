@@ -23,7 +23,7 @@ public interface IExamExamineeBeanService extends IBizService<ExamExamineeBean> 
      * @param examId
      * @return
      */
-    java.util.Map<String, Object> getExamOrgTree(Long examId);
+    Map<String, Object> getExamOrgTree(Long examId);
     /**
      * 获取所有个人的考试列表
      * @return

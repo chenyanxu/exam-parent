@@ -14,7 +14,7 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
 
     @Override
     public JsonData getAllExamPaper() {
-        List<ExamPagerDto> examPapers = dao.findByNativeSql("select a.id,a.title,b.label from enrolment_question_paper a, enrolment_dict b where a.kskm = b.value and b.type='考试科目'", ExamPagerDto.class, null);
+        List<ExamPagerDto> examPapers = dao.findByNativeSql("select a.id,a.title,b.label,b.value from enrolment_question_paper a, enrolment_dict b where a.kskm = b.value and b.type='考试科目'", ExamPagerDto.class, null);
         JsonData jsonData = new JsonData();
         if (examPapers == null || examPapers.isEmpty()) {
             jsonData.setTotalCount(0L);

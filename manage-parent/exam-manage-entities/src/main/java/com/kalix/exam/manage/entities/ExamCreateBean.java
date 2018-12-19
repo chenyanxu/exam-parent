@@ -10,6 +10,7 @@ import javax.persistence.Table;
 public class ExamCreateBean extends PersistentEntity {
     private String name;  // 考试名
     private String subject;  // 考试科目
+    private String subjectVal; // 科目字典值
     private Integer duration; // 考试时长
     private String paperName; // 考卷名
     private Long paperId;  // 考卷Id
@@ -29,6 +30,14 @@ public class ExamCreateBean extends PersistentEntity {
 
     public void setSubject(String subject) {
         this.subject = subject;
+    }
+
+    public String getSubjectVal() {
+        return subjectVal;
+    }
+
+    public void setSubjectVal(String subjectVal) {
+        this.subjectVal = subjectVal;
     }
 
     public Integer getDuration() {

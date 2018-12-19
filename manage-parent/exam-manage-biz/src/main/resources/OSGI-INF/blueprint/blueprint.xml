@@ -36,5 +36,13 @@
         <property name="dao" ref="examAnswerBeanDao"/>
         <property name="questionCommonBizService" ref="questionCommonBizService"/>
     </bean>
+
+    <!--考试阅卷服务-->
+    <service id="examOverReadService" interface="com.kalix.exam.manage.api.biz.IExamOverReadService" ref="examOverReadServiceImpl">
+    </service>
+
+    <bean id="examOverReadServiceImpl" class="com.kalix.exam.manage.biz.ExamOverReadServiceImpl">
+        <property name="dao" ref="examAnswerBeanDao"/>
+    </bean>
 </blueprint>
 

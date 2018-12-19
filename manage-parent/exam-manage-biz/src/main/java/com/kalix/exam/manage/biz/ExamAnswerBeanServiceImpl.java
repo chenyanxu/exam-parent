@@ -6,6 +6,7 @@ import com.kalix.exam.manage.api.biz.IExamAnswerBeanService;
 import com.kalix.exam.manage.api.dao.IExamAnswerBeanDao;
 import com.kalix.exam.manage.dto.ExamQuesDto;
 import com.kalix.exam.manage.dto.ExamingDto;
+import com.kalix.exam.manage.dto.QuesChoiceDto;
 import com.kalix.exam.manage.entities.ExamAnswerBean;
 import com.kalix.framework.core.api.persistence.JsonStatus;
 import com.kalix.framework.core.impl.biz.ShiroGenericBizServiceImpl;
@@ -91,7 +92,7 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
             List<ExamQuesDto> quesChoiceList = quesList.stream().filter(q->"2".equals(q.getQuesType())).collect(Collectors.toList());
             List<String> quesIds = quesChoiceList.stream().map(qc->String.valueOf(qc.getQuesid())).collect(Collectors.toList());
             String qIds = String.join(",", quesIds);
-            List<ChoiceBean> choiceList =  dao.findByNativeSql("select * from enrolment_question_choice where id in ("+qIds+")", ChoiceBean.class);
+            List<QuesChoiceDto> choiceList =  dao.findByNativeSql("select id,answer from enrolment_question_choice where id in ("+qIds+")", QuesChoiceDto.class);
 
             List<ExamAnswerBean> examAnswerBeanList = new ArrayList<>();
             for (ExamQuesDto quesChoiceDto : quesChoiceList) {
@@ -143,6 +144,7 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
         examAnswerBean.setReadoverState("未批");
         examAnswerBean.setTitleNum(examQuesDto.getTitleNum());
         examAnswerBean.setTitle(examQuesDto.getTitle());
+        examAnswerBean.setPerScore(examQuesDto.getPerScore());
         return examAnswerBean;
     }
 
@@ -152,7 +154,7 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
      * @param choiceList
      * @return
      */
-    private Integer getScore(ExamQuesDto quesChoiceDto, List<ChoiceBean> choiceList) {
+    private Integer getScore(ExamQuesDto quesChoiceDto, List<QuesChoiceDto> choiceList) {
         if (choiceList == null || choiceList.isEmpty()) {
             return 0;
         }

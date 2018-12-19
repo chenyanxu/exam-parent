@@ -23,6 +23,7 @@ public class ExamAnswerBean extends PersistentEntity {
     private Integer titleNum;  // 标题号
     private Integer quesNum;  // 题序号
     private String title;  // 标题
+    private Integer perScore; // 每题分数
 
     public Long getExamId() {
         return examId;
@@ -134,5 +135,13 @@ public class ExamAnswerBean extends PersistentEntity {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public Integer getPerScore() {
+        return perScore;
+    }
+
+    public void setPerScore(Integer perScore) {
+        this.perScore = perScore;
     }
 }
