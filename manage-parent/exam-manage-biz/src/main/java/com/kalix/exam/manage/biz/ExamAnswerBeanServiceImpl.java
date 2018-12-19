@@ -1,7 +1,6 @@
 package com.kalix.exam.manage.biz;
 
 import com.kalix.enrolment.question.api.biz.IQuestionCommonBizService;
-import com.kalix.enrolment.question.entities.ChoiceBean;
 import com.kalix.exam.manage.api.biz.IExamAnswerBeanService;
 import com.kalix.exam.manage.api.dao.IExamAnswerBeanDao;
 import com.kalix.exam.manage.dto.ExamQuesDto;
@@ -158,7 +157,9 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
         if (choiceList == null || choiceList.isEmpty()) {
             return 0;
         }
-        boolean rightAnswer = choiceList.stream().anyMatch(e->(e.getId()==quesChoiceDto.getQuesid()&&e.getAnswer().equals(quesChoiceDto.getAnswer())));
+        QuesChoiceDto choiceDto = choiceList.stream().filter(e->e.getId().equals(quesChoiceDto.getQuesid())).findFirst().get();
+        boolean rightAnswer = choiceDto.getAnswer().trim().equals(quesChoiceDto.getAnswer().trim());
+
         if (rightAnswer) {
             return quesChoiceDto.getPerScore();
         }

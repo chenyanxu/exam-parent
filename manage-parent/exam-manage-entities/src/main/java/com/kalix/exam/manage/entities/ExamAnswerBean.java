@@ -18,7 +18,7 @@ public class ExamAnswerBean extends PersistentEntity {
     private Long userId;  // 考生Id
     private Integer score;  // 得分
     private String readoverState; // 批阅状态
-    private String readoverBy;  // 批阅人
+    private Long readoverBy;  // 批阅人
     private Date readoverOn;  // 批阅时间
     private Integer titleNum;  // 标题号
     private Integer quesNum;  // 题序号
@@ -97,11 +97,11 @@ public class ExamAnswerBean extends PersistentEntity {
         this.readoverState = readoverState;
     }
 
-    public String getReadoverBy() {
+    public Long getReadoverBy() {
         return readoverBy;
     }
 
-    public void setReadoverBy(String readoverBy) {
+    public void setReadoverBy(Long readoverBy) {
         this.readoverBy = readoverBy;
     }
 

@@ -13,9 +13,9 @@
         <rest path="/overreads" consumes="application/json;charset=utf-8" produces="application/json">
             <description>exam overreads rest service</description>
 
-            <get id="route-getAllOverreads" outType="com.kalix.framework.core.api.persistence.JsonData">
+            <get uri="/{subjectCode}" id="route-getAllOverreads" outType="com.kalix.framework.core.api.persistence.JsonData">
                 <description>Find all OverReads</description>
-                <to uri="bean:examOverReadService?method=getAllExamQuesBySubject(${header.subjectCode},${header.name})"/>
+                <to uri="bean:examOverReadService?method=getAllExamQuesBySubject(${header.jsonStr})"/>
             </get>
 
             <!-- this is a rest GET to find all subjects -->
@@ -25,26 +25,11 @@
             </get>
 
 
-            <!--<post uri="/examorguser" id="route-addExamOrgUser" type="com.kalix.exam.manage.dto.ExamOrgDto"-->
-                  <!--outType="com.kalix.framework.core.api.persistence.JsonStatus">-->
-                <!--<description>Add a Exam User</description>-->
-                <!--<to uri="bean:examExamineeBeanService?method=saveExaminee"/>-->
-            <!--</post>-->
-
-        </rest>
-
-        <rest path="/overreads/{id}" consumes="application/json;charset=utf-8" produces="application/json">
-            <!-- this is a rest GET to view a exam by the given id -->
-            <!--<get  id="route-getExam" outType="com.kalix.exam.manage.entities.ExamCreateBean">-->
-                <!--<description>Find Exam by id</description>-->
-                <!--<to uri="bean:examCreateBeanService?method=getEntity(${header.id})"/>-->
-            <!--</get>-->
-            <!--&lt;!&ndash; this is a rest PUT to update a exam &ndash;&gt;-->
-            <!--<put  id="route-updateExam" type="com.kalix.exam.manage.entities.ExamCreateBean"-->
-                 <!--outType="com.kalix.framework.core.api.persistence.JsonStatus">-->
-                <!--<description>Updates a Exam</description>-->
-                <!--<to uri="bean:examCreateBeanService?method=updateEntity"/>-->
-            <!--</put>-->
+            <post uri="/score" id="route-OverReadScore" type="com.kalix.exam.manage.dto.ExamOverReadDto"
+                  outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Over read score</description>
+                <to uri="bean:examOverReadService?method=overReadScore"/>
+            </post>
 
         </rest>
     </camelContext>

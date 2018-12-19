@@ -8,12 +8,14 @@ public class ExamOverReadDto extends BaseDTO {
     private Long paperId;
     private Long quesId;
     private String quesType;
-    private String perScore;
+    private Integer perScore;
+    private Integer score;
     private Long userId;
     private String name;
     private String subjectVal;
     private String stem;
     private String scoreStandard;
+    private Integer rowNumber;
 
     public String getAnswer() {
         return answer;
@@ -55,12 +57,20 @@ public class ExamOverReadDto extends BaseDTO {
         this.quesType = quesType;
     }
 
-    public String getPerScore() {
+    public Integer getPerScore() {
         return perScore;
     }
 
-    public void setPerScore(String perScore) {
+    public void setPerScore(Integer perScore) {
         this.perScore = perScore;
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    public void setScore(Integer score) {
+        this.score = score;
     }
 
     public Long getUserId() {
@@ -101,5 +111,13 @@ public class ExamOverReadDto extends BaseDTO {
 
     public void setScoreStandard(String scoreStandard) {
         this.scoreStandard = scoreStandard;
+    }
+
+    public Integer getRowNumber() {
+        return rowNumber;
+    }
+
+    public void setRowNumber(Integer rowNumber) {
+        this.rowNumber = rowNumber;
     }
 }

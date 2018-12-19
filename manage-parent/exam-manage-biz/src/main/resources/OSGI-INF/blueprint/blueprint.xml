@@ -41,8 +41,11 @@
     <service id="examOverReadService" interface="com.kalix.exam.manage.api.biz.IExamOverReadService" ref="examOverReadServiceImpl">
     </service>
 
+    <reference id="shiroService" interface="com.kalix.framework.core.api.security.IShiroService"/>
     <bean id="examOverReadServiceImpl" class="com.kalix.exam.manage.biz.ExamOverReadServiceImpl">
         <property name="dao" ref="examAnswerBeanDao"/>
+        <property name="examAnswerBeanService" ref="examAnswerBeanServiceImpl"/>
+        <property name="shiroService" ref="shiroService"/>
     </bean>
 </blueprint>
 
