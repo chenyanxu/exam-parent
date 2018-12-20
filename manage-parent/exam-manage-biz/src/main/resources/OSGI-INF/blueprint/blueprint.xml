@@ -35,6 +35,7 @@
     <bean id="examAnswerBeanServiceImpl" class="com.kalix.exam.manage.biz.ExamAnswerBeanServiceImpl">
         <property name="dao" ref="examAnswerBeanDao"/>
         <property name="questionCommonBizService" ref="questionCommonBizService"/>
+        <property name="examCreateBeanService" ref="examCreateBeanServiceImpl"/>
     </bean>
 
     <!--考试阅卷服务-->
@@ -45,7 +46,16 @@
     <bean id="examOverReadServiceImpl" class="com.kalix.exam.manage.biz.ExamOverReadServiceImpl">
         <property name="dao" ref="examAnswerBeanDao"/>
         <property name="examAnswerBeanService" ref="examAnswerBeanServiceImpl"/>
+        <property name="examExamineeBeanService" ref="examExamineeBeanServiceImpl"/>
         <property name="shiroService" ref="shiroService"/>
+    </bean>
+
+    <!--成绩查询服务-->
+    <service id="examScoreQueryService" interface="com.kalix.exam.manage.api.biz.IExamScoreQueryService" ref="examScoreQueryServiceImpl">
+    </service>
+
+    <bean id="examScoreQueryServiceImpl" class="com.kalix.exam.manage.biz.ExamScoreQueryServiceImpl">
+        <property name="examExamineeBeanService" ref="examExamineeBeanServiceImpl"/>
     </bean>
 </blueprint>
 

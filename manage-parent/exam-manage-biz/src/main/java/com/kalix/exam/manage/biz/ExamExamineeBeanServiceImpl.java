@@ -4,11 +4,12 @@ import com.kalix.admin.core.api.biz.IOrganizationBeanService;
 import com.kalix.admin.core.api.biz.IUserBeanService;
 import com.kalix.admin.core.dto.model.OrganizationDTO;
 import com.kalix.admin.core.entities.UserBean;
-import com.kalix.enrolment.question.api.biz.IQuestionCommonBizService;
 import com.kalix.exam.manage.api.biz.IExamCreateBeanService;
 import com.kalix.exam.manage.api.biz.IExamExamineeBeanService;
 import com.kalix.exam.manage.api.dao.IExamExamineeBeanDao;
+import com.kalix.exam.manage.dto.ExamExamineeDto;
 import com.kalix.exam.manage.dto.ExamOrgDto;
+import com.kalix.exam.manage.dto.ExamSubjectDto;
 import com.kalix.exam.manage.entities.ExamCreateBean;
 import com.kalix.exam.manage.entities.ExamExamineeBean;
 import com.kalix.framework.core.api.persistence.JsonData;
@@ -154,6 +155,36 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
         return jsonData;
     }
 
+    @Override
+    public void updateTotalScore(Long examId, Long userId, Integer totalScore) {
+        String sql = "update exam_examinee set totalScore=" + totalScore
+                + " where examId=" + examId + " and userId=" + userId + " and state='已考'";
+        dao.updateNativeQuery(sql);
+    }
+
+    @Override
+    public List<ExamExamineeDto> findExamineeByUser(String name, String subjectVal) {
+        Long userId = shiroService.getCurrentUserId();
+        String sql = "select a.userId,a.examId,a.totalScore,b.name,b.subject,b.subjectVal,b.paperId " +
+                "from exam_examinee a,exam_create b where a.examId=b.id and a.userId=" + userId +
+                " and a.state='已考'";
+        if (name != null && name.trim().length() > 0) {
+            sql += " and b.name like'%"+name+"%'";
+        }
+        if (subjectVal != null && subjectVal.trim().length() > 0) {
+            sql += " and b.subjectVal = '"+subjectVal+"'";
+        }
+        return dao.findByNativeSql(sql, ExamExamineeDto.class);
+    }
+
+    @Override
+    public List<ExamSubjectDto> getExamSubjects() {
+        Long userId = shiroService.getCurrentUserId();
+        String sql = "select b.subject as text,b.subjectVal as id" +
+                "from exam_examinee a,exam_create b where a.examId=b.id and a.userId=" + userId;
+        return dao.findByNativeSql(sql, ExamSubjectDto.class);
+    }
+
     private void updateDistributeStat(Long examId) {
         ExamCreateBean examCreateBean = examCreateBeanService.getEntity(examId);
         examCreateBean.setDistributeStat("已分配");
@@ -163,6 +194,4 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
     private List<Long> getOrgIdsByExamId(Long examId) {
         return dao.findByNativeSql("select orgid from exam_examinee where examid=?", Long.class, examId);
     }
-
-
 }

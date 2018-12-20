@@ -2,11 +2,13 @@ package com.kalix.exam.manage.biz;
 
 import com.kalix.enrolment.question.api.biz.IQuestionCommonBizService;
 import com.kalix.exam.manage.api.biz.IExamAnswerBeanService;
+import com.kalix.exam.manage.api.biz.IExamCreateBeanService;
 import com.kalix.exam.manage.api.dao.IExamAnswerBeanDao;
 import com.kalix.exam.manage.dto.ExamQuesDto;
 import com.kalix.exam.manage.dto.ExamingDto;
 import com.kalix.exam.manage.dto.QuesChoiceDto;
 import com.kalix.exam.manage.entities.ExamAnswerBean;
+import com.kalix.exam.manage.entities.ExamCreateBean;
 import com.kalix.framework.core.api.persistence.JsonStatus;
 import com.kalix.framework.core.impl.biz.ShiroGenericBizServiceImpl;
 
@@ -18,9 +20,14 @@ import java.util.stream.Collectors;
 
 public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamAnswerBeanDao, ExamAnswerBean> implements IExamAnswerBeanService {
     private IQuestionCommonBizService questionCommonBizService;
+    private IExamCreateBeanService examCreateBeanService;
 
     public void setQuestionCommonBizService(IQuestionCommonBizService questionCommonBizService) {
         this.questionCommonBizService = questionCommonBizService;
+    }
+
+    public void setExamCreateBeanService(IExamCreateBeanService examCreateBeanService) {
+        this.examCreateBeanService = examCreateBeanService;
     }
 
     @Override
@@ -43,30 +50,15 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
             }
 
             Long userId = shiroService.getCurrentUserId();
-            /**
-            List<Map<String, Object>> quesList = (List<Map<String, Object>>)paperInfo.get("quesList");
-            // 初始化学生考试数据
-            for (Map<String, Object> map : quesList) {
-                String title = (String)map.get("title");
-                Integer titleNum = (Integer)map.get("titleNum");
-                List<Map<String, Object>> question = (List<Map<String, Object>>)map.get("question");
-                for (int i = 0; i < question.size(); i++) {
-                    Integer quesNum = i+1;
-                    Map<String, Object> quesMap = question.get(i);
-                    Map<String, Object> paperBeanMap = (Map<String, Object>)quesMap.get("paperBean");
-                    Long quesId = (Long)paperBeanMap.get("quesid");
-                    String quesType = (String)paperBeanMap.get("quesType");
-                    String subType = (String)paperBeanMap.get("subType");
-                    ExamAnswerBean examAnswerBean = new ExamAnswerBean();
-                    examAnswerBean.setExamId(examId);
-
-                }
-            }
-             **/
+            ExamCreateBean examCreateBean = examCreateBeanService.getEntity(examId);
+            Integer duration = examCreateBean.getDuration();
+            Integer examMinTime = examCreateBean.getExamMinTime();
             // 更新参加考试的状态
             dao.updateNativeQuery("update exam_examinee set state='已考',starttime=current_timestamp where userid=" + userId + " and examid=" + examId);
             paperMap.put("paperId", paperId);
             paperMap.put("examId", examId);
+            paperMap.put("duration", duration);
+            paperMap.put("examMinTime", examMinTime);
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -99,6 +91,7 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
                 // 计算客观题得分
                 Integer score = getScore(quesChoiceDto, choiceList);
                 examAnswerBean.setScore(score);
+                examAnswerBean.setReadoverState("已批");
                 examAnswerBeanList.add(examAnswerBean);
             }
 
@@ -106,6 +99,7 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
             List<ExamQuesDto> quesSubjectList = quesList.stream().filter(q->(!"2".equals(q.getQuesType()))).collect(Collectors.toList());
             for (ExamQuesDto quesSubjectDto : quesSubjectList) {
                 ExamAnswerBean examAnswerBean = createExamAnswerInfo(examId, paperId, userId, quesSubjectDto);
+                examAnswerBean.setReadoverState("未批");
                 examAnswerBeanList.add(examAnswerBean);
             }
             dao.addBatch(examAnswerBeanList);
@@ -120,6 +114,13 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
         }
 
         return jsonStatus;
+    }
+
+    @Override
+    public List<ExamAnswerBean> getExamUserAnswer(Long examId, Long paperId, Long userId) {
+        String sql = "SELECT * FROM exam_answer " +
+                "WHERE examId = "+examId+" and paperId="+paperId+" and userId=" + userId;
+        return dao.findByNativeSql(sql, ExamAnswerBean.class);
     }
 
     /**
@@ -140,7 +141,6 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
         examAnswerBean.setQuesNum(examQuesDto.getQuesNum());
         examAnswerBean.setAnswer(examQuesDto.getAnswer());
         examAnswerBean.setUserId(userId);
-        examAnswerBean.setReadoverState("未批");
         examAnswerBean.setTitleNum(examQuesDto.getTitleNum());
         examAnswerBean.setTitle(examQuesDto.getTitle());
         examAnswerBean.setPerScore(examQuesDto.getPerScore());

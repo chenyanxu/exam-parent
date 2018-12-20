@@ -11,7 +11,6 @@ public interface IExamOverReadService extends IService {
      * @return
      */
     JsonData getAllSubjects();
-
     /**
      * 按科目查询批卷列表
      * @param jsonStr

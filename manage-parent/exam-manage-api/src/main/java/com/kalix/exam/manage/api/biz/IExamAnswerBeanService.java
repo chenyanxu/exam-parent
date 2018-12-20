@@ -5,6 +5,7 @@ import com.kalix.exam.manage.entities.ExamAnswerBean;
 import com.kalix.framework.core.api.biz.IBizService;
 import com.kalix.framework.core.api.persistence.JsonStatus;
 
+import java.util.List;
 import java.util.Map;
 
 public interface IExamAnswerBeanService extends IBizService<ExamAnswerBean> {
@@ -22,4 +23,13 @@ public interface IExamAnswerBeanService extends IBizService<ExamAnswerBean> {
      * @return
      */
     JsonStatus commitExaming(ExamingDto examingDto);
+
+    /**
+     * 获取考生一次考试的所有答题列表
+     * @param examId
+     * @param paperId
+     * @param userId
+     * @return
+     */
+    List<ExamAnswerBean> getExamUserAnswer(Long examId, Long paperId, Long userId);
 }

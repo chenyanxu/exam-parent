@@ -12,6 +12,7 @@ public class ExamCreateBean extends PersistentEntity {
     private String subject;  // 考试科目
     private String subjectVal; // 科目字典值
     private Integer duration; // 考试时长
+    private Integer examMinTime; // 答卷最少时间
     private String paperName; // 考卷名
     private Long paperId;  // 考卷Id
     private String distributeStat; // 考生分配状态
@@ -46,6 +47,14 @@ public class ExamCreateBean extends PersistentEntity {
 
     public void setDuration(Integer duration) {
         this.duration = duration;
+    }
+
+    public Integer getExamMinTime() {
+        return examMinTime;
+    }
+
+    public void setExamMinTime(Integer examMinTime) {
+        this.examMinTime = examMinTime;
     }
 
     public String getPaperName() {

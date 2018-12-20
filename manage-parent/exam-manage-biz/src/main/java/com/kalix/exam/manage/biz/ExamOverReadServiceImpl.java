@@ -1,6 +1,7 @@
 package com.kalix.exam.manage.biz;
 
 import com.kalix.exam.manage.api.biz.IExamAnswerBeanService;
+import com.kalix.exam.manage.api.biz.IExamExamineeBeanService;
 import com.kalix.exam.manage.api.biz.IExamOverReadService;
 import com.kalix.exam.manage.api.dao.IExamAnswerBeanDao;
 import com.kalix.exam.manage.dto.ExamOverReadDto;
@@ -19,6 +20,7 @@ import java.util.Map;
 public class ExamOverReadServiceImpl implements IExamOverReadService {
     private IExamAnswerBeanDao dao;
     private IExamAnswerBeanService examAnswerBeanService;
+    private IExamExamineeBeanService examExamineeBeanService;
     private IShiroService shiroService;
 
     public void setDao(IExamAnswerBeanDao dao) {
@@ -27,6 +29,10 @@ public class ExamOverReadServiceImpl implements IExamOverReadService {
 
     public void setExamAnswerBeanService(IExamAnswerBeanService examAnswerBeanService) {
         this.examAnswerBeanService = examAnswerBeanService;
+    }
+
+    public void setExamExamineeBeanService(IExamExamineeBeanService examExamineeBeanService) {
+        this.examExamineeBeanService = examExamineeBeanService;
     }
 
     public void setShiroService(IShiroService shiroService) {
@@ -84,12 +90,28 @@ public class ExamOverReadServiceImpl implements IExamOverReadService {
         try {
             Long userId = shiroService.getCurrentUserId();
             Long examAnswerId = examOverReadDto.getId();
+            // 更新批阅试题
             ExamAnswerBean examAnswerBean = examAnswerBeanService.getEntity(examAnswerId);
             examAnswerBean.setScore(examOverReadDto.getScore());
             examAnswerBean.setReadoverState("已批");
             examAnswerBean.setReadoverBy(userId);
             examAnswerBean.setReadoverOn(new Date());
             examAnswerBeanService.updateEntity(examAnswerBean);
+
+            // 查询试题列表所有批阅状态
+            Long examId = examOverReadDto.getExamId();
+            Long paperId = examOverReadDto.getPaperId();
+            Long studentId = examOverReadDto.getUserId();
+            List<ExamAnswerBean> examAnswerList = examAnswerBeanService.getExamUserAnswer(examId, paperId, studentId);
+            boolean isAllOverRead = examAnswerList.stream().allMatch(e->"已批".equals(e.getReadoverState()));
+            // 如果全是已批
+            if (isAllOverRead) {
+                // 计算总成绩
+                Integer totalScore = examAnswerList.stream().map(ExamAnswerBean::getScore).filter(s->s!=null).reduce(Integer::sum).get();
+                // 更新学生总成绩
+                examExamineeBeanService.updateTotalScore(examId, studentId, totalScore);
+            }
+
             jsonStatus.setMsg("提交成功");
             jsonStatus.setSuccess(true);
         } catch(Exception e) {
