@@ -22,6 +22,11 @@
                 <description>Find exam subjects</description>
                 <to uri="bean:examScoreQueryService?method=getExamSubjects()"/>
             </get>
+
+            <get uri="/paper" id="route-getExamPaper" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find exam paper</description>
+                <to uri="bean:examScoreQueryService?method=getExamPaper(${header.examId},${header.paperId})"/>
+            </get>
         </rest>
     </camelContext>
 </blueprint>

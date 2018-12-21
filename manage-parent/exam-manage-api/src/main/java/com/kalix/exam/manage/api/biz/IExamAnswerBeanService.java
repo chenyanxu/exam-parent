@@ -1,6 +1,7 @@
 package com.kalix.exam.manage.api.biz;
 
 import com.kalix.exam.manage.dto.ExamingDto;
+import com.kalix.exam.manage.dto.PaperQuesAnswerDto;
 import com.kalix.exam.manage.entities.ExamAnswerBean;
 import com.kalix.framework.core.api.biz.IBizService;
 import com.kalix.framework.core.api.persistence.JsonStatus;
@@ -32,4 +33,10 @@ public interface IExamAnswerBeanService extends IBizService<ExamAnswerBean> {
      * @return
      */
     List<ExamAnswerBean> getExamUserAnswer(Long examId, Long paperId, Long userId);
+
+    /**
+     * 获取考卷题列表及考试成绩
+     * @return
+     */
+    List<PaperQuesAnswerDto> getPaperQuesAnswerList(Long examId, Long paperId);
 }

@@ -180,8 +180,8 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
     @Override
     public List<ExamSubjectDto> getExamSubjects() {
         Long userId = shiroService.getCurrentUserId();
-        String sql = "select b.subject as text,b.subjectVal as id" +
-                "from exam_examinee a,exam_create b where a.examId=b.id and a.userId=" + userId;
+        String sql = "select distinct b.subject as text,b.subjectVal as id" +
+                " from exam_examinee a,exam_create b where a.examId=b.id and a.userId=" + userId;
         return dao.findByNativeSql(sql, ExamSubjectDto.class);
     }
 

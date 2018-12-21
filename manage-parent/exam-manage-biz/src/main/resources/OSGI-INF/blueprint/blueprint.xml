@@ -56,6 +56,7 @@
 
     <bean id="examScoreQueryServiceImpl" class="com.kalix.exam.manage.biz.ExamScoreQueryServiceImpl">
         <property name="examExamineeBeanService" ref="examExamineeBeanServiceImpl"/>
+        <property name="examAnswerBeanService" ref="examAnswerBeanServiceImpl"/>
     </bean>
 </blueprint>
 

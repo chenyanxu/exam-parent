@@ -14,7 +14,7 @@ public class ExamAnswerBean extends PersistentEntity {
     private Long quesId;  // 考题Id
     private String quesType;  // 考题类型
     private String subType;  // 考题子类型
-    private String answer;  // 考题答案
+    private String answer;  // 考生答案
     private Long userId;  // 考生Id
     private Integer score;  // 得分
     private String readoverState; // 批阅状态

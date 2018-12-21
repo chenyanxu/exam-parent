@@ -6,6 +6,7 @@ import com.kalix.exam.manage.api.biz.IExamCreateBeanService;
 import com.kalix.exam.manage.api.dao.IExamAnswerBeanDao;
 import com.kalix.exam.manage.dto.ExamQuesDto;
 import com.kalix.exam.manage.dto.ExamingDto;
+import com.kalix.exam.manage.dto.PaperQuesAnswerDto;
 import com.kalix.exam.manage.dto.QuesChoiceDto;
 import com.kalix.exam.manage.entities.ExamAnswerBean;
 import com.kalix.exam.manage.entities.ExamCreateBean;
@@ -123,6 +124,23 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
         return dao.findByNativeSql(sql, ExamAnswerBean.class);
     }
 
+    @Override
+    public List<PaperQuesAnswerDto> getPaperQuesAnswerList(Long examId, Long paperId) {
+        Long userId = shiroService.getCurrentUserId();
+        String sql = "select a.answer,a.questype,a.score,a.title,a.titlenum,a.quesnum,"+
+                "b.stem,b.answer as quesanswer,b.answera,b.answerb,b.answerc,b.answerd,b.answere,b.answerf,c.subject,d.totalscore"+
+                " from exam_answer a,enrolment_question_choice b,exam_create c,exam_examinee d"+
+                " where a.quesid= b.id and a.examid=c.id and a.examid=d.examid and a.userid=d.userid and a.paperid=c.paperid"+
+                " and d.state='已考' and a.questype='2' and a.userid="+userId+" and a.paperid="+paperId+" and a.examid="+examId +
+                " UNION all " +
+                "select a.answer,a.questype,a.score,a.title,a.titlenum,a.quesnum,"+
+                "b.stem,'','','','','','','',c.subject,d.totalscore"+
+                " from exam_answer a,enrolment_question_subject b,exam_create c,exam_examinee d" +
+                " where a.quesid= b.id and a.examid=c.id and a.examid=d.examid and a.userid=d.userid and a.paperid=c.paperid"+
+                " and d.state='已考' and a.questype='5' and a.userid="+userId+" and a.paperid="+paperId+" and a.examid="+examId;
+        return dao.findByNativeSql(sql, PaperQuesAnswerDto.class);
+    }
+
     /**
      * 设置学生考试的提交信息
      * @param examId
@@ -154,8 +172,8 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
      * @return
      */
     private Integer getScore(ExamQuesDto quesChoiceDto, List<QuesChoiceDto> choiceList) {
-        if (choiceList == null || choiceList.isEmpty()) {
-            return 0;
+        if (choiceList == null && choiceList.size() == 0) {
+            return null;
         }
         QuesChoiceDto choiceDto = choiceList.stream().filter(e->e.getId().equals(quesChoiceDto.getQuesid())).findFirst().get();
         boolean rightAnswer = choiceDto.getAnswer().trim().equals(quesChoiceDto.getAnswer().trim());
