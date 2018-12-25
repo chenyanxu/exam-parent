@@ -24,4 +24,19 @@ public interface IExamOverReadService extends IService {
      * @return
      */
     JsonStatus overReadScore(ExamOverReadDto examOverReadDto);
+
+    /**
+     * 统计阅卷总数
+     * @param jsonStr
+     * @return
+     */
+    JsonData overReadPaperStatistic(String jsonStr);
+
+    /**
+     * 按科目查评分历史
+     * @param jsonStr
+     * @return
+     */
+    public JsonData getOverReadQuesBySubject(String jsonStr);
+
 }

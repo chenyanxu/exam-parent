@@ -24,6 +24,15 @@
                 <to uri="bean:examOverReadService?method=getAllSubjects()"/>
             </get>
 
+            <get uri="/statistic" id="route-getStatistic" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find all Statistic</description>
+                <to uri="bean:examOverReadService?method=overReadPaperStatistic(${header.jsonStr})"/>
+            </get>
+
+            <get uri="/subject/{subject}" id="route-getOverReadHisBySubject" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find all Statistic</description>
+                <to uri="bean:examOverReadService?method=getOverReadQuesBySubject(${header.jsonStr})"/>
+            </get>
 
             <post uri="/score" id="route-OverReadScore" type="com.kalix.exam.manage.dto.ExamOverReadDto"
                   outType="com.kalix.framework.core.api.persistence.JsonStatus">

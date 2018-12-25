@@ -13,6 +13,7 @@ public class ExamOverReadDto extends BaseDTO {
     private Long userId;
     private String name;
     private String subjectVal;
+    private String subject;
     private String stem;
     private String scoreStandard;
     private Integer rowNumber;
@@ -95,6 +96,14 @@ public class ExamOverReadDto extends BaseDTO {
 
     public void setSubjectVal(String subjectVal) {
         this.subjectVal = subjectVal;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
     public String getStem() {
