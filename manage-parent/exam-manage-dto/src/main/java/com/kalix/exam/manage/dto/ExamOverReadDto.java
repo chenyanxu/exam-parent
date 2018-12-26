@@ -11,6 +11,7 @@ public class ExamOverReadDto extends BaseDTO {
     private Integer perScore;
     private Integer score;
     private Long userId;
+    private String userName;
     private String name;
     private String subjectVal;
     private String subject;
@@ -80,6 +81,14 @@ public class ExamOverReadDto extends BaseDTO {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getName() {

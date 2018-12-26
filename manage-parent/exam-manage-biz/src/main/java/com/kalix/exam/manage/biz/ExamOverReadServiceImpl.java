@@ -55,10 +55,10 @@ public class ExamOverReadServiceImpl implements IExamOverReadService {
         Map<String, String> jsonMap = SerializeUtil.json2Map(jsonStr);
         String subjectCode = jsonMap.get("subjectCode");
         String name = jsonMap.get("%name%");
-        String sql = "select a.id,a.answer,a.examId,a.paperId,a.quesId,a.quesType,a.perScore,a.score,a.userId," +
+        String sql = "select a.id,a.answer,a.examId,a.paperId,a.quesId,a.quesType,a.perScore,a.score,a.userId,d.name as userName," +
                 "b.name,b.subjectVal,c.stem,c.scoreStandard " +
-                "from exam_answer a,exam_create b,enrolment_question_subject c " +
-                "where a.examId = b.id and a.quesId=c.id " +
+                "from exam_answer a,exam_create b,enrolment_question_subject c,sys_user d " +
+                "where a.examId = b.id and a.quesId=c.id and a.userId=d.id " +
                 "and a.readOverState='未批' and a.quesType='5'" +
                 " and b.subjectVal='"+subjectCode+"'";
         if (name != null && name.trim().length() > 0) {
@@ -211,11 +211,11 @@ public class ExamOverReadServiceImpl implements IExamOverReadService {
         String startDate = jsonMap.get("dateBegin");
         String endDate = jsonMap.get("dateEnd");
 
-        String sql = "select a.answer,a.perScore,a.score,a.userId," +
+        String sql = "select a.answer,a.perScore,a.score,a.userId,d.name as userName," +
                 "b.name,b.subject,c.stem,c.scoreStandard " +
-                "from exam_answer a,exam_create b,enrolment_question_subject c " +
-                "where a.examId = b.id and a.quesId=c.id " +
-                "and a.readOverState='已批' and a.quesType='5'" +
+                " from exam_answer a,exam_create b,enrolment_question_subject c,sys_user d " +
+                " where a.examId = b.id and a.quesId=c.id and a.userId=d.id " +
+                " and a.readOverState='已批' and a.quesType='5'" +
                 " and b.subject='"+subject+"'";
         if (startDate != null && startDate.trim().length() > 0) {
             sql += " and a.readoveron >= to_date('"+startDate+"','YYYY-MM-DD')";
