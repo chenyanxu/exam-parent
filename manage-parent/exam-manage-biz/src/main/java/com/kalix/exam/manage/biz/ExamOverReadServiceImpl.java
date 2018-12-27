@@ -54,6 +54,9 @@ public class ExamOverReadServiceImpl implements IExamOverReadService {
     public JsonData getAllExamQuesBySubject(String jsonStr) {
         Map<String, String> jsonMap = SerializeUtil.json2Map(jsonStr);
         String subjectCode = jsonMap.get("subjectCode");
+        if (subjectCode == null || "".equals(subjectCode.trim())) {
+            subjectCode = jsonMap.get("%subjectCode%");
+        }
         String name = jsonMap.get("%name%");
         String sql = "select a.id,a.answer,a.examId,a.paperId,a.quesId,a.quesType,a.perScore,a.score,a.userId,d.name as userName," +
                 "b.name,b.subjectVal,c.stem,c.scoreStandard " +

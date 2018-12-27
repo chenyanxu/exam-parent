@@ -1,8 +1,10 @@
 package com.kalix.exam.manage.biz;
 
+import com.kalix.exam.manage.api.biz.IExamAnswerBeanService;
 import com.kalix.exam.manage.api.biz.IExamExamineeBeanService;
 import com.kalix.exam.manage.api.biz.IExamMaterialService;
 import com.kalix.exam.manage.dto.ExamExamineeDto;
+import com.kalix.exam.manage.dto.ExamQuesAttachmentDto;
 import com.kalix.framework.core.api.persistence.JsonData;
 import com.kalix.framework.core.util.SerializeUtil;
 
@@ -10,19 +12,25 @@ import java.util.List;
 import java.util.Map;
 
 public class ExamMaterialServiceImpl implements IExamMaterialService {
-    private IExamExamineeBeanService examExamineeBeanService;
+    private IExamAnswerBeanService examAnswerBeanService;
 
-    public void setExamExamineeBeanService(IExamExamineeBeanService examExamineeBeanService) {
-        this.examExamineeBeanService = examExamineeBeanService;
+    public void setExamAnswerBeanService(IExamAnswerBeanService examAnswerBeanService) {
+        this.examAnswerBeanService = examAnswerBeanService;
     }
+//    private IExamExamineeBeanService examExamineeBeanService;
+//
+//    public void setExamExamineeBeanService(IExamExamineeBeanService examExamineeBeanService) {
+//        this.examExamineeBeanService = examExamineeBeanService;
+//    }
 
     @Override
     public JsonData getExamMaterialCounts(String jsonStr) {
         Map<String, String> jsonMap = SerializeUtil.json2Map(jsonStr);
         String subjectCode = jsonMap.get("id");
         String name = jsonMap.get("%name%");
-        List<ExamExamineeDto> examExamineeList = examExamineeBeanService.getExamMaterial(name, subjectCode);
-        return getResult(examExamineeList);
+//        List<ExamExamineeDto> examExamineeList = examExamineeBeanService.getExamMaterial(name, subjectCode);
+        List<ExamQuesAttachmentDto> examQuesAttachmentList = examAnswerBeanService.getQuesAnswerMaterial(name, subjectCode);
+        return getResult(examQuesAttachmentList);
     }
 
     private JsonData getResult(List<?> list) {

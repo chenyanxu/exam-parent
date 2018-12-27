@@ -4,10 +4,7 @@ import com.kalix.enrolment.question.api.biz.IQuestionCommonBizService;
 import com.kalix.exam.manage.api.biz.IExamAnswerBeanService;
 import com.kalix.exam.manage.api.biz.IExamCreateBeanService;
 import com.kalix.exam.manage.api.dao.IExamAnswerBeanDao;
-import com.kalix.exam.manage.dto.ExamQuesDto;
-import com.kalix.exam.manage.dto.ExamingDto;
-import com.kalix.exam.manage.dto.PaperQuesAnswerDto;
-import com.kalix.exam.manage.dto.QuesChoiceDto;
+import com.kalix.exam.manage.dto.*;
 import com.kalix.exam.manage.entities.ExamAnswerBean;
 import com.kalix.exam.manage.entities.ExamCreateBean;
 import com.kalix.framework.core.api.persistence.JsonStatus;
@@ -139,6 +136,26 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
                 " where a.quesid= b.id and a.examid=c.id and a.examid=d.examid and a.userid=d.userid and a.paperid=c.paperid"+
                 " and d.state='已考' and a.questype='5' and a.userid="+userId+" and a.paperid="+paperId+" and a.examid="+examId;
         return dao.findByNativeSql(sql, PaperQuesAnswerDto.class);
+    }
+
+    @Override
+    public List<ExamQuesAttachmentDto> getQuesAnswerMaterial(String name, String subjectVal) {
+        Long userId = shiroService.getCurrentUserId();
+        String sql = "select a.id,a.userId,a.examId,a.quesid,b.name,b.subject,c.stem,count(d.attachmentname) as attachmentCount " +
+                " from exam_answer a " +
+                " INNER JOIN exam_create b on a.examId=b.id " +
+                " INNER JOIN enrolment_question_subject c on a.quesid=c.id " +
+                " left JOIN middleware_attachment d on d.mainid=a.id " +
+                " where a.userId=" + userId +
+                " and a.readoverstate='未批' ";
+        if (name != null && name.trim().length() > 0) {
+            sql += " and b.name like'%"+name+"%'";
+        }
+        if (subjectVal != null && subjectVal.trim().length() > 0) {
+            sql += " and b.subjectVal = '"+subjectVal+"'";
+        }
+        sql += " group by a.id,a.userId,a.examId,a.quesid,b.name,b.subject,c.stem";
+        return dao.findByNativeSql(sql, ExamQuesAttachmentDto.class);
     }
 
     /**

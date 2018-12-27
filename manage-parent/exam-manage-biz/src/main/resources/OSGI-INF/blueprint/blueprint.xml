@@ -55,7 +55,8 @@
     </service>
 
     <bean id="examMaterialServiceImpl" class="com.kalix.exam.manage.biz.ExamMaterialServiceImpl">
-        <property name="examExamineeBeanService" ref="examExamineeBeanServiceImpl"/>
+        <!--<property name="examExamineeBeanService" ref="examExamineeBeanServiceImpl"/>-->
+        <property name="examAnswerBeanService" ref="examAnswerBeanServiceImpl"/>
     </bean>
 
     <!--成绩查询服务-->

@@ -1,5 +1,6 @@
 package com.kalix.exam.manage.api.biz;
 
+import com.kalix.exam.manage.dto.ExamQuesAttachmentDto;
 import com.kalix.exam.manage.dto.ExamingDto;
 import com.kalix.exam.manage.dto.PaperQuesAnswerDto;
 import com.kalix.exam.manage.entities.ExamAnswerBean;
@@ -39,4 +40,12 @@ public interface IExamAnswerBeanService extends IBizService<ExamAnswerBean> {
      * @return
      */
     List<PaperQuesAnswerDto> getPaperQuesAnswerList(Long examId, Long paperId);
+
+    /**
+     * 获取考题素材上传列表
+     * @param name
+     * @param subjectVal
+     * @return
+     */
+    List<ExamQuesAttachmentDto> getQuesAnswerMaterial(String name, String subjectVal);
 }
