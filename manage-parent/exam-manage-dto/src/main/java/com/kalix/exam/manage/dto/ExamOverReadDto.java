@@ -4,6 +4,7 @@ import com.kalix.framework.core.api.web.model.BaseDTO;
 
 public class ExamOverReadDto extends BaseDTO {
     private String answer;
+    private String answerPicPath; // 考生答案图片路径
     private Long examId;
     private Long paperId;
     private Long quesId;
@@ -25,6 +26,14 @@ public class ExamOverReadDto extends BaseDTO {
 
     public void setAnswer(String answer) {
         this.answer = answer;
+    }
+
+    public String getAnswerPicPath() {
+        return answerPicPath;
+    }
+
+    public void setAnswerPicPath(String answerPicPath) {
+        this.answerPicPath = answerPicPath;
     }
 
     public Long getExamId() {

@@ -77,28 +77,31 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
             Long paperId = examingDto.getPaperId();
             List<ExamQuesDto> quesList = examingDto.getQuesList();
             Long userId = shiroService.getCurrentUserId();
+            List<ExamAnswerBean> examAnswerBeanList = new ArrayList<>();
             // 选择题类型是2
             List<ExamQuesDto> quesChoiceList = quesList.stream().filter(q->"2".equals(q.getQuesType())).collect(Collectors.toList());
-            List<String> quesIds = quesChoiceList.stream().map(qc->String.valueOf(qc.getQuesid())).collect(Collectors.toList());
-            String qIds = String.join(",", quesIds);
-            List<QuesChoiceDto> choiceList =  dao.findByNativeSql("select id,answer from enrolment_question_choice where id in ("+qIds+")", QuesChoiceDto.class);
+            if (quesChoiceList != null && quesChoiceList.size() > 0) {
+                List<String> quesIds = quesChoiceList.stream().map(qc -> String.valueOf(qc.getQuesid())).collect(Collectors.toList());
+                String qIds = String.join(",", quesIds);
+                List<QuesChoiceDto> choiceList = dao.findByNativeSql("select id,answer from enrolment_question_choice where id in (" + qIds + ")", QuesChoiceDto.class);
 
-            List<ExamAnswerBean> examAnswerBeanList = new ArrayList<>();
-            for (ExamQuesDto quesChoiceDto : quesChoiceList) {
-                ExamAnswerBean examAnswerBean = createExamAnswerInfo(examId, paperId, userId, quesChoiceDto);
-                // 计算客观题得分
-                Integer score = getScore(quesChoiceDto, choiceList);
-                examAnswerBean.setScore(score);
-                examAnswerBean.setReadoverState("已批");
-                examAnswerBeanList.add(examAnswerBean);
+                for (ExamQuesDto quesChoiceDto : quesChoiceList) {
+                    ExamAnswerBean examAnswerBean = createExamAnswerInfo(examId, paperId, userId, quesChoiceDto);
+                    // 计算客观题得分
+                    Integer score = getScore(quesChoiceDto, choiceList);
+                    examAnswerBean.setScore(score);
+                    examAnswerBean.setReadoverState("已批");
+                    examAnswerBeanList.add(examAnswerBean);
+                }
             }
-
             // 主观题处理
-            List<ExamQuesDto> quesSubjectList = quesList.stream().filter(q->(!"2".equals(q.getQuesType()))).collect(Collectors.toList());
-            for (ExamQuesDto quesSubjectDto : quesSubjectList) {
-                ExamAnswerBean examAnswerBean = createExamAnswerInfo(examId, paperId, userId, quesSubjectDto);
-                examAnswerBean.setReadoverState("未批");
-                examAnswerBeanList.add(examAnswerBean);
+            List<ExamQuesDto> quesSubjectList = quesList.stream().filter(q->("5".equals(q.getQuesType()))).collect(Collectors.toList());
+            if (quesSubjectList != null && quesSubjectList.size() > 0) {
+                for (ExamQuesDto quesSubjectDto : quesSubjectList) {
+                    ExamAnswerBean examAnswerBean = createExamAnswerInfo(examId, paperId, userId, quesSubjectDto);
+                    examAnswerBean.setReadoverState("未批");
+                    examAnswerBeanList.add(examAnswerBean);
+                }
             }
             dao.addBatch(examAnswerBeanList);
             // 设置考试状态表
@@ -124,13 +127,13 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
     @Override
     public List<PaperQuesAnswerDto> getPaperQuesAnswerList(Long examId, Long paperId) {
         Long userId = shiroService.getCurrentUserId();
-        String sql = "select a.answer,a.questype,a.score,a.title,a.titlenum,a.quesnum,"+
+        String sql = "select a.answer,a.answerPicPath,a.questype,a.score,a.title,a.titlenum,a.quesnum,"+
                 "b.stem,b.answer as quesanswer,b.answera,b.answerb,b.answerc,b.answerd,b.answere,b.answerf,c.subject,d.totalscore"+
                 " from exam_answer a,enrolment_question_choice b,exam_create c,exam_examinee d"+
                 " where a.quesid= b.id and a.examid=c.id and a.examid=d.examid and a.userid=d.userid and a.paperid=c.paperid"+
                 " and d.state='已考' and a.questype='2' and a.userid="+userId+" and a.paperid="+paperId+" and a.examid="+examId +
                 " UNION all " +
-                "select a.answer,a.questype,a.score,a.title,a.titlenum,a.quesnum,"+
+                "select a.answer,a.answerPicPath,a.questype,a.score,a.title,a.titlenum,a.quesnum,"+
                 "b.stem,'','','','','','','',c.subject,d.totalscore"+
                 " from exam_answer a,enrolment_question_subject b,exam_create c,exam_examinee d" +
                 " where a.quesid= b.id and a.examid=c.id and a.examid=d.examid and a.userid=d.userid and a.paperid=c.paperid"+
@@ -175,6 +178,7 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
         examAnswerBean.setSubType(examQuesDto.getSubType());
         examAnswerBean.setQuesNum(examQuesDto.getQuesNum());
         examAnswerBean.setAnswer(examQuesDto.getAnswer());
+        examAnswerBean.setAnswerPicPath(examQuesDto.getAnswerPicPath());
         examAnswerBean.setUserId(userId);
         examAnswerBean.setTitleNum(examQuesDto.getTitleNum());
         examAnswerBean.setTitle(examQuesDto.getTitle());

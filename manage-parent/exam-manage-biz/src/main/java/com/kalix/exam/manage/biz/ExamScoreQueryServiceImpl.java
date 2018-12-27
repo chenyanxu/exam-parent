@@ -68,6 +68,7 @@ public class ExamScoreQueryServiceImpl implements IExamScoreQueryService {
                         paperQuesInfoDto.setQuesNum(p.getQuesNum());
                         paperQuesInfoDto.setStem(p.getStem());
                         paperQuesInfoDto.setAnswer(p.getAnswer());
+                        paperQuesInfoDto.setAnswerPicPath(p.getAnswerPicPath());
                         paperQuesInfoDto.setQuesAnswer(p.getQuesAnswer());
                         paperQuesInfoDto.setAnswerA(p.getAnswerA());
                         paperQuesInfoDto.setAnswerB(p.getAnswerB());

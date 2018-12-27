@@ -13,6 +13,7 @@ public class PaperQuesInfoDto extends BaseDTO {
     private String answerF;
     private String quesAnswer; // 正确答案
     private String answer; // 考生答案
+    private String answerPicPath; // 考生答案图片路径
     private Integer score; // 得分
 
     public Integer getQuesNum() {
@@ -93,6 +94,14 @@ public class PaperQuesInfoDto extends BaseDTO {
 
     public void setAnswer(String answer) {
         this.answer = answer;
+    }
+
+    public String getAnswerPicPath() {
+        return answerPicPath;
+    }
+
+    public void setAnswerPicPath(String answerPicPath) {
+        this.answerPicPath = answerPicPath;
     }
 
     public Integer getScore() {

@@ -15,6 +15,7 @@ public class ExamAnswerBean extends PersistentEntity {
     private String quesType;  // 考题类型
     private String subType;  // 考题子类型
     private String answer;  // 考生答案
+    private String answerPicPath; // 考生答案图片
     private Long userId;  // 考生Id
     private Integer score;  // 得分
     private String readoverState; // 批阅状态
@@ -71,6 +72,14 @@ public class ExamAnswerBean extends PersistentEntity {
 
     public void setAnswer(String answer) {
         this.answer = answer;
+    }
+
+    public String getAnswerPicPath() {
+        return answerPicPath;
+    }
+
+    public void setAnswerPicPath(String answerPicPath) {
+        this.answerPicPath = answerPicPath;
     }
 
     public Long getUserId() {

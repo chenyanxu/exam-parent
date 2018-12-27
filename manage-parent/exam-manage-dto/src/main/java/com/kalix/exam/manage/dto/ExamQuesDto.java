@@ -19,6 +19,8 @@ public class ExamQuesDto extends BaseDTO {
     private String subType;
     // 考题答案
     private String answer;
+    // 考题答案图片路径
+    private String answerPicPath;
 
     public String getTitle() {
         return title;
@@ -82,5 +84,13 @@ public class ExamQuesDto extends BaseDTO {
 
     public void setAnswer(String answer) {
         this.answer = answer;
+    }
+
+    public String getAnswerPicPath() {
+        return answerPicPath;
+    }
+
+    public void setAnswerPicPath(String answerPicPath) {
+        this.answerPicPath = answerPicPath;
     }
 }

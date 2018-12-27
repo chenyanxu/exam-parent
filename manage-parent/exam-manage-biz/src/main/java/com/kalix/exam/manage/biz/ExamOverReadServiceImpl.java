@@ -58,7 +58,7 @@ public class ExamOverReadServiceImpl implements IExamOverReadService {
             subjectCode = jsonMap.get("%subjectCode%");
         }
         String name = jsonMap.get("%name%");
-        String sql = "select a.id,a.answer,a.examId,a.paperId,a.quesId,a.quesType,a.perScore,a.score,a.userId,d.name as userName," +
+        String sql = "select a.id,a.answer,a.answerPicPath,a.examId,a.paperId,a.quesId,a.quesType,a.perScore,a.score,a.userId,d.name as userName," +
                 "b.name,b.subjectVal,c.stem,c.scoreStandard " +
                 "from exam_answer a,exam_create b,enrolment_question_subject c,sys_user d " +
                 "where a.examId = b.id and a.quesId=c.id and a.userId=d.id " +
@@ -214,7 +214,7 @@ public class ExamOverReadServiceImpl implements IExamOverReadService {
         String startDate = jsonMap.get("dateBegin");
         String endDate = jsonMap.get("dateEnd");
 
-        String sql = "select a.answer,a.perScore,a.score,a.userId,d.name as userName," +
+        String sql = "select a.answer,a.answerPicPath,a.perScore,a.score,a.userId,d.name as userName," +
                 "b.name,b.subject,c.stem,c.scoreStandard " +
                 " from exam_answer a,exam_create b,enrolment_question_subject c,sys_user d " +
                 " where a.examId = b.id and a.quesId=c.id and a.userId=d.id " +

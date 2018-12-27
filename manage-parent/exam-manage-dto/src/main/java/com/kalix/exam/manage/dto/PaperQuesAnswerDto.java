@@ -4,6 +4,7 @@ import com.kalix.framework.core.api.web.model.BaseDTO;
 
 public class PaperQuesAnswerDto extends BaseDTO {
     private String answer; // 考生答案
+    private String answerPicPath; // 考生答案图片路径
     private String quesType; // 考题类型
     private Integer score;  // 得分
     private String title; // 考题标题
@@ -26,6 +27,14 @@ public class PaperQuesAnswerDto extends BaseDTO {
 
     public void setAnswer(String answer) {
         this.answer = answer;
+    }
+
+    public String getAnswerPicPath() {
+        return answerPicPath;
+    }
+
+    public void setAnswerPicPath(String answerPicPath) {
+        this.answerPicPath = answerPicPath;
     }
 
     public String getQuesType() {
