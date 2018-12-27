@@ -1,6 +1,9 @@
 package com.kalix.exam.manage.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.kalix.framework.core.api.web.model.BaseDTO;
+
+import java.util.Date;
 
 public class ExamExamineeDto extends BaseDTO {
     private String name; // 考试名
@@ -10,6 +13,8 @@ public class ExamExamineeDto extends BaseDTO {
     private Long userId; // 考生Id
     private Long examId; // 考试Id
     private Integer totalScore; // 考试成绩
+    private Date startTime; // 考试时间
+    private Integer attachmentCount; // 上传附件数
 
     public String getName() {
         return name;
@@ -65,5 +70,22 @@ public class ExamExamineeDto extends BaseDTO {
 
     public void setTotalScore(Integer totalScore) {
         this.totalScore = totalScore;
+    }
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public Integer getAttachmentCount() {
+        return attachmentCount;
+    }
+
+    public void setAttachmentCount(Integer attachmentCount) {
+        this.attachmentCount = attachmentCount;
     }
 }

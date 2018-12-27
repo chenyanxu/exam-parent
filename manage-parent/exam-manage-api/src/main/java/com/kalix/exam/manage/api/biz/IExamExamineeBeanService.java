@@ -52,4 +52,12 @@ public interface IExamExamineeBeanService extends IBizService<ExamExamineeBean> 
      */
     List<ExamSubjectDto> getExamSubjects();
 
+    /**
+     * 获取考试素材上传列表
+     * @param name
+     * @param subjectVal
+     * @return
+     */
+    List<ExamExamineeDto> getExamMaterial(String name, String subjectVal);
+
 }

@@ -165,7 +165,7 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
     @Override
     public List<ExamExamineeDto> findExamineeByUser(String name, String subjectVal) {
         Long userId = shiroService.getCurrentUserId();
-        String sql = "select a.userId,a.examId,a.totalScore,b.name,b.subject,b.subjectVal,b.paperId " +
+        String sql = "select a.userId,a.examId,a.totalScore,a.startTime,b.name,b.subject,b.subjectVal,b.paperId " +
                 "from exam_examinee a,exam_create b where a.examId=b.id and a.userId=" + userId +
                 " and a.state='已考'";
         if (name != null && name.trim().length() > 0) {
@@ -183,6 +183,23 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
         String sql = "select distinct b.subject as text,b.subjectVal as id" +
                 " from exam_examinee a,exam_create b where a.examId=b.id and a.userId=" + userId;
         return dao.findByNativeSql(sql, ExamSubjectDto.class);
+    }
+
+    @Override
+    public List<ExamExamineeDto> getExamMaterial(String name, String subjectVal) {
+        Long userId = shiroService.getCurrentUserId();
+        String sql = "select a.id,a.userId,a.examId,a.starttime,b.name,b.subject,b.paperId,count(c.attachmentname) as attachmentCount " +
+                " from exam_examinee a INNER JOIN exam_create b on a.examId=b.id " +
+                " left JOIN middleware_attachment c on c.mainid=a.id " +
+                " where a.state='已考' and a.userId="+userId;
+        if (name != null && name.trim().length() > 0) {
+            sql += " and b.name like'%"+name+"%'";
+        }
+        if (subjectVal != null && subjectVal.trim().length() > 0) {
+            sql += " and b.subjectVal = '"+subjectVal+"'";
+        }
+        sql += " GROUP BY a.id,a.userId,a.examId,a.starttime,b.name,b.subject,b.paperId";
+        return dao.findByNativeSql(sql, ExamExamineeDto.class);
     }
 
     private void updateDistributeStat(Long examId) {

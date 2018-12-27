@@ -50,6 +50,14 @@
         <property name="shiroService" ref="shiroService"/>
     </bean>
 
+    <!--考试素材上传列表服务-->
+    <service id="examMaterialService" interface="com.kalix.exam.manage.api.biz.IExamMaterialService" ref="examMaterialServiceImpl">
+    </service>
+
+    <bean id="examMaterialServiceImpl" class="com.kalix.exam.manage.biz.ExamMaterialServiceImpl">
+        <property name="examExamineeBeanService" ref="examExamineeBeanServiceImpl"/>
+    </bean>
+
     <!--成绩查询服务-->
     <service id="examScoreQueryService" interface="com.kalix.exam.manage.api.biz.IExamScoreQueryService" ref="examScoreQueryServiceImpl">
     </service>

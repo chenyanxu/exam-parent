@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+    <reference id="examMaterialService" interface="com.kalix.exam.manage.api.biz.IExamMaterialService"/>
+    <camelContext id="examMaterialCamel" xmlns="http://camel.apache.org/schema/blueprint">
+        <restConfiguration component="servlet" bindingMode="json">
+            <dataFormatProperty key="prettyPrint" value="${rest.pretty}"/>
+        </restConfiguration>
+
+        <!-- defines the rest services using the context-path /exammaterials -->
+        <rest path="/exammaterials" consumes="application/json;charset=utf-8" produces="application/json">
+            <description>exam exammaterials rest service</description>
+
+            <get id="route-getAllExammaterials" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find all Exam Materials</description>
+                <to uri="bean:examMaterialService?method=getExamMaterialCounts(${header.jsonStr})"/>
+            </get>
+
+        </rest>
+    </camelContext>
+</blueprint>
