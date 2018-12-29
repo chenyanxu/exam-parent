@@ -5,6 +5,7 @@ import com.kalix.exam.manage.dto.ExamingDto;
 import com.kalix.exam.manage.dto.PaperQuesAnswerDto;
 import com.kalix.exam.manage.entities.ExamAnswerBean;
 import com.kalix.framework.core.api.biz.IBizService;
+import com.kalix.framework.core.api.persistence.JsonData;
 import com.kalix.framework.core.api.persistence.JsonStatus;
 
 import java.util.List;
@@ -48,4 +49,11 @@ public interface IExamAnswerBeanService extends IBizService<ExamAnswerBean> {
      * @return
      */
     List<ExamQuesAttachmentDto> getQuesAnswerMaterial(String name, String subjectVal);
+
+    /**
+     * 获取下系统时间(考试时前端每个10分钟获取一次，防止session超时)
+     * @param examId
+     * @return
+     */
+    JsonData checkExamingTime(Long examId);
 }

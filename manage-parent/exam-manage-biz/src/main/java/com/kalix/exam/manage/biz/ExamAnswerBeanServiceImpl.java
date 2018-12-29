@@ -7,9 +7,12 @@ import com.kalix.exam.manage.api.dao.IExamAnswerBeanDao;
 import com.kalix.exam.manage.dto.*;
 import com.kalix.exam.manage.entities.ExamAnswerBean;
 import com.kalix.exam.manage.entities.ExamCreateBean;
+import com.kalix.framework.core.api.persistence.JsonData;
 import com.kalix.framework.core.api.persistence.JsonStatus;
 import com.kalix.framework.core.impl.biz.ShiroGenericBizServiceImpl;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -161,6 +164,16 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
         return dao.findByNativeSql(sql, ExamQuesAttachmentDto.class);
     }
 
+    @Override
+    public JsonData checkExamingTime(Long examId) {
+        LocalDateTime now = LocalDateTime.now();
+        String dateTime = now.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        logger.info("examing,current time:" + dateTime);
+        List<String> datas = new ArrayList<>();
+        datas.add(dateTime);
+        return getResult(datas);
+    }
+
     /**
      * 设置学生考试的提交信息
      * @param examId
@@ -203,5 +216,16 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
             return quesChoiceDto.getPerScore();
         }
         return 0;
+    }
+
+    private JsonData getResult(List<?> list) {
+        JsonData jsonData = new JsonData();
+        if (list == null) {
+            jsonData.setTotalCount(0L);
+        } else {
+            jsonData.setTotalCount(Long.valueOf(list.size()));
+        }
+        jsonData.setData(list);
+        return jsonData;
     }
 }

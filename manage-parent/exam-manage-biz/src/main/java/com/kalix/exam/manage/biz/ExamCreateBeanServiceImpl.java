@@ -27,7 +27,7 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
 
     @Override
     public void afterDeleteEntity(Long id, JsonStatus status) {
-        dao.updateNativeQuery("delete from exam_examinee where examid=" + id);
+        dao.updateNativeQuery("delete from exam_examinee where examid=" + id + " state='未考'");
         super.afterDeleteEntity(id, status);
     }
 }

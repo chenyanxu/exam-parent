@@ -27,6 +27,11 @@
                 <description>Find all PaperExaming</description>
                 <to uri="bean:examAnswerBeanService?method=getExamingPaper(${header.paperId}, ${header.examId})"/>
             </get>
+
+            <get uri="/checktime" id="route-checkExamingTime" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Check examing time</description>
+                <to uri="bean:examAnswerBeanService?method=checkExamingTime(${header.examId})"/>
+            </get>
             <!-- this is a rest POST to create a exam answer-->
             <post id="route-addExamAnswer" type="com.kalix.exam.manage.entities.ExamAnswerBean"
                   outType="com.kalix.framework.core.api.persistence.JsonStatus">
