@@ -5,6 +5,7 @@ import com.kalix.exam.manage.api.biz.IExamCreateBeanService;
 import com.kalix.exam.manage.api.biz.IExamQuesBeanService;
 import com.kalix.exam.manage.api.dao.IExamCreateBeanDao;
 import com.kalix.exam.manage.dto.ExamPagerDto;
+import com.kalix.exam.manage.dto.ExamTemplateResDto;
 import com.kalix.exam.manage.entities.ExamCreateBean;
 import com.kalix.exam.manage.entities.ExamQuesBean;
 import com.kalix.framework.core.api.persistence.JsonData;
@@ -53,14 +54,14 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
 //            jsonStatus.setMsg("试卷已创建过");
 //        }
         try {
-            Map<String ,Object> paperMap = questionCommonBizService.autoCreateTestPaperMap(paperId, null);
-            List<Map<String, Object>> quesList = (List<Map<String, Object>>)paperMap.get("quesList");
+            Map<String, Object> paperMap = questionCommonBizService.autoCreateTestPaperMap(paperId, null);
+            List<Map<String, Object>> quesList = (List<Map<String, Object>>) paperMap.get("quesList");
             if (quesList != null && quesList.size() > 0) {
                 List<ExamQuesBean> examQuesList = new ArrayList<>();
                 for (Map<String, Object> quesMap : quesList) {
-                    String quesType = (String)quesMap.get("questype");
-                    String subType = (String)quesMap.get("subtype");
-                    String quesIds = (String)quesMap.get("quesIds");
+                    String quesType = (String) quesMap.get("questype");
+                    String subType = (String) quesMap.get("subtype");
+                    String quesIds = (String) quesMap.get("quesIds");
                     ExamQuesBean examQuesBean = examQuesBeanService.getExamQuesInfo(id, quesIds, quesType, subType);
                     if (examQuesBean == null) {
                         examQuesBean = new ExamQuesBean();
@@ -76,7 +77,7 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
             }
             jsonStatus.setSuccess(true);
             jsonStatus.setMsg("创建成功！");
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             jsonStatus.setFailure(true);
             jsonStatus.setMsg("创建失败！");
@@ -88,5 +89,35 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
     public void afterDeleteEntity(Long id, JsonStatus status) {
         dao.updateNativeQuery("delete from exam_examinee where examid=" + id + " state='未考'");
         super.afterDeleteEntity(id, status);
+    }
+
+    @Override
+    public JsonData getAllTemplateRes() {
+        JsonData jsonData = new JsonData();
+        String sql = "SELECT ob.id as examid, ob.name, ob.paperid, ob.papername, t.quesids FROM exam_create ob, exam_ques t " +
+                " where ob.id = t.id and ob.paperid = t.paperid and " +
+                " ob.creationdate >= (CURRENT_DATE) and ob.creationdate < (CURRENT_DATE + interval '1 Days')";
+        List<ExamTemplateResDto> list = this.dao.findByNativeSql(sql, ExamTemplateResDto.class);
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                ExamTemplateResDto examTemplateResDto = list.get(i);
+                String quesIds = examTemplateResDto.getQuesIds();
+                String[] mainIds = quesIds.split(",");
+                for (int j=0; j< mainIds.length; j++) {
+                    String mainId = mainIds[j];
+                    String pathSql = "select a.attachmentpath from middleware_attachment a, enrolment_question_subject s " +
+                            " where a.mainid = s.id and s.id = '" + mainId + "'";
+                    List<String> pathList = this.dao.findByNativeSql(pathSql, String.class);
+                    if (pathList != null && pathList.size() > 0) {
+                        for (String pathUrl: pathList) {
+                            examTemplateResDto.getTemplateResUrls().add(pathUrl);
+                        }
+                    }
+                }
+            }
+        }
+        jsonData.setData(list);
+        jsonData.setTotalCount((long) list.size());
+        return jsonData;
     }
 }

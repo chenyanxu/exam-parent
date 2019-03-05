@@ -19,4 +19,9 @@ public interface IExamCreateBeanService extends IBizService<ExamCreateBean> {
      * @return
      */
     JsonStatus preCreateExamPaper(Long id);
+
+    /**
+     * 获取考试试题资源（附件）
+     */
+    JsonData getAllTemplateRes();
 }
