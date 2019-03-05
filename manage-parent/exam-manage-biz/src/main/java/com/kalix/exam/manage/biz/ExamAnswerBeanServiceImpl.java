@@ -42,7 +42,7 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
         }
         try {
             // 获取试卷信息
-            paperMap = questionCommonBizService.autoCreateTestPaperMap(paperId, examId);
+            paperMap = questionCommonBizService.autoCreateTestPaperMap(paperId, null);
             // 验证试卷是否生成成功
             if (paperMap == null && paperMap.size() == 0) {
                 paperMap.put("errcode", "-2");

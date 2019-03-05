@@ -1,9 +1,11 @@
 package com.kalix.exam.manage.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.kalix.framework.core.api.persistence.PersistentEntity;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.util.Date;
 
 @Entity
 @Table(name = "exam_create")
@@ -11,6 +13,7 @@ public class ExamCreateBean extends PersistentEntity {
     private String name;  // 考试名
     private String subject;  // 考试科目
     private String subjectVal; // 科目字典值
+    private Date examStart; // 考试开始时间
     private Integer duration; // 考试时长
     private Integer examMinTime; // 答卷最少时间
     private String paperName; // 考卷名
@@ -39,6 +42,15 @@ public class ExamCreateBean extends PersistentEntity {
 
     public void setSubjectVal(String subjectVal) {
         this.subjectVal = subjectVal;
+    }
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    public Date getExamStart() {
+        return examStart;
+    }
+
+    public void setExamStart(Date examStart) {
+        this.examStart = examStart;
     }
 
     public Integer getDuration() {
@@ -80,4 +92,5 @@ public class ExamCreateBean extends PersistentEntity {
     public void setDistributeStat(String distributeStat) {
         this.distributeStat = distributeStat;
     }
+
 }

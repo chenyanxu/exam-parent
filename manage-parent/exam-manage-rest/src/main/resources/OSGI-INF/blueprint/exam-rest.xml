@@ -49,8 +49,13 @@
                 <description>Find Exam by id</description>
                 <to uri="bean:examCreateBeanService?method=getEntity(${header.id})"/>
             </get>
+            <post id="route-createexampaper" uri="/createexampaper"
+                  outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Create a Exam Paper</description>
+                <to uri="bean:examCreateBeanService?method=preCreateExamPaper(${header.id})"/>
+            </post>
             <!-- this is a rest PUT to update a exam -->
-            <put  id="route-updateExam" type="com.kalix.exam.manage.entities.ExamCreateBean"
+            <put id="route-updateExam" type="com.kalix.exam.manage.entities.ExamCreateBean"
                  outType="com.kalix.framework.core.api.persistence.JsonStatus">
                 <description>Updates a Exam</description>
                 <to uri="bean:examCreateBeanService?method=updateEntity"/>

@@ -10,6 +10,16 @@
 
     <bean id="examCreateBeanServiceImpl" class="com.kalix.exam.manage.biz.ExamCreateBeanServiceImpl">
         <property name="dao" ref="examCreateBeanDao"/>
+        <property name="questionCommonBizService" ref="questionCommonBizService"/>
+        <property name="examQuesBeanService" ref="examQuesBeanServiceImpl"/>
+    </bean>
+
+    <reference id="examQuesBeanDao" interface="com.kalix.exam.manage.api.dao.IExamQuesBeanDao"/>
+    <service id="examQuesBeanService" interface="com.kalix.exam.manage.api.biz.IExamQuesBeanService" ref="examQuesBeanServiceImpl">
+    </service>
+
+    <bean id="examQuesBeanServiceImpl" class="com.kalix.exam.manage.biz.ExamQuesBeanServiceImpl">
+        <property name="dao" ref="examCreateBeanDao"/>
     </bean>
 
     <reference id="userBeanService" interface="com.kalix.admin.core.api.biz.IUserBeanService"/>
