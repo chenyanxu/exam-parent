@@ -33,6 +33,11 @@
                 <to uri="bean:examAnswerBeanService?method=getExamingPaper(${header.paperId}, ${header.examId})"/>
             </get>
 
+            <get uri="/exampaper" id="route-getAllExampaper" outType="java.util.Map">
+                <description>Find all Exampaper</description>
+                <to uri="bean:examAnswerBeanService?method=getPerCreateExamingPaper(${header.paperId}, ${header.examId})"/>
+            </get>
+
             <get uri="/checktime" id="route-checkExamingTime" outType="com.kalix.framework.core.api.persistence.JsonData">
                 <description>Check examing time</description>
                 <to uri="bean:examAnswerBeanService?method=checkExamingTime(${header.examId})"/>

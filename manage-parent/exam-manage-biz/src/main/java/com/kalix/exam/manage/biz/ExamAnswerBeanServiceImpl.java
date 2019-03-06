@@ -11,7 +11,9 @@ import com.kalix.exam.manage.entities.ExamCreateBean;
 import com.kalix.framework.core.api.persistence.JsonData;
 import com.kalix.framework.core.api.persistence.JsonStatus;
 import com.kalix.framework.core.impl.biz.ShiroGenericBizServiceImpl;
+import sun.util.resources.cldr.ta.CalendarData_ta_LK;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -101,8 +103,12 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
             long durationTime = duration*60*1000;
             Integer examMinTime = examCreateBean.getExamMinTime();
             Date examStart = examCreateBean.getExamStart();
-            int examYear = examStart.getYear();
-            int examMonth = examStart.getMonth() + 1;
+            SimpleDateFormat formatData = new SimpleDateFormat("yyyy-MM-dd");
+            String examStartStr = formatData.format(examStart);
+            String[] dates = examStartStr.split("-");
+            String examYear = dates[0];
+            String examMonth = dates[1];
+
             long currentTime = new Date().getTime();
             long startTime = examStart.getTime();
             if (currentTime > startTime) {
@@ -113,7 +119,7 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
             String subjectVal = examCreateBean.getSubjectVal();
 
             // 更新参加考试的状态
-            dao.updateNativeQuery("update exam_examinee set state='已考',starttime=current_timestamp where userid=" + userId + " and examid=" + examId);
+            //dao.updateNativeQuery("update exam_examinee set state='已考',starttime=current_timestamp where userid=" + userId + " and examid=" + examId);
             paperMap.put("paperId", paperId);
             paperMap.put("examId", examId);
             paperMap.put("duration", duration);
