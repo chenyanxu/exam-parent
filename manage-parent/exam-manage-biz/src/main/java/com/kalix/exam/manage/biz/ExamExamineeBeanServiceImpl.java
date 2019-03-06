@@ -21,6 +21,7 @@ import com.kalix.framework.core.util.SerializeUtil;
 import javax.persistence.Transient;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamExamineeBeanDao,ExamExamineeBean> implements IExamExamineeBeanService {
 
@@ -213,17 +214,32 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
                 " and b.state='未考'";
         List<ExamExamineeUserDto> examineeUserDtos = dao.findByNativeSql(sql, ExamExamineeUserDto.class);
         ExamExamineeUserDto examExamineeUserDto = null;
+        List<ExamExamineeUserDto> examineeUserNeedList = null;
         if (examineeUserDtos != null && !examineeUserDtos.isEmpty()) {
-            examExamineeUserDto = examineeUserDtos.get(0);
+            List<ExamExamineeUserDto> examineeUserDtoList = examineeUserDtos.stream().map((dto)->{
+                Date startDate = dto.getExamStart();
+                Integer duration = dto.getDuration();
+                long endTime = startDate.getTime() + (duration*60*1000);
+                String examTimeStr = getExamTimeStr(duration, startDate);
+                String examDateStr = getExamDateStr(startDate);
+
+                dto.setExamEndTime(endTime);
+                dto.setExamTimeStr(examTimeStr);
+                dto.setExamDateStr(examDateStr);
+                return dto;
+            }).collect(Collectors.toList());
+            if (examineeUserDtoList.size() == 1) {
+                examExamineeUserDto = examineeUserDtos.get(0);
+            } else {
+                examineeUserNeedList  = examineeUserDtoList.stream().filter((dto)->System.currentTimeMillis()<=dto.getExamEndTime())
+                        .sorted((dto1,dto2)-> dto1.getExamEndTime().compareTo(dto2.getExamEndTime()))
+                        .collect(Collectors.toList());
+                examExamineeUserDto = examineeUserNeedList.get(0);
+
+            }
         }
         List<ExamExamineeUserDto> examExamineeUserList = new ArrayList<>();
         if (examExamineeUserDto != null) {
-            Integer duration = examExamineeUserDto.getDuration();
-            Date examStart = examExamineeUserDto.getExamStart();
-            String examTimeStr = getExamTimeStr(duration, examStart);
-            String examDateStr = getExamDateStr(examStart);
-            examExamineeUserDto.setExamTimeStr(examTimeStr);
-            examExamineeUserDto.setExamDateStr(examDateStr);
             examExamineeUserList.add(examExamineeUserDto);
         }
         return getResult(examExamineeUserList);
