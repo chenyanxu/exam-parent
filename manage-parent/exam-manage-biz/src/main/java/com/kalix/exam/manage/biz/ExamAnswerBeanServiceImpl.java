@@ -11,7 +11,6 @@ import com.kalix.exam.manage.entities.ExamCreateBean;
 import com.kalix.framework.core.api.persistence.JsonData;
 import com.kalix.framework.core.api.persistence.JsonStatus;
 import com.kalix.framework.core.impl.biz.ShiroGenericBizServiceImpl;
-import sun.util.resources.cldr.ta.CalendarData_ta_LK;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -60,7 +59,7 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
             Integer duration = examCreateBean.getDuration();
             Integer examMinTime = examCreateBean.getExamMinTime();
             // 更新参加考试的状态
-            dao.updateNativeQuery("update exam_examinee set state='已考',starttime=current_timestamp where userid=" + userId + " and examid=" + examId);
+            dao.updateNativeQuery("update exam_examinee set starttime=current_timestamp where userid=" + userId + " and examid=" + examId);
             paperMap.put("paperId", paperId);
             paperMap.put("examId", examId);
             paperMap.put("duration", duration);
@@ -178,7 +177,7 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
             }
             dao.addBatch(examAnswerBeanList);
             // 设置考试状态表
-            dao.updateNativeQuery("update exam_examinee set endtime=current_timestamp where userid=" + userId + " and examid=" + examId);
+            dao.updateNativeQuery("update exam_examinee set state='已考',endtime=current_timestamp where userid=" + userId + " and examid=" + examId);
             jsonStatus.setSuccess(true);
             jsonStatus.setMsg("提交成功");
         } catch(Exception e) {

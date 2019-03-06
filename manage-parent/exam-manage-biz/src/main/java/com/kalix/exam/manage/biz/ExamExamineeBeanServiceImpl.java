@@ -221,10 +221,17 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
             Integer duration = examExamineeUserDto.getDuration();
             Date examStart = examExamineeUserDto.getExamStart();
             String examTimeStr = getExamTimeStr(duration, examStart);
+            String examDateStr = getExamDateStr(examStart);
             examExamineeUserDto.setExamTimeStr(examTimeStr);
+            examExamineeUserDto.setExamDateStr(examDateStr);
             examExamineeUserList.add(examExamineeUserDto);
         }
         return getResult(examExamineeUserList);
+    }
+
+    private String getExamDateStr(Date examStart) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+        return format.format(examStart);
     }
 
     private String getExamTimeStr(Integer duration, Date examStart) {
