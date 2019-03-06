@@ -19,7 +19,7 @@
     </service>
 
     <bean id="examQuesBeanServiceImpl" class="com.kalix.exam.manage.biz.ExamQuesBeanServiceImpl">
-        <property name="dao" ref="examCreateBeanDao"/>
+        <property name="dao" ref="examQuesBeanDao"/>
     </bean>
 
     <reference id="userBeanService" interface="com.kalix.admin.core.api.biz.IUserBeanService"/>
@@ -46,6 +46,7 @@
         <property name="dao" ref="examAnswerBeanDao"/>
         <property name="questionCommonBizService" ref="questionCommonBizService"/>
         <property name="examCreateBeanService" ref="examCreateBeanServiceImpl"/>
+        <property name="examQuesBeanService" ref="examQuesBeanServiceImpl"/>
     </bean>
 
     <!--考试阅卷服务-->

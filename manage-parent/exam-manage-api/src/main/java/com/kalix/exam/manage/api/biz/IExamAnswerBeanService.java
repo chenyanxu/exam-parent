@@ -21,6 +21,14 @@ public interface IExamAnswerBeanService extends IBizService<ExamAnswerBean> {
     Map<String, Object> getExamingPaper(Long paperId, Long examId);
 
     /**
+     * 获取预先生成的考卷
+     * @param paperId
+     * @param examId
+     * @return
+     */
+    Map<String, Object> getPerCreateExamingPaper(Long paperId, Long examId);
+
+    /**
      * 考试提交
      * @param examingDto
      * @return

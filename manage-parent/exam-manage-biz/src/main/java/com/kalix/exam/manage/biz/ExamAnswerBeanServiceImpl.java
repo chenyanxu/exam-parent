@@ -3,6 +3,7 @@ package com.kalix.exam.manage.biz;
 import com.kalix.enrolment.question.api.biz.IQuestionCommonBizService;
 import com.kalix.exam.manage.api.biz.IExamAnswerBeanService;
 import com.kalix.exam.manage.api.biz.IExamCreateBeanService;
+import com.kalix.exam.manage.api.biz.IExamQuesBeanService;
 import com.kalix.exam.manage.api.dao.IExamAnswerBeanDao;
 import com.kalix.exam.manage.dto.*;
 import com.kalix.exam.manage.entities.ExamAnswerBean;
@@ -13,15 +14,13 @@ import com.kalix.framework.core.impl.biz.ShiroGenericBizServiceImpl;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamAnswerBeanDao, ExamAnswerBean> implements IExamAnswerBeanService {
     private IQuestionCommonBizService questionCommonBizService;
     private IExamCreateBeanService examCreateBeanService;
+    private IExamQuesBeanService examQuesBeanService;
 
     public void setQuestionCommonBizService(IQuestionCommonBizService questionCommonBizService) {
         this.questionCommonBizService = questionCommonBizService;
@@ -29,6 +28,10 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
 
     public void setExamCreateBeanService(IExamCreateBeanService examCreateBeanService) {
         this.examCreateBeanService = examCreateBeanService;
+    }
+
+    public void setExamQuesBeanService(IExamQuesBeanService examQuesBeanService) {
+        this.examQuesBeanService = examQuesBeanService;
     }
 
     @Override
@@ -60,6 +63,67 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
             paperMap.put("examId", examId);
             paperMap.put("duration", duration);
             paperMap.put("examMinTime", examMinTime);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return paperMap;
+    }
+
+    @Override
+    public Map<String, Object> getPerCreateExamingPaper(Long paperId, Long examId) {
+        Map<String, Object> paperMap = new HashMap<>();
+        if (paperId == null || examId == null) {
+            paperMap.put("errcode", "-1");
+            paperMap.put("errmsg", "试卷模板或考试不存在，请联系管理员");
+            return paperMap;
+        }
+        // 通过examId获取quesIds
+        String quesIds = examQuesBeanService.getExamQuesIds(paperId, examId);
+        if (quesIds == null) {
+            paperMap.put("errcode", "-2");
+            paperMap.put("errmsg", "考题不存在，请联系管理员");
+            return paperMap;
+        }
+        try {
+            // 获取试卷信息
+            paperMap = questionCommonBizService.autoCreateTestPaperMap(paperId, quesIds);
+            // 验证试卷是否生成成功
+            if (paperMap == null && paperMap.size() == 0) {
+                paperMap.put("errcode", "-3");
+                paperMap.put("errmsg", "试卷生成失败，请重新进入");
+                return paperMap;
+            }
+
+            Long userId = shiroService.getCurrentUserId();
+            ExamCreateBean examCreateBean = examCreateBeanService.getEntity(examId);
+            Integer duration = examCreateBean.getDuration();
+            long durationTime = duration*60*1000;
+            Integer examMinTime = examCreateBean.getExamMinTime();
+            Date examStart = examCreateBean.getExamStart();
+            int examYear = examStart.getYear();
+            int examMonth = examStart.getMonth() + 1;
+            long currentTime = new Date().getTime();
+            long startTime = examStart.getTime();
+            if (currentTime > startTime) {
+                long useTime = currentTime - startTime;
+                durationTime = durationTime - useTime;
+            }
+            String subject = examCreateBean.getSubject();
+            String subjectVal = examCreateBean.getSubjectVal();
+
+            // 更新参加考试的状态
+            dao.updateNativeQuery("update exam_examinee set state='已考',starttime=current_timestamp where userid=" + userId + " and examid=" + examId);
+            paperMap.put("paperId", paperId);
+            paperMap.put("examId", examId);
+            paperMap.put("duration", duration);
+            paperMap.put("durationTime", durationTime);
+            paperMap.put("examYear", examYear);
+            paperMap.put("examMonth", examMonth);
+            paperMap.put("examMinTime", examMinTime);
+            paperMap.put("subject", subject);
+            paperMap.put("subjectVal", subjectVal);
+
         } catch(Exception e) {
             e.printStackTrace();
         }

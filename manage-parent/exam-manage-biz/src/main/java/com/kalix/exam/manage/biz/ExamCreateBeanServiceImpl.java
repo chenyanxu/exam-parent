@@ -14,6 +14,7 @@ import com.kalix.framework.core.impl.biz.ShiroGenericBizServiceImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamCreateBeanDao, ExamCreateBean> implements IExamCreateBeanService {
 
@@ -56,11 +57,24 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
             Map<String ,Object> paperMap = questionCommonBizService.autoCreateTestPaperMap(paperId, null);
             List<Map<String, Object>> quesList = (List<Map<String, Object>>)paperMap.get("quesList");
             if (quesList != null && quesList.size() > 0) {
+                Map<String, List<Map<String, Object>>> quesPaperMap = quesList.stream().collect(Collectors.groupingBy((m)->{
+                    Map<String, Object> map = (Map<String, Object>)m;
+                    String quesType = (String)map.get("quesType");
+                    String subType = (String)map.get("subType");
+                    return quesType + "###" + subType;
+                }));
                 List<ExamQuesBean> examQuesList = new ArrayList<>();
-                for (Map<String, Object> quesMap : quesList) {
-                    String quesType = (String)quesMap.get("questype");
-                    String subType = (String)quesMap.get("subtype");
-                    String quesIds = (String)quesMap.get("quesIds");
+                for (Map.Entry<String, List<Map<String, Object>>> entry : quesPaperMap.entrySet()) {
+                    String key = entry.getKey();
+                    String[] types = key.split("###");
+                    String quesType = types[0];
+                    String subType = types[1];
+                    List<Map<String, Object>> quesByTypeList = entry.getValue();
+                    String quesIds = "";
+                    for (Map<String, Object> quesMap : quesByTypeList) {
+                        quesIds += (String)quesMap.get("quesIds") + ",";
+                    }
+                    quesIds = quesIds.substring(0, quesIds.length()-1);
                     ExamQuesBean examQuesBean = examQuesBeanService.getExamQuesInfo(id, quesIds, quesType, subType);
                     if (examQuesBean == null) {
                         examQuesBean = new ExamQuesBean();

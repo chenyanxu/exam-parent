@@ -8,6 +8,7 @@ import com.kalix.exam.manage.api.biz.IExamCreateBeanService;
 import com.kalix.exam.manage.api.biz.IExamExamineeBeanService;
 import com.kalix.exam.manage.api.dao.IExamExamineeBeanDao;
 import com.kalix.exam.manage.dto.ExamExamineeDto;
+import com.kalix.exam.manage.dto.ExamExamineeUserDto;
 import com.kalix.exam.manage.dto.ExamOrgDto;
 import com.kalix.exam.manage.dto.ExamSubjectDto;
 import com.kalix.exam.manage.entities.ExamCreateBean;
@@ -18,6 +19,7 @@ import com.kalix.framework.core.impl.biz.ShiroGenericBizServiceImpl;
 import com.kalix.framework.core.util.SerializeUtil;
 
 import javax.persistence.Transient;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamExamineeBeanDao,ExamExamineeBean> implements IExamExamineeBeanService {
@@ -202,6 +204,40 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
         return dao.findByNativeSql(sql, ExamExamineeDto.class);
     }
 
+    @Override
+    public JsonData getExamineeUserInfo() {
+        Long userId = shiroService.getCurrentUserId();
+        String sql = "select a.id as examId,a.name as examName,a.subject,a.examStart,a.duration,a.paperId,c.name as userName,c.idCards" +
+                " from exam_create a,exam_examinee b,sys_user c where b.examid=a.id and b.userid=c.id" +
+                " and  b.userid=" + userId +
+                " and b.state='未考'";
+        List<ExamExamineeUserDto> examineeUserDtos = dao.findByNativeSql(sql, ExamExamineeUserDto.class);
+        ExamExamineeUserDto examExamineeUserDto = null;
+        if (examineeUserDtos != null && !examineeUserDtos.isEmpty()) {
+            examExamineeUserDto = examineeUserDtos.get(0);
+        }
+        List<ExamExamineeUserDto> examExamineeUserList = new ArrayList<>();
+        if (examExamineeUserDto != null) {
+            Integer duration = examExamineeUserDto.getDuration();
+            Date examStart = examExamineeUserDto.getExamStart();
+            String examTimeStr = getExamTimeStr(duration, examStart);
+            examExamineeUserDto.setExamTimeStr(examTimeStr);
+            examExamineeUserList.add(examExamineeUserDto);
+        }
+        return getResult(examExamineeUserList);
+    }
+
+    private String getExamTimeStr(Integer duration, Date examStart) {
+        long endTime = examStart.getTime() + duration*60*1000;
+        Date endDate = new Date(endTime);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        String startDateTime = format.format(examStart);
+        String startTimeStr = startDateTime.substring(startDateTime.length()-5);
+        String endDateTime = format.format(endDate);
+        String endTimeStr = endDateTime.substring(endDateTime.length()-5);
+        return startTimeStr + "-" + endTimeStr;
+    }
+
     private void updateDistributeStat(Long examId) {
         ExamCreateBean examCreateBean = examCreateBeanService.getEntity(examId);
         examCreateBean.setDistributeStat("已分配");
@@ -210,5 +246,16 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
 
     private List<Long> getOrgIdsByExamId(Long examId) {
         return dao.findByNativeSql("select orgid from exam_examinee where examid=?", Long.class, examId);
+    }
+
+    private JsonData getResult(List<?> list) {
+        JsonData jsonData = new JsonData();
+        if (list == null) {
+            jsonData.setTotalCount(0L);
+        } else {
+            jsonData.setTotalCount(Long.valueOf(list.size()));
+        }
+        jsonData.setData(list);
+        return jsonData;
     }
 }

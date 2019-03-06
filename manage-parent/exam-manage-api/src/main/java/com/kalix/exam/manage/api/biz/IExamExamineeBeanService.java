@@ -1,6 +1,7 @@
 package com.kalix.exam.manage.api.biz;
 
 import com.kalix.exam.manage.dto.ExamExamineeDto;
+import com.kalix.exam.manage.dto.ExamExamineeUserDto;
 import com.kalix.exam.manage.dto.ExamOrgDto;
 import com.kalix.exam.manage.dto.ExamSubjectDto;
 import com.kalix.exam.manage.entities.ExamExamineeBean;
@@ -59,5 +60,11 @@ public interface IExamExamineeBeanService extends IBizService<ExamExamineeBean> 
      * @return
      */
     List<ExamExamineeDto> getExamMaterial(String name, String subjectVal);
+
+    /**
+     * 获取考试用户信息
+     * @return
+     */
+    JsonData getExamineeUserInfo();
 
 }

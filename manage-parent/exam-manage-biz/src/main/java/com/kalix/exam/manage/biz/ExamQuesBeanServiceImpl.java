@@ -12,12 +12,22 @@ public class ExamQuesBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamQue
 
     @Override
     public ExamQuesBean getExamQuesInfo(Long examId, String quesIds, String quesType, String subType) {
-        String sql = "select id,examId,quesIds,quesType,subType,paperId from exam_ques " +
+        String sql = "select * from exam_ques " +
                 " where examId=" + examId + " and quesIds='"+quesIds+"'" +
                 " and quesType='"+quesType+"' and subType='"+subType+"'";
         List<ExamQuesBean> examQuesBeanList = dao.findByNativeSql(sql, ExamQuesBean.class);
         if (examQuesBeanList != null && !examQuesBeanList.isEmpty()){
             return examQuesBeanList.get(0);
+        }
+        return null;
+    }
+
+    @Override
+    public String getExamQuesIds(Long paperId, Long examId) {
+        String sql = "select * from exam_ques where examId=" + examId + " and paperId=" + paperId;
+        List<ExamQuesBean> examQuesBeanList = dao.findByNativeSql(sql, ExamQuesBean.class);
+        if (examQuesBeanList != null && !examQuesBeanList.isEmpty()){
+            return examQuesBeanList.get(0).getQuesIds();
         }
         return null;
     }
