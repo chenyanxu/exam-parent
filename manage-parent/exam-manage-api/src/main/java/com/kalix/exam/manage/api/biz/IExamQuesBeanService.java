@@ -30,7 +30,4 @@ public interface IExamQuesBeanService extends IBizService<ExamQuesBean> {
      * @param examQuesBeans
      */
     void addBatch(List<ExamQuesBean> examQuesBeans);
-
-    JsonData getAllTemplateRes();
-
 }

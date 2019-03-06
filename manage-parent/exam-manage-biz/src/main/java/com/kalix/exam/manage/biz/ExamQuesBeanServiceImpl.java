@@ -36,17 +36,4 @@ public class ExamQuesBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamQue
     public void addBatch(List<ExamQuesBean> examQuesBeans) {
         dao.addBatch(examQuesBeans);
     }
-
-    @Override
-    public JsonData getAllTemplateRes() {
-        JsonData jsonData = new JsonData();
-        String sql = "SELECT * FROM " + this.dao.getTableName() + " ob " +
-                " where ob.creationdate >= (CURRENT_DATE) and ob.creationdate < (CURRENT_DATE + interval '1 Days');";
-        List<ExamCreateBean> list = this.dao.findByNativeSql(sql, ExamCreateBean.class);
-        // 通过试卷拿到试题，通过试题拿到附件,返回结果
-        jsonData.setData(list);
-        jsonData.setTotalCount((long) list.size());
-        return jsonData;
-    }
-
 }
