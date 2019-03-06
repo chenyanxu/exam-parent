@@ -109,7 +109,7 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
     public JsonData getAllTemplateRes() {
         JsonData jsonData = new JsonData();
         String sql = "SELECT ob.id as examid, ob.name, ob.paperid, ob.papername, t.quesids FROM exam_create ob, exam_ques t " +
-                " where ob.id = t.id and ob.paperid = t.paperid and " +
+                " where ob.id = t.examid and ob.paperid = t.paperid and " +
                 " ob.creationdate >= (CURRENT_DATE) and ob.creationdate < (CURRENT_DATE + interval '1 Days')";
         List<ExamTemplateResDto> list = this.dao.findByNativeSql(sql, ExamTemplateResDto.class);
         if (list != null && list.size() > 0) {
