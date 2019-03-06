@@ -24,6 +24,11 @@
                 <to uri="bean:examCreateBeanService?method=getAllExamPaper"/>
             </get>
 
+            <get uri="/enroment/tempres" id="route-tempres" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find all Exam tempres</description>
+                <to uri="bean:examCreateBeanService?method=getAllTemplateRes"/>
+            </get>
+
             <!-- this is a rest POST to create a exam -->
             <post id="route-addExam" type="com.kalix.exam.manage.entities.ExamCreateBean"
                   outType="com.kalix.framework.core.api.persistence.JsonStatus">
