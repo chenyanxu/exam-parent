@@ -24,4 +24,10 @@ public interface IExamCreateBeanService extends IBizService<ExamCreateBean> {
      * 获取考试试题资源（附件）
      */
     JsonData getAllTemplateRes();
+
+    /**
+     * 获取所有未考的考题Ids（用于考题材料下载，大于当前时间的考试的考题）
+     * @return
+     */
+    JsonData getAllExamQuesIds();
 }

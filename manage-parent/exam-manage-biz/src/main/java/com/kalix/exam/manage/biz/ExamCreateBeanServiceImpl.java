@@ -5,6 +5,7 @@ import com.kalix.exam.manage.api.biz.IExamCreateBeanService;
 import com.kalix.exam.manage.api.biz.IExamQuesBeanService;
 import com.kalix.exam.manage.api.dao.IExamCreateBeanDao;
 import com.kalix.exam.manage.dto.ExamPagerDto;
+import com.kalix.exam.manage.dto.ExamQuesInfoDto;
 import com.kalix.exam.manage.dto.ExamTemplateResDto;
 import com.kalix.exam.manage.entities.ExamCreateBean;
 import com.kalix.exam.manage.entities.ExamQuesBean;
@@ -132,6 +133,26 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
         }
         jsonData.setData(list);
         jsonData.setTotalCount((long) list.size());
+        return jsonData;
+    }
+
+    @Override
+    public JsonData getAllExamQuesIds() {
+        String sql = "select a.examid as examId,a.quesids as quesIds,a.paperid as paperId," +
+                " b.subject,b.subjectval as subjectVal from exam_ques a, exam_create b " +
+                " where a.examid=b.id and b.examstart >= current_timestamp;";
+        List<ExamQuesInfoDto> list = dao.findByNativeSql(sql, ExamQuesInfoDto.class);
+        return getResult(list);
+    }
+
+    private JsonData getResult(List<?> list) {
+        JsonData jsonData = new JsonData();
+        if (list == null) {
+            jsonData.setTotalCount(0L);
+        } else {
+            jsonData.setTotalCount(Long.valueOf(list.size()));
+        }
+        jsonData.setData(list);
         return jsonData;
     }
 }

@@ -24,6 +24,11 @@
                 <to uri="bean:examCreateBeanService?method=getAllExamPaper"/>
             </get>
 
+            <get uri="/exam/quesids" id="route-getExamQuesId" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find all Exam QuesId</description>
+                <to uri="bean:examCreateBeanService?method=getAllExamQuesIds"/>
+            </get>
+
             <get uri="/enroment/tempres" id="route-tempres" outType="com.kalix.framework.core.api.persistence.JsonData">
                 <description>Find all Exam tempres</description>
                 <to uri="bean:examCreateBeanService?method=getAllTemplateRes"/>
