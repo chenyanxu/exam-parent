@@ -1,6 +1,9 @@
 package com.kalix.exam.manage.biz;
 
 import com.kalix.enrolment.question.api.biz.IQuestionCommonBizService;
+import com.kalix.enrolment.question.api.biz.IQuestionService;
+import com.kalix.enrolment.question.api.biz.ISubjectBeanService;
+import com.kalix.enrolment.question.entities.SubjectBean;
 import com.kalix.exam.manage.api.biz.IExamCreateBeanService;
 import com.kalix.exam.manage.api.biz.IExamQuesBeanService;
 import com.kalix.exam.manage.api.dao.IExamCreateBeanDao;
@@ -24,12 +27,18 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
 
     private IExamQuesBeanService examQuesBeanService;
 
+    private IQuestionService subjectBeanService;
+
     public void setQuestionCommonBizService(IQuestionCommonBizService questionCommonBizService) {
         this.questionCommonBizService = questionCommonBizService;
     }
 
     public void setExamQuesBeanService(IExamQuesBeanService examQuesBeanService) {
         this.examQuesBeanService = examQuesBeanService;
+    }
+
+    public void setSubjectBeanService(IQuestionService subjectBeanService) {
+        this.subjectBeanService = subjectBeanService;
     }
 
     @Override
@@ -88,7 +97,22 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
                         examQuesList.add(examQuesBean);
                     }
                 }
-                examQuesBeanService.addBatch(examQuesList);
+                if(!examQuesList.isEmpty()) {
+                    examQuesBeanService.addBatch(examQuesList);
+                    String quesIds = examQuesList.get(0).getQuesIds();
+                    String searchQuesId = "";
+                    if (quesIds.indexOf(",") != -1) {
+                        String[] quesArr = quesIds.split(",");
+                        searchQuesId = quesArr[0];
+                    } else {
+                        searchQuesId = quesIds;
+                    }
+                    // 临时添加，用试题分析字段区分A,B卷
+                    SubjectBean subjectBean = (SubjectBean) subjectBeanService.getEntity(Long.valueOf(searchQuesId));
+                    String analysis = subjectBean.getAnalysis();
+                    examCreateBean.setPaperChoice(analysis);
+                    dao.save(examCreateBean);
+                }
             }
             jsonStatus.setSuccess(true);
             jsonStatus.setMsg("创建成功！");
