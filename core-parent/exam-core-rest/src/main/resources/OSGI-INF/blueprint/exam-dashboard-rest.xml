@@ -40,11 +40,11 @@
                 <!--<to uri="bean:adminDashboardService?method=getPieChartData(${header.chartKey})"/>-->
             <!--</get>-->
 
-            <!--<get id="route-getBarChartData" uri="/barChart"-->
-                 <!--type="java.lang.String" outType="com.kalix.framework.core.api.persistence.JsonData">-->
-                <!--<description>Find BarChartData</description>-->
-                <!--<to uri="bean:adminDashboardService?method=getBarChartData(${header.chartKey})"/>-->
-            <!--</get>-->
+            <get id="route-exam-getBarChartData" uri="/barChart"
+                 type="java.lang.String" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find BarChartData</description>
+                <to uri="bean:examDashboardService?method=getBarChartData(${header.chartKey})"/>
+            </get>
         </rest>
     </camelContext>
 </blueprint>
