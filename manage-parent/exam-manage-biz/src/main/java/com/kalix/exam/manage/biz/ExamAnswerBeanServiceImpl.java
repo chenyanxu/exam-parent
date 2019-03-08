@@ -136,6 +136,23 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
         return paperMap;
     }
 
+    @Override
+    public JsonStatus updateStartExamingState(Long examId) {
+        JsonStatus jsonStatus = new JsonStatus();
+        try {
+            Long userId = shiroService.getCurrentUserId();
+            // 设置考试状态表
+            dao.updateNativeQuery("update exam_examinee set state='考试中' where userid=" + userId + " and examid=" + examId);
+            jsonStatus.setSuccess(true);
+            jsonStatus.setMsg("更新成功");
+        } catch(Exception e) {
+            e.printStackTrace();
+            jsonStatus.setFailure(true);
+            jsonStatus.setMsg("更新失败");
+        }
+        return jsonStatus;
+    }
+
     /**
      * 提交试卷
      * @param examingDto
