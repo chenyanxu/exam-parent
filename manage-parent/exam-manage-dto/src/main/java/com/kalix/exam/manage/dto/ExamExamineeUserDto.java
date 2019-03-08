@@ -22,6 +22,7 @@ public class ExamExamineeUserDto extends BaseDTO {
     private String examTimeStr;
     private String examDateStr;
     private Long examEndTime;
+    private String quesIds;
 
     public Long getExamId() {
         return examId;
@@ -109,5 +110,13 @@ public class ExamExamineeUserDto extends BaseDTO {
 
     public void setExamEndTime(Long examEndTime) {
         this.examEndTime = examEndTime;
+    }
+
+    public String getQuesIds() {
+        return quesIds;
+    }
+
+    public void setQuesIds(String quesIds) {
+        this.quesIds = quesIds;
     }
 }

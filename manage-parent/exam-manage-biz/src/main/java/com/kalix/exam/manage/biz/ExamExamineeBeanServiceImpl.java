@@ -6,6 +6,7 @@ import com.kalix.admin.core.dto.model.OrganizationDTO;
 import com.kalix.admin.core.entities.UserBean;
 import com.kalix.exam.manage.api.biz.IExamCreateBeanService;
 import com.kalix.exam.manage.api.biz.IExamExamineeBeanService;
+import com.kalix.exam.manage.api.biz.IExamQuesBeanService;
 import com.kalix.exam.manage.api.dao.IExamExamineeBeanDao;
 import com.kalix.exam.manage.dto.ExamExamineeDto;
 import com.kalix.exam.manage.dto.ExamExamineeUserDto;
@@ -28,6 +29,7 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
     private IUserBeanService userBeanService;
     private IExamCreateBeanService examCreateBeanService;
     private IOrganizationBeanService organizationBeanService;
+    private IExamQuesBeanService examQuesBeanService;
 
 
     public void setUserBeanService(IUserBeanService userBeanService) {
@@ -40,6 +42,10 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
 
     public void setOrganizationBeanService(IOrganizationBeanService organizationBeanService) {
         this.organizationBeanService = organizationBeanService;
+    }
+
+    public void setExamQuesBeanService(IExamQuesBeanService examQuesBeanService) {
+        this.examQuesBeanService = examQuesBeanService;
     }
 
     @Override
@@ -240,6 +246,10 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
         }
         List<ExamExamineeUserDto> examExamineeUserList = new ArrayList<>();
         if (examExamineeUserDto != null) {
+            Long paperId = examExamineeUserDto.getPaperId();
+            Long examId = examExamineeUserDto.getExamId();
+            String quesIds = examQuesBeanService.getExamQuesIds(paperId, examId);
+            examExamineeUserDto.setQuesIds(quesIds);
             examExamineeUserList.add(examExamineeUserDto);
         }
         return getResult(examExamineeUserList);
