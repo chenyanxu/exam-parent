@@ -143,7 +143,7 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
         String sql = "select a.id,a.name,a.subject,a.duration,a.paperId " +
                 " from exam_create a,exam_examinee b " +
                 " where b.examid=a.id  and  b.userid=?" +
-                " and b.state='未考'";
+                " and b.state in ('未考','考试中')";
         if (name != null && !name.isEmpty()) {
             sql += " and a.name like'%"+name+"%'";
         }
@@ -211,7 +211,7 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
         String sql = "select a.id as examId,a.name as examName,a.subject,a.examStart,a.duration,a.paperId,c.name as userName,c.idCards" +
                 " from exam_create a,exam_examinee b,sys_user c where b.examid=a.id and b.userid=c.id" +
                 " and  b.userid=" + userId +
-                " and b.state='未考'";
+                " and b.state in ('未考','考试中')";
         List<ExamExamineeUserDto> examineeUserDtos = dao.findByNativeSql(sql, ExamExamineeUserDto.class);
         ExamExamineeUserDto examExamineeUserDto = null;
         List<ExamExamineeUserDto> examineeUserNeedList = null;

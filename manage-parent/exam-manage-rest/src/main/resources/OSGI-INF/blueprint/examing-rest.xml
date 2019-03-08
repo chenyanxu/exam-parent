@@ -49,6 +49,12 @@
                 <to uri="bean:examAnswerBeanService?method=saveEntity"/>
             </post>
 
+            <put uri="/updateexamstart" id="route-updateExamStartState" type="java.lang.Long"
+                  outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Update Exam Start State</description>
+                <to uri="bean:examAnswerBeanService?method=updateStartExamingState"/>
+            </put>
+
             <post uri="/commitexaming" id="route-addExamOrgUser" type="com.kalix.exam.manage.dto.ExamingDto"
                   outType="com.kalix.framework.core.api.persistence.JsonStatus">
                 <description>Add a Exam User</description>
