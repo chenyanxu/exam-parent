@@ -9,6 +9,8 @@ public class ExamingDto extends BaseDTO {
     private Long examId;
     // 考卷模板Id
     private Long paperId;
+    // 用户Id
+    private Long userId;
     // 考题列表
     private List<ExamQuesDto> quesList;
 
@@ -26,6 +28,14 @@ public class ExamingDto extends BaseDTO {
 
     public void setPaperId(Long paperId) {
         this.paperId = paperId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public List<ExamQuesDto> getQuesList() {

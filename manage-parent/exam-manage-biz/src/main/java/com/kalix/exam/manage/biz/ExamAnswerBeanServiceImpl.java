@@ -165,7 +165,8 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
             Long examId = examingDto.getExamId();
             Long paperId = examingDto.getPaperId();
             List<ExamQuesDto> quesList = examingDto.getQuesList();
-            Long userId = shiroService.getCurrentUserId();
+//            Long userId = shiroService.getCurrentUserId();
+            Long userId = examingDto.getUserId();
             List<ExamAnswerBean> examAnswerBeanList = new ArrayList<>();
             // 选择题类型是2
             List<ExamQuesDto> quesChoiceList = quesList.stream().filter(q->"2".equals(q.getQuesType())).collect(Collectors.toList());

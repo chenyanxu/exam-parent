@@ -212,8 +212,8 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
     }
 
     @Override
-    public JsonData getExamineeUserInfo() {
-        Long userId = shiroService.getCurrentUserId();
+    public JsonData getExamineeUserInfo(Long userId) {
+        //Long userId = shiroService.getCurrentUserId();
         String sql = "select a.id as examId,a.name as examName,a.subject,a.examStart,a.duration,a.paperId,c.name as userName,c.idCards" +
                 " from exam_create a,exam_examinee b,sys_user c where b.examid=a.id and b.userid=c.id" +
                 " and  b.userid=" + userId +

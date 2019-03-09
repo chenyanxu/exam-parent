@@ -65,6 +65,6 @@ public interface IExamExamineeBeanService extends IBizService<ExamExamineeBean> 
      * 获取考试用户信息
      * @return
      */
-    JsonData getExamineeUserInfo();
+    JsonData getExamineeUserInfo(Long userId);
 
 }
