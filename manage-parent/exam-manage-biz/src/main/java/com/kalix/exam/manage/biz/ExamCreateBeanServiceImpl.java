@@ -58,12 +58,9 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
     public JsonStatus preCreateExamPaper(Long id) {
         ExamCreateBean examCreateBean = dao.get(id);
         Long paperId = examCreateBean.getPaperId();
-//        Boolean isPreCreate = examCreateBean.getPaperPreCreate();
+        // 清空配置信息
+        clearExamPaperConfig(id, paperId);
         JsonStatus jsonStatus = new JsonStatus();
-//        if (isPreCreate) {
-//            jsonStatus.setFailure(true);
-//            jsonStatus.setMsg("试卷已创建过");
-//        }
         try {
             Map<String ,Object> paperMap = questionCommonBizService.autoCreateTestPaperMap(paperId, null);
             List<Map<String, Object>> quesList = (List<Map<String, Object>>)paperMap.get("quesList");
@@ -122,6 +119,27 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
             jsonStatus.setMsg("创建失败！");
         }
         return jsonStatus;
+    }
+
+    private void clearExamPaperConfig(Long examId, Long paperId) {
+        try {
+            List<ExamQuesBean> examQuesBeanList = examQuesBeanService.getExamQuesInfo(paperId);
+            if (examQuesBeanList != null) {
+                for (ExamQuesBean examQuesBean : examQuesBeanList) {
+                    String quesIds = examQuesBean.getQuesIds();
+                    String subType = examQuesBean.getSubType();
+                    String sql = "delete from enrolment_question_paperques where paperid=" + paperId +
+                            " and quesid in ("+quesIds+") and subtype='" + subType + "'";
+                    dao.updateNativeQuery(sql);
+
+                    examQuesBeanService.deleteExamQuesInfo(quesIds, subType);
+                }
+
+            }
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
