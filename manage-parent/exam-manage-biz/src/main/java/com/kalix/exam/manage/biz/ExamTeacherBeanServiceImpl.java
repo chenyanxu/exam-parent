@@ -8,10 +8,13 @@ import com.kalix.exam.manage.api.biz.IExamCreateBeanService;
 import com.kalix.exam.manage.api.biz.IExamTeacherBeanService;
 import com.kalix.exam.manage.api.dao.IExamTeacherBeanDao;
 import com.kalix.exam.manage.dto.ExamOrgDto;
+import com.kalix.exam.manage.dto.ExamTeacherDto;
 import com.kalix.exam.manage.entities.ExamCreateBean;
 import com.kalix.exam.manage.entities.ExamTeacherBean;
+import com.kalix.framework.core.api.persistence.JsonData;
 import com.kalix.framework.core.api.persistence.JsonStatus;
 import com.kalix.framework.core.impl.biz.ShiroGenericBizServiceImpl;
+import com.kalix.framework.core.util.SerializeUtil;
 
 import java.util.*;
 
@@ -125,5 +128,62 @@ public class ExamTeacherBeanServiceImpl extends ShiroGenericBizServiceImpl<IExam
         map.put("treeData", organizationDTO);
         map.put("orgIds", orgIds);
         return map;
+    }
+
+    @Override
+    public JsonData getAllExamTeachers(Integer page, Integer limit, String jsonStr, String sort) {
+        Map<String, String> jsonMap = SerializeUtil.json2Map(jsonStr);
+        String name = jsonMap.get("%name%");
+        List<ExamTeacherDto> examTeacherDtoList = getAllExamTeachers(page, limit, name);
+        Integer count = getAllExamTeachersCount(page, limit, name);
+        return getResult(examTeacherDtoList, count);
+    }
+
+    private List<ExamTeacherDto> getAllExamTeachers(Integer page, Integer limit, String name) {
+        int offset = 0;
+        if (page != null && limit != null && page > 0 && limit > 0) {
+            offset = (page - 1) * limit;
+        }
+        String sql = "select a.id,c.name,a.userid,a.examid,b.name as examName,b.subject,b.subjectval,a.orgid," +
+                " a.teachertype,d.label as teacherTypeName,a.scoreweight" +
+                " from exam_teacher a " +
+                " left JOIN exam_create b on a.examid = b.id" +
+                " left JOIN sys_user c on c.id = a.userid" +
+                " left JOIN exam_dict d on a.teachertype = d.value and d.type='阅卷教师'";
+        if (name != null && !name.isEmpty()) {
+            sql += " where c.name like'%"+name+"%'";
+        }
+        if (page != null && limit != null) {
+            sql += " limit " + limit + " offset " + offset;
+        }
+        List<ExamTeacherDto> ExamTeacherDtoList = dao.findByNativeSql(sql, ExamTeacherDto.class);
+        return ExamTeacherDtoList;
+    }
+
+    private Integer getAllExamTeachersCount(Integer page, Integer limit, String name) {
+        String sql = "select count(1) " +
+                " from exam_teacher a " +
+                " left JOIN exam_create b on a.examid = b.id" +
+                " left JOIN sys_user c on c.id = a.userid" +
+                " left JOIN exam_dict d on a.teachertype = d.value and d.type='阅卷教师'";
+        if (name != null && !name.isEmpty()) {
+            sql += " where c.name like'%"+name+"%'";
+        }
+        List<Integer> list = dao.findByNativeSql(sql, Integer.class);
+        if (list == null) {
+            return 0;
+        }
+        return list.get(0);
+    }
+
+    private JsonData getResult(List<?> list, int count) {
+        JsonData jsonData = new JsonData();
+        if (list == null) {
+            jsonData.setTotalCount(0L);
+        } else {
+            jsonData.setTotalCount(Long.valueOf(count));
+        }
+        jsonData.setData(list);
+        return jsonData;
     }
 }

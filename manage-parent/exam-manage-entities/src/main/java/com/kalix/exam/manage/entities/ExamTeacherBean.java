@@ -11,7 +11,7 @@ public class ExamTeacherBean extends PersistentEntity {
     private Long userId; // 教师Id
     private Long examId; // 考试Id
     private Long orgId; // 教师所在机构Id
-    private Integer teacherType; // 0:阅卷教师 1:复审教师
+    private String teacherType; // 0:阅卷教师 1:复审教师
     private Float scoreWeight; // 给分权重
 
     public Long getUserId() {
@@ -38,11 +38,11 @@ public class ExamTeacherBean extends PersistentEntity {
         this.orgId = orgId;
     }
 
-    public Integer getTeacherType() {
+    public String getTeacherType() {
         return teacherType;
     }
 
-    public void setTeacherType(Integer teacherType) {
+    public void setTeacherType(String teacherType) {
         this.teacherType = teacherType;
     }
 

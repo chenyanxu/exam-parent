@@ -3,6 +3,7 @@ package com.kalix.exam.manage.api.biz;
 import com.kalix.exam.manage.dto.ExamOrgDto;
 import com.kalix.exam.manage.entities.ExamTeacherBean;
 import com.kalix.framework.core.api.biz.IBizService;
+import com.kalix.framework.core.api.persistence.JsonData;
 import com.kalix.framework.core.api.persistence.JsonStatus;
 
 import java.util.Map;
@@ -27,4 +28,11 @@ public interface IExamTeacherBeanService extends IBizService<ExamTeacherBean> {
      * @return
      */
     Map<String, Object> getExamOrgTree(Long examId);
+
+    /**
+     * 获取所有阅卷教师
+     * @param jsonStr
+     * @return
+     */
+    JsonData getAllExamTeachers(Integer page, Integer limit, String jsonStr, String sort);
 }
