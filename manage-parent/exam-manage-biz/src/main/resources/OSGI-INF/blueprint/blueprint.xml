@@ -39,6 +39,7 @@
         <property name="userBeanService" ref="userBeanService"/>
         <property name="examCreateBeanService" ref="examCreateBeanServiceImpl"/>
         <property name="organizationBeanService" ref="organizationBeanService"/>
+        <property name="examQuesBeanService" ref="examQuesBeanServiceImpl"/>
     </bean>
 
     <reference id="examAnswerBeanDao" interface="com.kalix.exam.manage.api.dao.IExamAnswerBeanDao"/>

@@ -23,6 +23,13 @@ public class ExamQuesBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamQue
     }
 
     @Override
+    public void deleteExamQuesInfo(String quesIds, String subType) {
+        String sql = "delete from exam_ques where quesIds='"+quesIds+"'" +
+                " and subType='"+subType+"'";
+        dao.updateNativeQuery(sql);
+    }
+
+    @Override
     public String getExamQuesIds(Long paperId, Long examId) {
         String sql = "select * from exam_ques where examId=" + examId + " and paperId=" + paperId;
         List<ExamQuesBean> examQuesBeanList = dao.findByNativeSql(sql, ExamQuesBean.class);
@@ -30,6 +37,13 @@ public class ExamQuesBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamQue
             return examQuesBeanList.get(0).getQuesIds();
         }
         return null;
+    }
+
+    @Override
+    public List<ExamQuesBean> getExamQuesInfo(Long paperId) {
+        String sql = "select * from exam_ques where paperId=" + paperId;
+        List<ExamQuesBean> examQuesBeanList = dao.findByNativeSql(sql, ExamQuesBean.class);
+        return examQuesBeanList;
     }
 
     @Override

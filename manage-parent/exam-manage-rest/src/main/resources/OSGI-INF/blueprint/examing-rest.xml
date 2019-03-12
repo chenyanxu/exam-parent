@@ -25,7 +25,7 @@
 
             <get uri="/examineeuser" id="route-getAllExamineeUser" outType="com.kalix.framework.core.api.persistence.JsonData">
                 <description>Find all ExamineeUser</description>
-                <to uri="bean:examExamineeBeanService?method=getExamineeUserInfo()"/>
+                <to uri="bean:examExamineeBeanService?method=getExamineeUserInfo(${header.userId})"/>
             </get>
 
             <get uri="/paper" id="route-getAllPaperExaming" outType="java.util.Map">
