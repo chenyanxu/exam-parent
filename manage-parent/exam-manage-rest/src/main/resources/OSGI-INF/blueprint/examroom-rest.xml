@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+    <reference id="examRoomBeanService" interface="com.kalix.exam.manage.api.biz.IExamRoomBeanService"/>
+
+    <camelContext id="examRoomCamel" xmlns="http://camel.apache.org/schema/blueprint">
+        <restConfiguration component="servlet" bindingMode="json">
+            <dataFormatProperty key="prettyPrint" value="${rest.pretty}"/>
+        </restConfiguration>
+
+        <!-- defines the rest services using the context-path /exam -->
+        <rest path="/examrooms" consumes="application/json;charset=utf-8" produces="application/json">
+            <description>examroom rest service</description>
+            <!-- this is a rest GET to find all examrooms -->
+            <get id="route-getAllExamRooms" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find all Examrooms</description>
+                <to uri="bean:examRoomBeanService?method=getAllEntityByQuery(${header.page},${header.limit},${header.jsonStr},${header.sort})"/>
+            </get>
+
+            <!-- this is a rest POST to create a examroom -->
+            <post id="route-addExamRoom" type="com.kalix.exam.manage.entities.ExamRoomBean"
+                  outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Create a Examroom</description>
+                <to uri="bean:examRoomBeanService?method=saveEntity"/>
+            </post>
+        </rest>
+
+        <rest path="/examrooms/{id}" consumes="application/json;charset=utf-8" produces="application/json">
+            <!-- this is a rest GET to view a examroom by the given id -->
+            <get id="route-getExamRoom" outType="com.kalix.exam.manage.entities.ExamRoomBean">
+                <description>Find Examroom by id</description>
+                <to uri="bean:examRoomBeanService?method=getEntity(${header.id})"/>
+            </get>
+            <!-- this is a rest PUT to update a examroom -->
+            <put id="route-updateExamRoom" type="com.kalix.exam.manage.entities.ExamRoomBean"
+                 outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Updates a Examroom</description>
+                <to uri="bean:examRoomBeanService?method=updateEntity"/>
+            </put>
+            <!-- this is a rest DELETE to delete a examroom -->
+            <delete  id="route-deleteExamRoom"
+                    outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Delete a Examroom</description>
+                <to uri="bean:examRoomBeanService?method=deleteEntity(${header.id})"/>
+            </delete>
+        </rest>
+    </camelContext>
+</blueprint>

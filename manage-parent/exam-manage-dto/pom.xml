@@ -18,4 +18,11 @@
     <properties>
         <bundle.symbolicName>com.kalix.exam.manage.dto</bundle.symbolicName>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.kalix.middleware.excel</groupId>
+            <artifactId>middleware-excel-api</artifactId>
+        </dependency>
+    </dependencies>
 </project>
