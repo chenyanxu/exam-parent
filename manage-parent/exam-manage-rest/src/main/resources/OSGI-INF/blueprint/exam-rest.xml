@@ -5,6 +5,7 @@
        http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
     <reference id="examCreateBeanService" interface="com.kalix.exam.manage.api.biz.IExamCreateBeanService"/>
     <reference id="examExamineeBeanService" interface="com.kalix.exam.manage.api.biz.IExamExamineeBeanService"/>
+    <reference id="examTeacherBeanService" interface="com.kalix.exam.manage.api.biz.IExamTeacherBeanService"/>
     <camelContext id="examCreateCamel" xmlns="http://camel.apache.org/schema/blueprint">
         <restConfiguration component="servlet" bindingMode="json">
             <dataFormatProperty key="prettyPrint" value="${rest.pretty}"/>
@@ -47,9 +48,20 @@
                 <to uri="bean:examExamineeBeanService?method=saveExaminee"/>
             </post>
 
+            <post uri="/examorgteacher" id="route-addExamOrgTeacher" type="com.kalix.exam.manage.dto.ExamOrgDto"
+                  outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Add a Exam Teacher</description>
+                <to uri="bean:examTeacherBeanService?method=saveExamTeacher"/>
+            </post>
+
             <get uri="/examorgtree" id="route-getExamOrgTree" outType="java.util.Map">
                 <description>Find all Exam OrgTree</description>
                 <to uri="bean:examExamineeBeanService?method=getExamOrgTree(${header.examId})"/>
+            </get>
+
+            <get uri="/examorgteachertree" id="route-getExamOrgTeacherTree" outType="java.util.Map">
+                <description>Find all Exam OrgTeacherTree</description>
+                <to uri="bean:examTeacherBeanService?method=getExamOrgTree(${header.examId})"/>
             </get>
         </rest>
 

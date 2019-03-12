@@ -20,6 +20,7 @@ public class ExamCreateBean extends PersistentEntity {
     private String paperChoice; // 抽取试卷
     private Long paperId;  // 考卷Id
     private String distributeStat; // 考生分配状态
+    private String teacherDistribute; // 教师分配状态
 
     public String getName() {
         return name;
@@ -102,4 +103,11 @@ public class ExamCreateBean extends PersistentEntity {
         this.distributeStat = distributeStat;
     }
 
+    public String getTeacherDistribute() {
+        return teacherDistribute;
+    }
+
+    public void setTeacherDistribute(String teacherDistribute) {
+        this.teacherDistribute = teacherDistribute;
+    }
 }
