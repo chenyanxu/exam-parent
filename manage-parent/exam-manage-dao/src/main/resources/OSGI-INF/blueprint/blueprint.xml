@@ -36,5 +36,11 @@
     <bean id="examQuesBeanDaoImpl" class="com.kalix.exam.manage.dao.ExamQuesBeanDaoImpl">
         <tx:transaction method="*" value="Required"/>
     </bean>
+
+    <service interface="com.kalix.exam.manage.api.dao.IExamRoomBeanDao" ref="examRoomBeanDaoImpl"/>
+
+    <bean id="examRoomBeanDaoImpl" class="com.kalix.exam.manage.dao.ExamRoomBeanDaoImpl">
+        <tx:transaction method="*" value="Required"/>
+    </bean>
 </blueprint>
 

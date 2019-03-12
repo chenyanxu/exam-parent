@@ -4,5 +4,5 @@
 
 Bundle-Activator: ${bundle.namespace}.internal.InitActivator
 Import-Package:*
-Export-Package: com.kalix.exam.manage.dto
+Export-Package: com.kalix.middleware.excel.api.model.exam.manage,com.kalix.exam.manage.dto
 Bundle-Category:Kalix Exam Manage
