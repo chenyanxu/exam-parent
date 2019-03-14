@@ -1,11 +1,13 @@
 package com.kalix.exam.manage.api.biz;
 
 import com.kalix.exam.manage.dto.ExamOrgDto;
+import com.kalix.exam.manage.dto.ExamTeacherDto;
 import com.kalix.exam.manage.entities.ExamTeacherBean;
 import com.kalix.framework.core.api.biz.IBizService;
 import com.kalix.framework.core.api.persistence.JsonData;
 import com.kalix.framework.core.api.persistence.JsonStatus;
 
+import java.util.List;
 import java.util.Map;
 
 public interface IExamTeacherBeanService extends IBizService<ExamTeacherBean> {
@@ -35,4 +37,18 @@ public interface IExamTeacherBeanService extends IBizService<ExamTeacherBean> {
      * @return
      */
     JsonData getAllExamTeachers(Integer page, Integer limit, String jsonStr, String sort);
+
+    /**
+     * 通过用户Id获取阅卷教师
+     * @param userId
+     * @return
+     */
+    List<ExamTeacherBean> getTeacherByUserId(Long userId);
+
+    /**
+     * 通过用户Id获取阅卷教师及考试信息
+     * @param userId
+     * @return
+     */
+    List<ExamTeacherDto> getTeacherDtoByUserId(Long userId);
 }

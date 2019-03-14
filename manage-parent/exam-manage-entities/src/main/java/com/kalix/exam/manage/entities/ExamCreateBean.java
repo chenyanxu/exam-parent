@@ -21,6 +21,7 @@ public class ExamCreateBean extends PersistentEntity {
     private Long paperId;  // 考卷Id
     private String distributeStat; // 考生分配状态
     private String teacherDistribute; // 教师分配状态
+    private Integer passScore; // 及格分数
 
     public String getName() {
         return name;
@@ -109,5 +110,13 @@ public class ExamCreateBean extends PersistentEntity {
 
     public void setTeacherDistribute(String teacherDistribute) {
         this.teacherDistribute = teacherDistribute;
+    }
+
+    public Integer getPassScore() {
+        return passScore;
+    }
+
+    public void setPassScore(Integer passScore) {
+        this.passScore = passScore;
     }
 }

@@ -5,6 +5,8 @@
     <tx:enable-annotations/>
 
     <reference id="subjectBeanService" interface="com.kalix.enrolment.question.api.biz.IQuestionService" filter="(beanName=Subject)"/>
+    <reference id="scoreStanderBeanService" interface="com.kalix.enrolment.question.api.biz.IScoreStanderBeanService"/>
+
     <reference id="examCreateBeanDao" interface="com.kalix.exam.manage.api.dao.IExamCreateBeanDao"/>
     <reference id="examRoomBeanDao" interface="com.kalix.exam.manage.api.dao.IExamRoomBeanDao"/>
 
@@ -102,6 +104,29 @@
 
     <bean id="examRoomServiceImpl" class="com.kalix.exam.manage.biz.ExamRoomBeanServiceImpl">
         <property name="dao" ref="examRoomBeanDao"/>
+    </bean>
+
+    <!--考试打分服务-->
+    <reference id="examScoreBeanDao" interface="com.kalix.exam.manage.api.dao.IExamScoreBeanDao"/>
+
+    <service id="examScoreBeanService" interface="com.kalix.exam.manage.api.biz.IExamScoreBeanService" ref="examScoreBeanServiceImpl">
+    </service>
+
+    <bean id="examScoreBeanServiceImpl" class="com.kalix.exam.manage.biz.ExamScoreBeanServiceImpl">
+        <property name="dao" ref="examScoreBeanDao"/>
+        <property name="examTeacherBeanService" ref="examTeacherBeanServiceImpl"/>
+        <!--<property name="scoreStanderBeanService" ref="scoreStanderBeanService"/>-->
+        <property name="examScoreItemBeanService" ref="examScoreItemBeanServiceImpl"/>
+    </bean>
+
+    <!--考试打分项服务-->
+    <reference id="examScoreItemBeanDao" interface="com.kalix.exam.manage.api.dao.IExamScoreItemBeanDao"/>
+
+    <service id="examScoreItemBeanService" interface="com.kalix.exam.manage.api.biz.IExamScoreItemBeanService" ref="examScoreItemBeanServiceImpl">
+    </service>
+
+    <bean id="examScoreItemBeanServiceImpl" class="com.kalix.exam.manage.biz.ExamScoreItemBeanServiceImpl">
+        <property name="dao" ref="examScoreItemBeanDao"/>
     </bean>
 </blueprint>
 

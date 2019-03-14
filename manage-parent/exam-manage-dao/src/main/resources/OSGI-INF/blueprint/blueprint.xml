@@ -42,5 +42,17 @@
     <bean id="examRoomBeanDaoImpl" class="com.kalix.exam.manage.dao.ExamRoomBeanDaoImpl">
         <tx:transaction method="*" value="Required"/>
     </bean>
+
+    <service interface="com.kalix.exam.manage.api.dao.IExamScoreBeanDao" ref="examScoreBeanDaoImpl"/>
+
+    <bean id="examScoreBeanDaoImpl" class="com.kalix.exam.manage.dao.ExamScoreBeanDaoImpl">
+        <tx:transaction method="*" value="Required"/>
+    </bean>
+
+    <service interface="com.kalix.exam.manage.api.dao.IExamScoreItemBeanDao" ref="examScoreItemBeanDaoImpl"/>
+
+    <bean id="examScoreItemBeanDaoImpl" class="com.kalix.exam.manage.dao.ExamScoreItemBeanDaoImpl">
+        <tx:transaction method="*" value="Required"/>
+    </bean>
 </blueprint>
 

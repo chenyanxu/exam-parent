@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+    <reference id="examScoreBeanService" interface="com.kalix.exam.manage.api.biz.IExamScoreBeanService"/>
+    <camelContext id="examScoreBeanCamel" xmlns="http://camel.apache.org/schema/blueprint">
+        <restConfiguration component="servlet" bindingMode="json">
+            <dataFormatProperty key="prettyPrint" value="${rest.pretty}"/>
+        </restConfiguration>
+
+        <!-- defines the rest services using the context-path /exam -->
+        <rest path="/examscores" consumes="application/json;charset=utf-8" produces="application/json">
+            <description>examscores rest service</description>
+            <get uri="/subjects" id="route-getExamscoresSubject" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find examscores subject</description>
+                <to uri="bean:examScoreBeanService?method=getAllExamSubjectsByTeacherId(${header.userId})"/>
+            </get>
+            <!-- this is a rest GET to find Examscores -->
+            <get uri="/forscore" id="route-getExamscoresForscore" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find examscores forscore</description>
+                <to uri="bean:examScoreBeanService?method=getExamAnswerForScore(${header.userId},${header.subjectVal},${header.teacherType})"/>
+            </get>
+
+        </rest>
+
+    </camelContext>
+</blueprint>

@@ -139,6 +139,25 @@ public class ExamTeacherBeanServiceImpl extends ShiroGenericBizServiceImpl<IExam
         return getResult(examTeacherDtoList, count);
     }
 
+    @Override
+    public List<ExamTeacherBean> getTeacherByUserId(Long userId) {
+        String sql = "select examId,teacherType,scoreWeight from exam_teacher where userId=" + userId;
+        return dao.findByNativeSql(sql, ExamTeacherBean.class);
+    }
+
+    @Override
+    public List<ExamTeacherDto> getTeacherDtoByUserId(Long userId) {
+        String sql = "select a.id,c.name,a.userid,a.examid,b.name as examName,b.subject,b.subjectval,a.orgid," +
+                " a.teachertype,d.label as teacherTypeName,a.scoreweight" +
+                " from exam_teacher a " +
+                " left JOIN exam_create b on a.examid = b.id" +
+                " left JOIN sys_user c on c.id = a.userid" +
+                " left JOIN exam_dict d on a.teachertype = d.value and d.type='阅卷教师'" +
+                " where a.userid=" + userId;
+        List<ExamTeacherDto> ExamTeacherDtoList = dao.findByNativeSql(sql, ExamTeacherDto.class);
+        return ExamTeacherDtoList;
+    }
+
     private List<ExamTeacherDto> getAllExamTeachers(Integer page, Integer limit, String name) {
         int offset = 0;
         if (page != null && limit != null && page > 0 && limit > 0) {
