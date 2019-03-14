@@ -1,8 +1,10 @@
 package com.kalix.exam.manage.api.biz;
 
+import com.kalix.exam.manage.dto.ExamScoreDto;
 import com.kalix.exam.manage.entities.ExamScoreBean;
 import com.kalix.framework.core.api.biz.IBizService;
 import com.kalix.framework.core.api.persistence.JsonData;
+import com.kalix.framework.core.api.persistence.JsonStatus;
 
 public interface IExamScoreBeanService extends IBizService<ExamScoreBean> {
 
@@ -19,4 +21,11 @@ public interface IExamScoreBeanService extends IBizService<ExamScoreBean> {
      * @return
      */
     JsonData getExamAnswerForScore(Long userId, String subjectVal, String teacherType);
+
+    /**
+     * 考题打分
+     * @param examScoreDto
+     * @return
+     */
+    JsonStatus examAnswerForScore(ExamScoreDto examScoreDto);
 }

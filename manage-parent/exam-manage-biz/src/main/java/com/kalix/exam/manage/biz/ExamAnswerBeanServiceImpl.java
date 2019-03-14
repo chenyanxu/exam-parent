@@ -209,8 +209,10 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
 
     @Override
     public List<ExamAnswerBean> getExamUserAnswer(Long examId, Long paperId, Long userId) {
-        String sql = "SELECT * FROM exam_answer " +
-                "WHERE examId = "+examId+" and paperId="+paperId+" and userId=" + userId;
+        String sql = "SELECT * FROM exam_answer WHERE examId = " + examId + " and userId=" + userId;
+        if (paperId != null) {
+            sql += " and paperId="+paperId;
+        }
         return dao.findByNativeSql(sql, ExamAnswerBean.class);
     }
 

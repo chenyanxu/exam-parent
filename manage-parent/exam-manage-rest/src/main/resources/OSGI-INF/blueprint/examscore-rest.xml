@@ -22,6 +22,12 @@
                 <to uri="bean:examScoreBeanService?method=getExamAnswerForScore(${header.userId},${header.subjectVal},${header.teacherType})"/>
             </get>
 
+            <post uri="/score" id="route-ExamscoresScore" type="com.kalix.exam.manage.dto.ExamScoreDto"
+                  outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Examscores Score</description>
+                <to uri="bean:examScoreBeanService?method=examAnswerForScore"/>
+            </post>
+
         </rest>
 
     </camelContext>

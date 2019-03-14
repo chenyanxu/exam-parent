@@ -10,7 +10,9 @@ import javax.persistence.Table;
 public class ExamScoreBean extends PersistentEntity {
     private Long examId; // 考试Id
     private Long userId; // 考生Id
+    private Long examAnswerId; // 考试答案表Id
     private Long teacherId; // 阅卷人Id
+    private String teacherType; // 阅卷人分类
     private Integer score; // 打分
 
     public Long getExamId() {
@@ -43,5 +45,21 @@ public class ExamScoreBean extends PersistentEntity {
 
     public void setScore(Integer score) {
         this.score = score;
+    }
+
+    public Long getExamAnswerId() {
+        return examAnswerId;
+    }
+
+    public void setExamAnswerId(Long examAnswerId) {
+        this.examAnswerId = examAnswerId;
+    }
+
+    public String getTeacherType() {
+        return teacherType;
+    }
+
+    public void setTeacherType(String teacherType) {
+        this.teacherType = teacherType;
     }
 }

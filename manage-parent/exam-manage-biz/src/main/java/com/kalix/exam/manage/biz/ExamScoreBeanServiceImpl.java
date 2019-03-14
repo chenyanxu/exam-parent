@@ -1,14 +1,13 @@
 package com.kalix.exam.manage.biz;
 
-import com.kalix.exam.manage.api.biz.IExamScoreBeanService;
-import com.kalix.exam.manage.api.biz.IExamScoreItemBeanService;
-import com.kalix.exam.manage.api.biz.IExamTeacherBeanService;
+import com.kalix.exam.manage.api.biz.*;
 import com.kalix.exam.manage.api.dao.IExamScoreBeanDao;
-import com.kalix.exam.manage.dto.ExamAnswerDto;
-import com.kalix.exam.manage.dto.ExamAnswerScoreItemDto;
-import com.kalix.exam.manage.dto.ExamTeacherDto;
+import com.kalix.exam.manage.dto.*;
+import com.kalix.exam.manage.entities.ExamAnswerBean;
 import com.kalix.exam.manage.entities.ExamScoreBean;
+import com.kalix.exam.manage.entities.ExamScoreItemBean;
 import com.kalix.framework.core.api.persistence.JsonData;
+import com.kalix.framework.core.api.persistence.JsonStatus;
 import com.kalix.framework.core.impl.biz.ShiroGenericBizServiceImpl;
 
 import java.util.ArrayList;
@@ -20,9 +19,18 @@ import java.util.stream.Collectors;
 
 public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamScoreBeanDao, ExamScoreBean> implements IExamScoreBeanService {
 
+    private final String firstCheckState = "已初审";
+    private final String secondCheckState = "已复审";
+    private final String notOverReadState = "未批";
+    private final String overReadState = "已批";
+
     private IExamTeacherBeanService examTeacherBeanService;
 
     private IExamScoreItemBeanService examScoreItemBeanService;
+
+    private IExamAnswerBeanService examAnswerBeanService;
+
+    private IExamExamineeBeanService examExamineeBeanService;
 
     public void setExamTeacherBeanService(IExamTeacherBeanService examTeacherBeanService) {
         this.examTeacherBeanService = examTeacherBeanService;
@@ -30,6 +38,14 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
 
     public void setExamScoreItemBeanService(IExamScoreItemBeanService examScoreItemBeanService) {
         this.examScoreItemBeanService = examScoreItemBeanService;
+    }
+
+    public void setExamAnswerBeanService(IExamAnswerBeanService examAnswerBeanService) {
+        this.examAnswerBeanService = examAnswerBeanService;
+    }
+
+    public void setExamExamineeBeanService(IExamExamineeBeanService examExamineeBeanService) {
+        this.examExamineeBeanService = examExamineeBeanService;
     }
 
     //    private IScoreStanderBeanService scoreStanderBeanService;
@@ -53,13 +69,13 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
         // 试题查询
         if ("1".equals(teacherType)) {
             // 初审用户
-            examAnswerList = getAllExamAnswerList(userId, subjectVal, totalNum, "未批");
+            examAnswerList = getAllExamAnswerList(userId, subjectVal, totalNum, notOverReadState);
         } else if ("2".equals(teacherType)) {
             // 复审用户
-            examAnswerList = getAllExamAnswerList(userId, subjectVal, totalNum, "已初审");
+            examAnswerList = getAllExamAnswerList(userId, subjectVal, totalNum, firstCheckState);
         } else if ("3".equals(teacherType)) {
             // 组长
-            examAnswerList = getAllExamAnswerSuperList(userId, subjectVal, totalNum, "已复审");
+            examAnswerList = getAllExamAnswerSuperList(userId, subjectVal, totalNum, secondCheckState);
         }
 
         return getResult(examAnswerList);
@@ -168,7 +184,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
      * @return
      */
     private List<ExamAnswerDto> getAllExamAnswerList(Long userId, String subjectCode, Integer totalNum, String state) {
-        String sql = "select a.examid as examId,b.subject,b.subjectval as subjectVal," +
+        String sql = "select a.examid as examId,a.teachertype as teacherType,b.subject,b.subjectval as subjectVal,b.passScore," +
                 " d.id as examAnswerId,d.answer,d.quesid as quesId,d.perscore,d.userid as studentId," +
                 " e.stem,e.subtype" +
                 " from exam_teacher a,exam_create b,exam_answer d," +
@@ -247,6 +263,131 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
             return 0;
         }
         return count.get(0);
+    }
+
+    @Override
+    public JsonStatus examAnswerForScore(ExamScoreDto examScoreDto) {
+        JsonStatus jsonStatus = new JsonStatus();
+        try {
+            ExamScoreBean examScoreBean = saveExamScoreBean(examScoreDto);
+            Long examScoreId = examScoreBean.getId();
+            List<ExamScoreItemDto> examScoreItems = examScoreDto.getExamScoreItems();
+            if (examScoreItems != null && !examScoreItems.isEmpty()) {
+                List<ExamScoreItemBean> examScoreItemBeanList = new ArrayList<>();
+                for (ExamScoreItemDto examScoreItemDto : examScoreItems) {
+                    ExamScoreItemBean examScoreItemBean = makeExamScoreItemBean(examScoreItemDto, examScoreId);
+                    examScoreItemBeanList.add(examScoreItemBean);
+                }
+                examScoreItemBeanService.saveForBatch(examScoreItemBeanList);
+                String teacherType = examScoreDto.getTeacherType();
+                Long examAnswerId = examScoreDto.getExamAnswerId();
+                Integer passScore = examScoreDto.getPassScore();
+                Long teacherId = examScoreDto.getTeacherId();
+                Long examId = examScoreDto.getExamId();
+                Long studentId = examScoreDto.getStudentId();
+                if ("1".equals(teacherType)) {
+                    // 初审教师更新ExamAnswer表状态
+                    updateExamAnswerBeanState(examAnswerId, firstCheckState);
+                } else if ("2".equals(teacherType)) {
+                    // 获取初审教师的打分对比自己的打分
+                    Integer score = examScoreDto.getScore();
+                    // 获取初审教师的打分
+                    Integer firstTrialScore = getFirstTrialScore(examAnswerId, teacherId);
+                    if ((score < passScore && firstTrialScore < passScore)
+                            || (score >= passScore && firstTrialScore >= passScore)) {
+                        Double totalScoreDouble = (firstTrialScore*0.4) + (score*0.6);
+                        Integer giveScore = Integer.parseInt(String.valueOf(Math.ceil(totalScoreDouble)));
+                        // 教师给题定分
+                        updateExamAnswerBeanScoreState(examAnswerId, giveScore, overReadState);
+                        // 考生表检测更新分数
+                        updateExamineeScore(examId, studentId);
+                    } else {
+                        // 复审教师更新ExamAnswer表状态
+                        updateExamAnswerBeanState(examAnswerId, secondCheckState);
+                    }
+                } else if ("3".equals(teacherType)) {
+                    Integer score = examScoreDto.getScore();
+                    // 教师给题定分
+                    updateExamAnswerBeanScoreState(examAnswerId, score, overReadState);
+                    // 考生表检测更新分数
+                    updateExamineeScore(examId, studentId);
+                }
+            }
+            jsonStatus.setSuccess(true);
+            jsonStatus.setMsg("保存成功");
+        } catch(Exception e) {
+            e.printStackTrace();
+            jsonStatus.setFailure(true);
+            jsonStatus.setMsg("保存失败");
+        }
+        return jsonStatus;
+    }
+
+    private Integer getFirstTrialScore(Long examAnswerId, Long teacherId) {
+        String sql = "select examAnswerId,teacherId,teacherType,score from exam_score " +
+                " where examAnswerId=" + examAnswerId + " and teacherId !=" + teacherId +
+                " teacherType = '1'";
+        List<ExamScoreBean> examScoreBeanList = dao.findByNativeSql(sql, ExamScoreBean.class);
+        if (examScoreBeanList == null || examScoreBeanList.isEmpty()) {
+            return 0;
+        }
+        return examScoreBeanList.get(0).getScore();
+    }
+
+    private void updateExamAnswerBeanState(Long examAnswerId, String state) {
+        ExamAnswerBean examAnswerBean = examAnswerBeanService.getEntity(examAnswerId);
+        examAnswerBean.setReadoverState(state);
+        examAnswerBeanService.saveEntity(examAnswerBean);
+    }
+
+    private void updateExamAnswerBeanScoreState(Long examAnswerId, Integer score, String state) {
+        ExamAnswerBean examAnswerBean = examAnswerBeanService.getEntity(examAnswerId);
+        examAnswerBean.setReadoverState(state);
+        examAnswerBean.setScore(score);
+        examAnswerBeanService.saveEntity(examAnswerBean);
+    }
+
+    private void updateExamineeScore(Long examId, Long studentId) {
+        List<ExamAnswerBean> examAnswerList = examAnswerBeanService.getExamUserAnswer(examId, null, studentId);
+        boolean isAllOverRead = examAnswerList.stream().allMatch(e->"已批".equals(e.getReadoverState()));
+        // 如果全是已批
+        if (isAllOverRead) {
+            // 计算总成绩
+            Integer totalScore = examAnswerList.stream().map(ExamAnswerBean::getScore).filter(s->s!=null).reduce(Integer::sum).get();
+            // 更新学生总成绩
+            examExamineeBeanService.updateTotalScore(examId, studentId, totalScore);
+        }
+    }
+
+    /**
+     * 保存ExamScore主表
+     * @param examScoreDto
+     * @return
+     */
+    private ExamScoreBean saveExamScoreBean(ExamScoreDto examScoreDto) {
+        ExamScoreBean examScoreBean = new ExamScoreBean();
+        examScoreBean.setExamId(examScoreDto.getExamId());
+        examScoreBean.setScore(examScoreDto.getScore());
+        examScoreBean.setTeacherId(examScoreDto.getTeacherId());
+        examScoreBean.setUserId(examScoreDto.getStudentId());
+        examScoreBean.setExamAnswerId(examScoreDto.getExamAnswerId());
+        examScoreBean.setTeacherType(examScoreDto.getTeacherType());
+        return dao.save(examScoreBean);
+    }
+
+    /**
+     * 保存考试项
+     * @param examScoreItemDto
+     * @return
+     */
+    private ExamScoreItemBean makeExamScoreItemBean(ExamScoreItemDto examScoreItemDto, Long examScoreId) {
+        ExamScoreItemBean examScoreItemBean = new ExamScoreItemBean();
+        examScoreItemBean.setExamScoreId(examScoreId);
+        examScoreItemBean.setItemDeductScore(examScoreItemDto.getItemDeductScore());
+        examScoreItemBean.setQuesId(examScoreItemDto.getQuesId());
+        examScoreItemBean.setStanderItemId(examScoreItemDto.getStanderItemId());
+        examScoreItemBean.setStanderItemScore(examScoreItemDto.getStanderItemScore());
+        return examScoreItemBean;
     }
 
     private JsonData getResult(List<?> list) {

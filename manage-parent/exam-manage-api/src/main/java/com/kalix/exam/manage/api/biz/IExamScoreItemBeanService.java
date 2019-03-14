@@ -13,4 +13,10 @@ public interface IExamScoreItemBeanService extends IBizService<ExamScoreItemBean
      * @return
      */
     List<ExamAnswerScoreItemDto> getExamAnswerScoreSuperItemList(Long scoreId);
+
+    /**
+     * 批量保存分数项
+     * @param examScoreItemBeanList
+     */
+    void saveForBatch(List<ExamScoreItemBean> examScoreItemBeanList);
 }

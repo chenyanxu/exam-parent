@@ -117,6 +117,8 @@
         <property name="examTeacherBeanService" ref="examTeacherBeanServiceImpl"/>
         <!--<property name="scoreStanderBeanService" ref="scoreStanderBeanService"/>-->
         <property name="examScoreItemBeanService" ref="examScoreItemBeanServiceImpl"/>
+        <property name="examAnswerBeanService" ref="examAnswerBeanServiceImpl"/>
+        <property name="examExamineeBeanService" ref="examExamineeBeanServiceImpl"/>
     </bean>
 
     <!--考试打分项服务-->

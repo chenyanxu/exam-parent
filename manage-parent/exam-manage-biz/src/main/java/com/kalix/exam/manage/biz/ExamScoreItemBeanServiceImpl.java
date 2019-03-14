@@ -15,4 +15,9 @@ public class ExamScoreItemBeanServiceImpl extends ShiroGenericBizServiceImpl<IEx
                 " where a.quesid=b.quesid and a.standerItemId=b.id and a.examScoreId=" + scoreId;
         return dao.findByNativeSql(sql, ExamAnswerScoreItemDto.class);
     }
+
+    @Override
+    public void saveForBatch(List<ExamScoreItemBean> examScoreItemBeanList) {
+        dao.addBatch(examScoreItemBeanList);
+    }
 }
