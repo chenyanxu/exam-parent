@@ -13,7 +13,7 @@ public class ExamAnswerDto extends BaseDTO {
     private Long examAnswerId; // 考生考题答案Id
     private String answer; // 答案文件名
     private Long quesId;  // 试题Id
-    private String perScore; // 题总分
+    private Integer perScore; // 题总分
     private Long studentId; // 考生Id
     private String stem; // 考题题干
     private String subType; // 考题类型（子类型）
@@ -103,11 +103,11 @@ public class ExamAnswerDto extends BaseDTO {
         this.stem = stem;
     }
 
-    public String getPerScore() {
+    public Integer getPerScore() {
         return perScore;
     }
 
-    public void setPerScore(String perScore) {
+    public void setPerScore(Integer perScore) {
         this.perScore = perScore;
     }
 
