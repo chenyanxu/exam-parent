@@ -30,6 +30,11 @@
                 <to uri="bean:examCreateBeanService?method=getAllExamQuesIds"/>
             </get>
 
+            <get uri="/exam/results" id="route-getExamResults" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find all Exam Results</description>
+                <to uri="bean:examCreateBeanService?method=getExamResults(${header.jsonStr})"/>
+            </get>
+
             <get uri="/enroment/tempres" id="route-tempres" outType="com.kalix.framework.core.api.persistence.JsonData">
                 <description>Find all Exam tempres</description>
                 <to uri="bean:examCreateBeanService?method=getAllTemplateRes"/>

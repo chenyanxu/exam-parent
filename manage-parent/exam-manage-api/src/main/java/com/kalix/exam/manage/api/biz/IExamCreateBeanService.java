@@ -1,9 +1,13 @@
 package com.kalix.exam.manage.api.biz;
 
+import com.kalix.exam.manage.dto.ExamResultsDto;
 import com.kalix.exam.manage.entities.ExamCreateBean;
 import com.kalix.framework.core.api.biz.IBizService;
 import com.kalix.framework.core.api.persistence.JsonData;
 import com.kalix.framework.core.api.persistence.JsonStatus;
+
+import java.util.List;
+import java.util.Map;
 
 public interface IExamCreateBeanService extends IBizService<ExamCreateBean> {
     /**
@@ -30,4 +34,11 @@ public interface IExamCreateBeanService extends IBizService<ExamCreateBean> {
      * @return
      */
     JsonData getAllExamQuesIds();
+
+    /**
+     * 按科目获取考试成绩
+     * @param subjectVal
+     * @return
+     */
+    JsonData getExamResults(String subjectVal);
 }

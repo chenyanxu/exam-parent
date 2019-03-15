@@ -93,7 +93,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
                 " and a.userid = " + userId + " and f.teacherid != " + userId;
 
         if (subjectCode != null && !subjectCode.trim().isEmpty()) {
-            sql += " and b.subjectval = " + subjectCode;
+            sql += " and b.subjectval = '" + subjectCode + "'";
         }
 
         List<ExamAnswerDto> examAnswerTempList = dao.findByNativeSql(sql, ExamAnswerDto.class);
@@ -196,7 +196,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
 
 
         if (subjectCode != null && !subjectCode.trim().isEmpty()) {
-            sql += " and b.subjectval = " + subjectCode;
+            sql += " and b.subjectval = '" + subjectCode + "'";
         }
 
         List<ExamAnswerDto> examAnswerTempList = dao.findByNativeSql(sql, ExamAnswerDto.class);

@@ -2,19 +2,17 @@ package com.kalix.exam.manage.biz;
 
 import com.kalix.enrolment.question.api.biz.IQuestionCommonBizService;
 import com.kalix.enrolment.question.api.biz.IQuestionService;
-import com.kalix.enrolment.question.api.biz.ISubjectBeanService;
 import com.kalix.enrolment.question.entities.SubjectBean;
 import com.kalix.exam.manage.api.biz.IExamCreateBeanService;
 import com.kalix.exam.manage.api.biz.IExamQuesBeanService;
 import com.kalix.exam.manage.api.dao.IExamCreateBeanDao;
-import com.kalix.exam.manage.dto.ExamPagerDto;
-import com.kalix.exam.manage.dto.ExamQuesInfoDto;
-import com.kalix.exam.manage.dto.ExamTemplateResDto;
+import com.kalix.exam.manage.dto.*;
 import com.kalix.exam.manage.entities.ExamCreateBean;
 import com.kalix.exam.manage.entities.ExamQuesBean;
 import com.kalix.framework.core.api.persistence.JsonData;
 import com.kalix.framework.core.api.persistence.JsonStatus;
 import com.kalix.framework.core.impl.biz.ShiroGenericBizServiceImpl;
+import com.kalix.framework.core.util.SerializeUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -185,6 +183,62 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
                 " where a.examid=b.id and b.examstart >= current_timestamp;";
         List<ExamQuesInfoDto> list = dao.findByNativeSql(sql, ExamQuesInfoDto.class);
         return getResult(list);
+    }
+
+    @Override
+    public JsonData getExamResults(String jsonStr) {
+        Map<String, String> jsonMap = SerializeUtil.json2Map(jsonStr);
+        String subjectVal = jsonMap.get("%subjectCode%");
+
+        List<ExamResultsDto> examResultsDtoList = getExamResultsList(subjectVal);
+        if (examResultsDtoList != null && !examResultsDtoList.isEmpty()) {
+            ExamResultsDto examResultsDto = examResultsDtoList.get(0);
+            Long examId = examResultsDto.getExamId();
+            List<ExamTeacherDto> examTeacherList = getExamTeacherList(examId);
+            List<String> firstTeacherList = examTeacherList.stream().filter((e)->"1".equals(e.getTeacherType())).map((ex)->ex.getName())
+                    .collect(Collectors.toList());
+            List<String> secondTeacherList = examTeacherList.stream().filter((e)->"2".equals(e.getTeacherType())).map((ex)->ex.getName())
+                    .collect(Collectors.toList());
+            List<String> groupLeaderList = examTeacherList.stream().filter((e)->"3".equals(e.getTeacherType())).map((ex)->ex.getName())
+                    .collect(Collectors.toList());
+            String firstTeachers = "";
+            String secondTeachers = "";
+            String groupLeader = "";
+            if (firstTeacherList != null && !firstTeacherList.isEmpty()) {
+                firstTeachers = String.join(",",firstTeacherList);
+            }
+            if (secondTeacherList != null && !secondTeacherList.isEmpty()) {
+                secondTeachers = String.join(",",secondTeacherList);
+            }
+            if (groupLeaderList != null && !groupLeaderList.isEmpty()) {
+                groupLeader = String.join(",",groupLeaderList);
+            }
+            final String firstTeacherStr = firstTeachers;
+            final String secondTeacherStr = secondTeachers;
+            final String groupLeaderStr = groupLeader;
+            examResultsDtoList.forEach((e)->{
+                e.setFirstTeacher(firstTeacherStr);
+                e.setSecondTeacher(secondTeacherStr);
+                e.setGroupLeader(groupLeaderStr);
+            });
+        }
+
+        return getResult(examResultsDtoList);
+    }
+
+    private List<ExamTeacherDto> getExamTeacherList(Long examId) {
+        String sql = "select a.userid,a.teachertype,b.name from exam_teacher a,sys_user b where a.examid = " + examId;
+        List<ExamTeacherDto> examTeacherDtoList = dao.findByNativeSql(sql, ExamTeacherDto.class);
+        return examTeacherDtoList;
+    }
+
+    private List<ExamResultsDto> getExamResultsList(String subjectVal) {
+        String sql = "select c.name,c.idcards,c.examcardnumber,a.totalscore,b.subject,a.examid" +
+                " from exam_examinee a, exam_create b, sys_user c" +
+                " where c.id= a.userid and a.examid=b.id and a.userid=c.id" +
+                " and a.state='已考' and b.subjectval= '"+subjectVal+"'";
+        List<ExamResultsDto> examResultsDtoList = dao.findByNativeSql(sql, ExamResultsDto.class);
+        return examResultsDtoList;
     }
 
     private JsonData getResult(List<?> list) {
