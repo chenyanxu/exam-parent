@@ -153,6 +153,8 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
      */
     private Integer getExamAnswerCount(Long userId, String subjectCode) {
         Integer totalNum = null;
+        totalNum = getExamAnswerCount(userId);
+        /**
         String examAnswerCountStr = cacheManager.get("exam_answer_" + subjectCode + "_count");
         if (examAnswerCountStr == null || examAnswerCountStr.isEmpty()) {
             totalNum = getExamAnswerCount(userId);
@@ -160,6 +162,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
         } else {
             totalNum = Integer.valueOf(examAnswerCountStr);
         }
+         **/
         return totalNum;
     }
 
