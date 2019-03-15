@@ -259,7 +259,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
     private Integer getExamAnswerCount(Long userId) {
         String sql = "select count(1) from exam_teacher a,exam_create b,sys_user c," +
                 "exam_answer d,enrolment_question_subject e" +
-                " where a.examid = b.id and a.userid = c.id" +
+                " where a.examid = b.id and a.userid = c.id and d.quesid=e.id" +
                 " and a.userid = " + userId;
         List<Integer> count = dao.findByNativeSql(sql, Integer.class);
         if (count == null || count.isEmpty()) {
