@@ -299,7 +299,11 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
                     if ((score < passScore && firstTrialScore < passScore)
                             || (score >= passScore && firstTrialScore >= passScore)) {
                         Double totalScoreDouble = (firstTrialScore*0.4) + (score*0.6);
-                        Integer giveScore = Integer.parseInt(String.valueOf(Math.ceil(totalScoreDouble)));
+                        String totalScoreStr = String.valueOf(Math.ceil(totalScoreDouble));
+                        if (totalScoreStr.endsWith(".0")) {
+                            totalScoreStr = totalScoreStr.substring(0,totalScoreStr.length()-2);
+                        }
+                        Integer giveScore = Integer.parseInt(totalScoreStr);
                         // 教师给题定分
                         updateExamAnswerBeanScoreState(examAnswerId, giveScore, overReadState);
                         // 考生表检测更新分数
@@ -327,10 +331,10 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
     }
 
     private Integer getFirstTrialScore(Long examAnswerId, Long teacherId) {
-        String sql = "select examAnswerId,teacherId,teacherType,score from exam_score " +
-                " where examAnswerId=" + examAnswerId + " and teacherId !=" + teacherId +
-                " and teacherType = '1'";
-        List<ExamScoreBean> examScoreBeanList = dao.findByNativeSql(sql, ExamScoreBean.class);
+        String sql = "select a from ExamScoreBean a " +
+                " where a.examAnswerId=?1 and a.teacherId <> ?2 and a.teacherType=?3";
+        List<ExamScoreBean> examScoreBeanList = dao.find(sql, examAnswerId, teacherId, "1");
+
         if (examScoreBeanList == null || examScoreBeanList.isEmpty()) {
             return 0;
         }

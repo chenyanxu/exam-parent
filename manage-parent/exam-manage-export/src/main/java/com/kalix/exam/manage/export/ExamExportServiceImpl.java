@@ -39,10 +39,7 @@ public class ExamExportServiceImpl implements IExamExportService {
 //        if (examResultsDtoList == null || examResultsDtoList.isEmpty()) {
 //            return;
 //        }
-        ExamResultsDto examResultsDto = examResultsDtoList.get(0);
-        String firstTeacher = examResultsDto.getFirstTeacher();
-        String secondTeacher = examResultsDto.getSecondTeacher();
-        String groupLeader = examResultsDto.getGroupLeader();
+
         wb = new SXSSFWorkbook(500);
         SXSSFSheet sheet = wb.createSheet(subjectVal);
         // 创建title
@@ -50,8 +47,20 @@ public class ExamExportServiceImpl implements IExamExportService {
         // 创建header
         createHeader(sheet);
         // 创建数据
-        int size = 0; //createData(sheet, examResultsDtoList);
+        int size = 0;
+        if (examResultsDtoList != null && !examResultsDtoList.isEmpty()) {
+            size = createData(sheet, examResultsDtoList);
+        }
         // 创建结尾
+        String firstTeacher = "";
+        String secondTeacher = "";
+        String groupLeader = "";
+        if (examResultsDtoList != null && !examResultsDtoList.isEmpty()) {
+            ExamResultsDto examResultsDto = examResultsDtoList.get(0);
+            firstTeacher = examResultsDto.getFirstTeacher();
+            secondTeacher = examResultsDto.getSecondTeacher();
+            groupLeader = examResultsDto.getGroupLeader();
+        }
         createfooter(sheet, size, firstTeacher, secondTeacher, groupLeader);
 
         try {
