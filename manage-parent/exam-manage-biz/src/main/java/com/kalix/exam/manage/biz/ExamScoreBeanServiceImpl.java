@@ -329,7 +329,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
     private Integer getFirstTrialScore(Long examAnswerId, Long teacherId) {
         String sql = "select examAnswerId,teacherId,teacherType,score from exam_score " +
                 " where examAnswerId=" + examAnswerId + " and teacherId !=" + teacherId +
-                " teacherType = '1'";
+                " and teacherType = '1'";
         List<ExamScoreBean> examScoreBeanList = dao.findByNativeSql(sql, ExamScoreBean.class);
         if (examScoreBeanList == null || examScoreBeanList.isEmpty()) {
             return 0;

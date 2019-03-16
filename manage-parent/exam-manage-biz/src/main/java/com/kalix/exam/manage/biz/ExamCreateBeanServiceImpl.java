@@ -188,8 +188,13 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
     @Override
     public JsonData getExamResults(String jsonStr) {
         Map<String, String> jsonMap = SerializeUtil.json2Map(jsonStr);
-        String subjectVal = jsonMap.get("%subjectCode%");
+        String subjectVal = jsonMap.get("%subjectVal%");
+        List<ExamResultsDto> examResultsDtoList = getExamResultDtoList(subjectVal);
+        return getResult(examResultsDtoList);
+    }
 
+    @Override
+    public List<ExamResultsDto> getExamResultDtoList(String subjectVal) {
         List<ExamResultsDto> examResultsDtoList = getExamResultsList(subjectVal);
         if (examResultsDtoList != null && !examResultsDtoList.isEmpty()) {
             ExamResultsDto examResultsDto = examResultsDtoList.get(0);
@@ -222,8 +227,7 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
                 e.setGroupLeader(groupLeaderStr);
             });
         }
-
-        return getResult(examResultsDtoList);
+        return examResultsDtoList;
     }
 
     private List<ExamTeacherDto> getExamTeacherList(Long examId) {

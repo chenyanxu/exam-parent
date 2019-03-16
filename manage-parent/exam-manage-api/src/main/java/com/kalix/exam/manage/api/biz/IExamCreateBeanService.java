@@ -37,8 +37,15 @@ public interface IExamCreateBeanService extends IBizService<ExamCreateBean> {
 
     /**
      * 按科目获取考试成绩
+     * @param jsonStr
+     * @return
+     */
+    JsonData getExamResults(String jsonStr);
+
+    /**
+     * 按科目获取考试成绩，用于导出
      * @param subjectVal
      * @return
      */
-    JsonData getExamResults(String subjectVal);
+    List<ExamResultsDto> getExamResultDtoList(String subjectVal);
 }

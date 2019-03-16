@@ -1,0 +1,35 @@
+#-----------------------------------------------------------------
+# Use this file to add customized Bnd instructions for the bundle
+#-----------------------------------------------------------------
+
+Bundle-Activator: ${bundle.namespace}.internal.InitActivator
+# DynamicImport-Package: *
+Bundle-Category: Kalix Exam Manage
+Embed-Dependency:*; artifactId=!framework-core-util|exam-manage-api|framework-core-api|framework-poms-dm|exam-system-dict-api|admin-core-api
+Import-Package: com.kalix.framework.core.util,\
+                com.kalix.framework.core.api,\
+                com.kalix.framework.core.api.osgi,\
+                com.kalix.framework.core.api.persistence,\
+                com.kalix.framework.core.api.security.*,\
+                com.kalix.framework.core.api.biz,\
+                com.kalix.framework.core.impl.biz,\
+                com.kalix.framework.core.api.system,\
+                com.kalix.exam.manage.dto,\
+                com.kalix.exam.manage.api.export,\
+                com.kalix.exam.manage.api.biz,\
+                com.kalix.exam.system.dict.api.biz,\
+                com.kalix.admin.core.api.biz,\
+                javax.servlet,\
+                javax.servlet.http,\
+                org.osgi.framework,\
+                org.osgi.service.blueprint,\
+                org.osgi.service.http,\
+                org.apache.commons.codec.*,\
+                org.apache.commons.lang.*,\
+                org.apache.shiro.*,\
+                org.json.*,\
+                org.xml.sax.*,\
+                javax.xml.*,\
+                org.apache.xmlbeans.*,\
+                org.w3c.dom.*,\
+                javax.net.ssl.*

@@ -1,0 +1,17 @@
+<blueprint xmlns:jpa="http://aries.apache.org/xmlns/jpa/v2.0.0"
+           xmlns:tx="http://aries.apache.org/xmlns/transactions/v1.2.0"
+           default-activation="eager"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+    <jpa:enable/>
+    <tx:enable-annotations/>
+
+    <bean id="examExportServlet" class="com.kalix.exam.manage.export.ExamExportServlet">
+    </bean>
+    <service interface="javax.servlet.Servlet" ref="examExportServlet">
+        <service-properties>
+            <entry key="alias" value="/camel/servlet/examExportExcel" />
+            <entry key="matchOnUriPrefix" value="true" />
+            <entry key="servlet-name" value="ExamExportServlet"/>
+        </service-properties>
+    </service>
+</blueprint>
