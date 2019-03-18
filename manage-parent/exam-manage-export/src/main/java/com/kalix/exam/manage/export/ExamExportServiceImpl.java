@@ -44,13 +44,13 @@ public class ExamExportServiceImpl implements IExamExportService {
         SXSSFSheet sheet = wb.createSheet(subjectVal);
         Integer startRow = 1;
         Integer startColumn = 1;
-        sheet.setColumnWidth(0, 3);
-        sheet.setColumnWidth(startColumn, 5);
-        sheet.setColumnWidth(startColumn + 1, 15);
-        sheet.setColumnWidth(startColumn + 2, 12);
-        sheet.setColumnWidth(startColumn + 3, 20);
-        sheet.setColumnWidth(startColumn + 4, 15);
-        sheet.setColumnWidth(startColumn + 5, 12);
+        sheet.setColumnWidth(0, 3*256);
+        sheet.setColumnWidth(startColumn, 5*256);
+        sheet.setColumnWidth(startColumn + 1, 15*256);
+        sheet.setColumnWidth(startColumn + 2, 12*256);
+        sheet.setColumnWidth(startColumn + 3, 20*256);
+        sheet.setColumnWidth(startColumn + 4, 15*256);
+        sheet.setColumnWidth(startColumn + 5, 12*256);
         // 创建title
         createTitle(sheet, startRow, startColumn);
 
@@ -86,6 +86,7 @@ public class ExamExportServiceImpl implements IExamExportService {
             ExamResultsDto examResultsDto = examResultsDtoList.get(i);
             Integer dataRowNum = i + startRow + 2;
             SXSSFRow dataRow = sheet.createRow(dataRowNum);
+            dataRow.setHeightInPoints(20);
             // 序号
             createCellData(dataRow, startColumn, String.valueOf((i+1)));
             // 准考证号
@@ -112,6 +113,7 @@ public class ExamExportServiceImpl implements IExamExportService {
                      String secondTeacher, String groupLeader) {
         int footerRowNum = startRow + dataSize + 2;
         SXSSFRow footerRow = sheet.createRow(footerRowNum); //从0算起
+        footerRow.setHeightInPoints(24);
         Cell firstCell = footerRow.createCell(startColumn);
         firstCell.setCellStyle(getFooterStyle());
         firstCell.setCellValue("");
@@ -147,6 +149,7 @@ public class ExamExportServiceImpl implements IExamExportService {
         Integer headerRowNum = startRow + 1;
         String[] headers = getHeaders();
         SXSSFRow headerRow = sheet.createRow(headerRowNum);
+        headerRow.setHeightInPoints(20);
         for (int i = 0; i < headers.length; i++) {
             Integer headerColumnIndex = i + startColumn;
             Cell headerCell = headerRow.createCell(headerColumnIndex);
