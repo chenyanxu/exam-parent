@@ -127,7 +127,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
                                 && notPassList != null && !notPassList.isEmpty()) {
                             for (ExamAnswerDto examAnswerDto : passList) {
                                 Long examAnswerId = examAnswerDto.getExamAnswerId();
-                                Optional<ExamAnswerDto> examAnswerOptional = notPassList.stream().filter((np)->np.getExamAnswerId()==examAnswerId).findFirst();
+                                Optional<ExamAnswerDto> examAnswerOptional = notPassList.stream().filter((np)->np.getExamAnswerId().equals(examAnswerId)).findFirst();
                                 if (examAnswerOptional.isPresent()) {
                                     ExamAnswerDto answerDto = examAnswerOptional.get();
                                     Long scoreId = answerDto.getExamScoreId();
@@ -142,7 +142,21 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
             }
         }
 
-        return examAnswerDtoList;
+        // 按考题答案Id在做分组，返回第一个满足条件的对象
+        Map<Long, List<ExamAnswerDto>> resultMap = null;
+        if (examAnswerDtoList != null && !examAnswerDtoList.isEmpty()) {
+            resultMap = examAnswerDtoList.stream().collect(Collectors.groupingBy(ExamAnswerDto::getExamAnswerId));
+        }
+
+        List<ExamAnswerDto> resultList = null;
+        if (resultMap != null && !resultMap.isEmpty()) {
+            for (Map.Entry<Long, List<ExamAnswerDto>> resultEntry : resultMap.entrySet()) {
+                resultList = resultEntry.getValue();
+                break;
+            }
+        }
+
+        return resultList;
     }
 
     /**
