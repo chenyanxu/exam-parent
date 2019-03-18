@@ -234,7 +234,8 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
     }
 
     private List<ExamTeacherDto> getExamTeacherList(Long examId) {
-        String sql = "select a.userid,a.teachertype,b.name from exam_teacher a,sys_user b where a.examid = " + examId;
+        String sql = "select a.userid,a.teachertype,b.name from exam_teacher a,sys_user b " +
+                "where a.examid = " + examId + " and a.userid=b.id";
         List<ExamTeacherDto> examTeacherDtoList = dao.findByNativeSql(sql, ExamTeacherDto.class);
         return examTeacherDtoList;
     }
