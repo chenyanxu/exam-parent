@@ -88,7 +88,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
                 " from exam_teacher a,exam_create b,exam_answer d," +
                 " enrolment_question_subject e,exam_score f " +
                 " where a.examid = b.id and d.examid = a.examid " +
-                " and e.id = d.quesid and f.examid=a.examid and f.userid=d.userid " +
+                " and e.id = d.quesid and f.examid=a.examid and f.userid=d.userid and f.teacherid= a.userid" +
                 " and d.readOverState='" + state + "'" +
                 " and a.teachertype != '3' ";
 
@@ -130,9 +130,9 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
                                 Optional<ExamAnswerDto> examAnswerOptional = notPassList.stream().filter((np)->np.getExamAnswerId().equals(examAnswerId)).findFirst();
                                 if (examAnswerOptional.isPresent()) {
                                     ExamAnswerDto answerDto = examAnswerOptional.get();
-                                    Long scoreId = answerDto.getExamScoreId();
-                                    List<ExamAnswerScoreItemDto> examAnswerScoreItems = examScoreItemBeanService.getExamAnswerScoreSuperItemList(scoreId);
-                                    answerDto.setExamAnswerScoreItems(examAnswerScoreItems);
+                                    // Long scoreId = answerDto.getExamScoreId();
+                                    // List<ExamAnswerScoreItemDto> examAnswerScoreItems = examScoreItemBeanService.getExamAnswerScoreSuperItemList(scoreId);
+                                    // answerDto.setExamAnswerScoreItems(examAnswerScoreItems);
                                     examAnswerDtoList.add(answerDto);
                                 }
                             }
@@ -148,15 +148,23 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
             resultMap = examAnswerDtoList.stream().collect(Collectors.groupingBy(ExamAnswerDto::getExamAnswerId));
         }
 
-        List<ExamAnswerDto> resultList = null;
+        List<ExamAnswerDto> resultDtoList = null;
         if (resultMap != null && !resultMap.isEmpty()) {
             for (Map.Entry<Long, List<ExamAnswerDto>> resultEntry : resultMap.entrySet()) {
-                resultList = resultEntry.getValue();
+                List<ExamAnswerDto> resultList = resultEntry.getValue();
+                if (resultList != null && !resultList.isEmpty()) {
+                    resultDtoList = resultList.stream().map((e)->{
+                        Long examScoreId = e.getExamScoreId();
+                        List<ExamAnswerScoreItemDto> examAnswerScoreItems = examScoreItemBeanService.getExamAnswerScoreSuperItemList(examScoreId);
+                        e.setExamAnswerScoreItems(examAnswerScoreItems);
+                        return e;
+                    }).collect(Collectors.toList());
+                }
                 break;
             }
         }
 
-        return resultList;
+        return resultDtoList;
     }
 
     /**
