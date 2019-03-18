@@ -9,10 +9,10 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.streaming.SXSSFCell;
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -23,7 +23,7 @@ import java.util.Map;
 public class ExamExportServiceImpl implements IExamExportService {
 
     private SXSSFWorkbook wb = null;
-    private final String title = "2019年上半年吉林省高等教育自学考试\n实践性环节考核成绩单";
+    private final String title = "2019年上半年吉林省高等教育自学考试\r实践性环节考核成绩单";
     private IExamCreateBeanService examCreateBeanService;
 
     public void setExamCreateBeanService(IExamCreateBeanService examCreateBeanService) {
@@ -42,14 +42,24 @@ public class ExamExportServiceImpl implements IExamExportService {
 
         wb = new SXSSFWorkbook(500);
         SXSSFSheet sheet = wb.createSheet(subjectVal);
+        Integer startRow = 1;
+        Integer startColumn = 1;
+        sheet.setColumnWidth(0, 3);
+        sheet.setColumnWidth(startColumn, 5);
+        sheet.setColumnWidth(startColumn + 1, 15);
+        sheet.setColumnWidth(startColumn + 2, 12);
+        sheet.setColumnWidth(startColumn + 3, 20);
+        sheet.setColumnWidth(startColumn + 4, 15);
+        sheet.setColumnWidth(startColumn + 5, 12);
         // 创建title
-        createTitle(sheet);
+        createTitle(sheet, startRow, startColumn);
+
         // 创建header
-        createHeader(sheet);
+        createHeader(sheet, startRow, startColumn);
         // 创建数据
         int size = 0;
         if (examResultsDtoList != null && !examResultsDtoList.isEmpty()) {
-            size = createData(sheet, examResultsDtoList);
+            size = createData(sheet, startRow, startColumn, examResultsDtoList);
         }
         // 创建结尾
         String firstTeacher = "";
@@ -61,7 +71,7 @@ public class ExamExportServiceImpl implements IExamExportService {
             secondTeacher = examResultsDto.getSecondTeacher();
             groupLeader = examResultsDto.getGroupLeader();
         }
-        createfooter(sheet, size, firstTeacher, secondTeacher, groupLeader);
+        createfooter(sheet, size, startRow, startColumn, firstTeacher, secondTeacher, groupLeader);
 
         try {
             writeFile(response, "汇总数据.xlsx");
@@ -71,78 +81,104 @@ public class ExamExportServiceImpl implements IExamExportService {
 
     }
 
-    private int createData(SXSSFSheet sheet, List<ExamResultsDto> examResultsDtoList) {
+    private int createData(SXSSFSheet sheet, Integer startRow, Integer startColumn ,List<ExamResultsDto> examResultsDtoList) {
         for (int i=0; i<examResultsDtoList.size(); i++) {
             ExamResultsDto examResultsDto = examResultsDtoList.get(i);
-            SXSSFRow dataRow = sheet.createRow(i + 2);
+            Integer dataRowNum = i + startRow + 2;
+            SXSSFRow dataRow = sheet.createRow(dataRowNum);
             // 序号
-            createCellData(dataRow, 0, String.valueOf((i+1)));
+            createCellData(dataRow, startColumn, String.valueOf((i+1)));
             // 准考证号
-            createCellData(dataRow, 1, examResultsDto.getExamCardNumber());
+            createCellData(dataRow, startColumn + 1, examResultsDto.getExamCardNumber());
             // 姓名
-            createCellData(dataRow, 2, examResultsDto.getName());
+            createCellData(dataRow, startColumn + 2, examResultsDto.getName());
             // 身份证号
-            createCellData(dataRow, 3, examResultsDto.getIdCards());
+            createCellData(dataRow, startColumn + 3, examResultsDto.getIdCards());
             // 科目
-            createCellData(dataRow, 4, examResultsDto.getSubject());
+            createCellData(dataRow, startColumn + 4, examResultsDto.getSubject());
             // 总成绩
-            createCellData(dataRow, 5, String.valueOf(examResultsDto.getTotalScore()));
+            createCellData(dataRow, startColumn + 5, String.valueOf(examResultsDto.getTotalScore()));
         }
         return examResultsDtoList.size();
     }
 
     private void createCellData(SXSSFRow dataRow, int column, String value) {
         Cell cell = dataRow.createCell(column);
-        cell.setCellStyle(getHeaderStyle());
+        cell.setCellStyle(getDataStyle());
         cell.setCellValue(value);
     }
 
-    private void createfooter(SXSSFSheet sheet, int dataSize, String firstTeacher,
+    private void createfooter(SXSSFSheet sheet, int dataSize, int startRow, int startColumn, String firstTeacher,
                      String secondTeacher, String groupLeader) {
-        SXSSFRow footerRow = sheet.createRow(dataSize + 2); //从0算起
-        Cell firstCell = footerRow.createCell(0);
-        firstCell.setCellStyle(getHeaderStyle());
+        int footerRowNum = startRow + dataSize + 2;
+        SXSSFRow footerRow = sheet.createRow(footerRowNum); //从0算起
+        Cell firstCell = footerRow.createCell(startColumn);
+        firstCell.setCellStyle(getFooterStyle());
         firstCell.setCellValue("");
 
-        Cell firstTeacherCell = footerRow.createCell(1);
-        firstTeacherCell.setCellStyle(getHeaderStyle());
+        Cell firstTeacherCell = footerRow.createCell(startColumn + 1);
+        firstTeacherCell.setCellStyle(getFooterStyle());
         firstTeacherCell.setCellValue("初阅人：" + firstTeacher);
+        Cell firstTeacherTempCell = footerRow.createCell(startColumn + 2);
+        firstTeacherTempCell.setCellStyle(getFooterStyle());
+        firstTeacherTempCell.setCellValue("");
         sheet.addMergedRegion(new CellRangeAddress(footerRow.getRowNum(),
-                footerRow.getRowNum(), 1, 2));
+                footerRow.getRowNum(), startColumn + 1, startColumn + 2));
 
-        Cell secondTeacherCell = footerRow.createCell(3);
-        secondTeacherCell.setCellStyle(getHeaderStyle());
+        Cell secondTeacherCell = footerRow.createCell(startColumn + 3);
+        secondTeacherCell.setCellStyle(getFooterStyle());
         secondTeacherCell.setCellValue("复阅人：" + secondTeacher);
 
-        Cell groupLeaderCell = footerRow.createCell(4);
-        groupLeaderCell.setCellStyle(getHeaderStyle());
-        groupLeaderCell.setCellValue("组长：" + firstTeacher);
+        Cell groupLeaderCell = footerRow.createCell(startColumn + 4);
+        groupLeaderCell.setCellStyle(getFooterStyle());
+        groupLeaderCell.setCellValue("组长：" + groupLeader);
+        Cell groupLeaderTempCell = footerRow.createCell(startColumn + 5);
+        groupLeaderTempCell.setCellStyle(getFooterStyle());
+        groupLeaderTempCell.setCellValue("");
         sheet.addMergedRegion(new CellRangeAddress(footerRow.getRowNum(),
-                footerRow.getRowNum(), 4, 5));
+                footerRow.getRowNum(), startColumn + 4, startColumn + 5));
     }
 
     private String[] getHeaders() {
         return new String[] {"序号","准考证号","姓名","身份证号","科目","总成绩"};
     }
 
-    private void createHeader(SXSSFSheet sheet) {
+    private void createHeader(SXSSFSheet sheet, Integer startRow, Integer startColumn) {
+        Integer headerRowNum = startRow + 1;
         String[] headers = getHeaders();
-        SXSSFRow headerRow = sheet.createRow(1);
+        SXSSFRow headerRow = sheet.createRow(headerRowNum);
         for (int i = 0; i < headers.length; i++) {
-            Cell headerCell = headerRow.createCell(i);
+            Integer headerColumnIndex = i + startColumn;
+            Cell headerCell = headerRow.createCell(headerColumnIndex);
             headerCell.setCellStyle(getHeaderStyle());
             headerCell.setCellValue(headers[i]);
         }
     }
 
-    private void createTitle(SXSSFSheet sheet) {
-        SXSSFRow titleRow = sheet.createRow(0);
+    private void createTitle(SXSSFSheet sheet, Integer startRow, Integer startColumn) {
+        SXSSFRow titleRow = sheet.createRow(startRow);
         titleRow.setHeightInPoints(54);
-        Cell titleCell = titleRow.createCell(0);
+        Cell titleCell = titleRow.createCell(startColumn);
         titleCell.setCellStyle(getTitleStyle());
-        titleCell.setCellValue(title);
+        titleCell.setCellValue(new XSSFRichTextString(title));
+        int colNum = getHeaders().length;
+        for (int i=startColumn; i < colNum; i++) {
+            Cell titleTempCell = titleRow.createCell(startColumn + i);
+            titleTempCell.setCellStyle(getTitleStyle());
+            titleTempCell.setCellValue("");
+        }
         sheet.addMergedRegion(new CellRangeAddress(titleRow.getRowNum(),
-                titleRow.getRowNum(), titleRow.getRowNum(), getHeaders().length - 1));
+                titleRow.getRowNum(), titleCell.getColumnIndex(), getHeaders().length));
+    }
+
+    private CellStyle getDataStyle() {
+        CellStyle style = wb.createCellStyle();
+        style.setAlignment(CellStyle.ALIGN_CENTER);
+        style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+        makeBorder(style);
+        Font dataFont = makeFont((short) 11, Font.BOLDWEIGHT_NORMAL);
+        style.setFont(dataFont);
+        return style;
     }
 
     private CellStyle getHeaderStyle() {
@@ -150,7 +186,17 @@ public class ExamExportServiceImpl implements IExamExportService {
         style.setAlignment(CellStyle.ALIGN_CENTER);
         style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
         makeBorder(style);
-        Font headerFont = makeFont((short) 11);
+        Font headerFont = makeFont((short) 11, Font.BOLDWEIGHT_BOLD);
+        style.setFont(headerFont);
+        return style;
+    }
+
+    private CellStyle getFooterStyle() {
+        CellStyle style = wb.createCellStyle();
+        style.setAlignment(CellStyle.ALIGN_LEFT);
+        style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+        makeBorder(style);
+        Font headerFont = makeFont((short) 11, Font.BOLDWEIGHT_BOLD);
         style.setFont(headerFont);
         return style;
     }
@@ -159,17 +205,18 @@ public class ExamExportServiceImpl implements IExamExportService {
         CellStyle style = wb.createCellStyle();
         style.setAlignment(CellStyle.ALIGN_CENTER);
         style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+        style.setWrapText(true);
         makeBorder(style);
-        Font titleFont = makeFont((short) 16);
+        Font titleFont = makeFont((short) 16, Font.BOLDWEIGHT_BOLD);
         style.setFont(titleFont);
         return style;
     }
 
-    private Font makeFont(short size) {
+    private Font makeFont(short size, short weight) {
         Font font = wb.createFont();
         font.setFontName("宋体");
         font.setFontHeightInPoints(size);
-        font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        font.setBoldweight(weight);
         return font;
     }
 

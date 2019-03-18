@@ -90,7 +90,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
                 " where a.examid = b.id and d.examid = a.examid " +
                 " and e.id = d.quesid and f.examid=a.examid and f.userid=d.userid " +
                 " and d.readOverState='" + state + "'" +
-                " and a.userid = " + userId + " and f.teacherid != " + userId;
+                " and a.teachertype != '3' ";
 
         if (subjectCode != null && !subjectCode.trim().isEmpty()) {
             sql += " and b.subjectval = '" + subjectCode + "'";
