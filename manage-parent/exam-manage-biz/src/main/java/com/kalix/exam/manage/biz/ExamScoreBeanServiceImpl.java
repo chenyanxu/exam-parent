@@ -100,6 +100,8 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
         if (examAnswerTempList == null || examAnswerTempList.isEmpty()) {
             return null;
         }
+
+        /**
         // 获取及格的
         Map<String, List<ExamAnswerDto>> examAnswerPassListMap = null;
         List<ExamAnswerDto> examAnswerPassList = examAnswerTempList.stream().filter((e)->e.getScore() >= e.getPassScore()).collect(Collectors.toList());
@@ -144,10 +146,11 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
 
         // 按考题答案Id在做分组，返回第一个满足条件的对象
         Map<Long, List<ExamAnswerDto>> resultMap = null;
-        if (examAnswerDtoList != null && !examAnswerDtoList.isEmpty()) {
-            resultMap = examAnswerDtoList.stream().collect(Collectors.groupingBy(ExamAnswerDto::getExamAnswerId));
+        if (examAnswerTempList != null && !examAnswerTempList.isEmpty()) {
+            resultMap = examAnswerTempList.stream().collect(Collectors.groupingBy(ExamAnswerDto::getExamAnswerId));
         }
-
+         **/
+        Map<Long, List<ExamAnswerDto>> resultMap = examAnswerTempList.stream().collect(Collectors.groupingBy(ExamAnswerDto::getExamAnswerId));
         List<ExamAnswerDto> resultDtoList = null;
         if (resultMap != null && !resultMap.isEmpty()) {
             for (Map.Entry<Long, List<ExamAnswerDto>> resultEntry : resultMap.entrySet()) {
