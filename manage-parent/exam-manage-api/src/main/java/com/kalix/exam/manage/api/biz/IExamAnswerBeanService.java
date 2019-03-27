@@ -30,10 +30,10 @@ public interface IExamAnswerBeanService extends IBizService<ExamAnswerBean> {
 
     /**
      * 更新开始考试状态
-     * @param examId
+     * @param examingDto
      * @return
      */
-    JsonStatus updateStartExamingState(Long examId);
+    JsonStatus updateStartExamingState(ExamingDto examingDto);
 
     /**
      * 考试提交
@@ -71,4 +71,14 @@ public interface IExamAnswerBeanService extends IBizService<ExamAnswerBean> {
      * @return
      */
     JsonData checkExamingTime(Long examId);
+
+
+    /**
+     * 验证考生试题是否已经提交过
+     * @param userId
+     * @param examId
+     * @param quesId
+     * @return
+     */
+    Boolean checkAnswerUserExist(Long userId, Long examId, Long quesId);
 }

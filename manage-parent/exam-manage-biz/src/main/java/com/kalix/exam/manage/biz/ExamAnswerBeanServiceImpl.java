@@ -96,7 +96,7 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
                 return paperMap;
             }
 
-            Long userId = shiroService.getCurrentUserId();
+
             ExamCreateBean examCreateBean = examCreateBeanService.getEntity(examId);
             Integer duration = examCreateBean.getDuration();
             long durationTime = duration*60*1000;
@@ -137,10 +137,12 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
     }
 
     @Override
-    public JsonStatus updateStartExamingState(Long examId) {
+    public JsonStatus updateStartExamingState(ExamingDto examingDto) {
         JsonStatus jsonStatus = new JsonStatus();
         try {
-            Long userId = shiroService.getCurrentUserId();
+            Long userId = examingDto.getUserId();
+            Long examId = examingDto.getExamId();
+//            Long userId = shiroService.getCurrentUserId();
             // 设置考试状态表
             dao.updateNativeQuery("update exam_examinee set state='考试中' where userid=" + userId + " and examid=" + examId);
             jsonStatus.setSuccess(true);
@@ -165,7 +167,6 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
             Long examId = examingDto.getExamId();
             Long paperId = examingDto.getPaperId();
             List<ExamQuesDto> quesList = examingDto.getQuesList();
-//            Long userId = shiroService.getCurrentUserId();
             Long userId = examingDto.getUserId();
             List<ExamAnswerBean> examAnswerBeanList = new ArrayList<>();
             // 选择题类型是2
@@ -176,21 +177,29 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
                 List<QuesChoiceDto> choiceList = dao.findByNativeSql("select id,answer from enrolment_question_choice where id in (" + qIds + ")", QuesChoiceDto.class);
 
                 for (ExamQuesDto quesChoiceDto : quesChoiceList) {
-                    ExamAnswerBean examAnswerBean = createExamAnswerInfo(examId, paperId, userId, quesChoiceDto);
-                    // 计算客观题得分
-                    Integer score = getScore(quesChoiceDto, choiceList);
-                    examAnswerBean.setScore(score);
-                    examAnswerBean.setReadoverState("已批");
-                    examAnswerBeanList.add(examAnswerBean);
+                    Boolean answerExist = checkAnswerUserExist(userId, examId, quesChoiceDto.getQuesid());
+                    ExamAnswerBean examAnswerBean = null;
+                    if (!answerExist) {
+                        examAnswerBean = createExamAnswerInfo(examId, paperId, userId, quesChoiceDto);
+                        // 计算客观题得分
+                        Integer score = getScore(quesChoiceDto, choiceList);
+                        examAnswerBean.setScore(score);
+                        examAnswerBean.setReadoverState("已批");
+                        examAnswerBeanList.add(examAnswerBean);
+                    }
                 }
             }
             // 主观题处理
             List<ExamQuesDto> quesSubjectList = quesList.stream().filter(q->("5".equals(q.getQuesType()))).collect(Collectors.toList());
             if (quesSubjectList != null && quesSubjectList.size() > 0) {
                 for (ExamQuesDto quesSubjectDto : quesSubjectList) {
-                    ExamAnswerBean examAnswerBean = createExamAnswerInfo(examId, paperId, userId, quesSubjectDto);
-                    examAnswerBean.setReadoverState("未批");
-                    examAnswerBeanList.add(examAnswerBean);
+                    Boolean answerExist = checkAnswerUserExist(userId, examId, quesSubjectDto.getQuesid());
+                    ExamAnswerBean examAnswerBean = null;
+                    if (!answerExist) {
+                        examAnswerBean = createExamAnswerInfo(examId, paperId, userId, quesSubjectDto);
+                        examAnswerBean.setReadoverState("未批");
+                        examAnswerBeanList.add(examAnswerBean);
+                    }
                 }
             }
             dao.addBatch(examAnswerBeanList);
@@ -261,6 +270,18 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
         List<String> datas = new ArrayList<>();
         datas.add(dateTime);
         return getResult(datas);
+    }
+
+    @Override
+    public Boolean checkAnswerUserExist(Long userId, Long examId, Long quesId) {
+
+        String sql = "select a from ExamAnswerBean a " +
+                " where a.userId=?1 and a.examId = ?2 and a.quesId=?3";
+        List<ExamAnswerBean> examAnswerBeanList = dao.find(sql, userId, examId, quesId);
+        if (examAnswerBeanList != null && !examAnswerBeanList.isEmpty()) {
+            return true;
+        }
+        return false;
     }
 
     /**

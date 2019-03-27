@@ -297,6 +297,12 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
     public JsonStatus examAnswerForScore(ExamScoreDto examScoreDto) {
         JsonStatus jsonStatus = new JsonStatus();
         try {
+            Boolean isCommited = checkCommitScore(examScoreDto.getExamId(), examScoreDto.getStudentId(), examScoreDto.getExamAnswerId());
+            if (isCommited) {
+                jsonStatus.setMsg("批阅成绩已提交!");
+                jsonStatus.setFailure(true);
+                return jsonStatus;
+            }
             ExamScoreBean examScoreBean = saveExamScoreBean(examScoreDto);
             Long examScoreId = examScoreBean.getId();
             List<ExamScoreItemDto> examScoreItems = examScoreDto.getExamScoreItems();
@@ -346,11 +352,11 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
                 }
             }
             jsonStatus.setSuccess(true);
-            jsonStatus.setMsg("保存成功");
+            jsonStatus.setMsg("提交成功");
         } catch(Exception e) {
             e.printStackTrace();
             jsonStatus.setFailure(true);
-            jsonStatus.setMsg("保存失败");
+            jsonStatus.setMsg("提交失败");
         }
         return jsonStatus;
     }
@@ -364,6 +370,16 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
             return 0;
         }
         return examScoreBeanList.get(0).getScore();
+    }
+
+    private Boolean checkCommitScore(Long examId, Long userId, Long examAnswerId) {
+        String sql = "select a from ExamScoreBean a " +
+                " where a.examId=?1 and a.userId <> ?2 and a.examAnswerId=?3";
+        List<ExamScoreBean> examScoreBeanList = dao.find(sql, examId, userId, examAnswerId);
+        if (examScoreBeanList != null && !examScoreBeanList.isEmpty()) {
+            return true;
+        }
+        return false;
     }
 
     private void updateExamAnswerBeanState(Long examAnswerId, String state) {

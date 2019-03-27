@@ -4,9 +4,10 @@ import com.kalix.framework.core.api.persistence.PersistentEntity;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "exam_score")
+@Table(name = "exam_score",uniqueConstraints = @UniqueConstraint(columnNames = {"examId","userId","examAnswerId"}))
 public class ExamScoreBean extends PersistentEntity {
     private Long examId; // 考试Id
     private Long userId; // 考生Id

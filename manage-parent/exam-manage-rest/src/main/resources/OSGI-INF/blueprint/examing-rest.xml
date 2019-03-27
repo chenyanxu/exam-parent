@@ -49,7 +49,7 @@
                 <to uri="bean:examAnswerBeanService?method=saveEntity"/>
             </post>
 
-            <put uri="/updateexamstart" id="route-updateExamStartState" type="java.lang.Long"
+            <put uri="/updateexamstart" id="route-updateExamStartState" type="com.kalix.exam.manage.dto.ExamingDto"
                   outType="com.kalix.framework.core.api.persistence.JsonStatus">
                 <description>Update Exam Start State</description>
                 <to uri="bean:examAnswerBeanService?method=updateStartExamingState"/>

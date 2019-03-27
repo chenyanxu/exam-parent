@@ -65,11 +65,12 @@ public class ExamExportServiceImpl implements IExamExportService {
         String firstTeacher = "";
         String secondTeacher = "";
         String groupLeader = "";
+        // 修改为手工签字
         if (examResultsDtoList != null && !examResultsDtoList.isEmpty()) {
-            ExamResultsDto examResultsDto = examResultsDtoList.get(0);
-            firstTeacher = examResultsDto.getFirstTeacher();
-            secondTeacher = examResultsDto.getSecondTeacher();
-            groupLeader = examResultsDto.getGroupLeader();
+//            ExamResultsDto examResultsDto = examResultsDtoList.get(0);
+//            firstTeacher = examResultsDto.getFirstTeacher();
+//            secondTeacher = examResultsDto.getSecondTeacher();
+//            groupLeader = examResultsDto.getGroupLeader();
         }
         createfooter(sheet, size, startRow, startColumn, firstTeacher, secondTeacher, groupLeader);
 
@@ -139,6 +140,14 @@ public class ExamExportServiceImpl implements IExamExportService {
         groupLeaderTempCell.setCellValue("");
         sheet.addMergedRegion(new CellRangeAddress(footerRow.getRowNum(),
                 footerRow.getRowNum(), startColumn + 4, startColumn + 5));
+
+        // 日期行
+        SXSSFRow footerDateRow = sheet.createRow(footerRowNum+1);
+        footerDateRow.setHeightInPoints(24);
+        Cell dateCell = footerDateRow.createCell(startColumn + 4);
+        dateCell.setCellStyle(getFooterDateStyle());
+        dateCell.setCellValue("日期：");
+
     }
 
     private String[] getHeaders() {
@@ -199,6 +208,15 @@ public class ExamExportServiceImpl implements IExamExportService {
         style.setAlignment(CellStyle.ALIGN_LEFT);
         style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
         makeBorder(style);
+        Font headerFont = makeFont((short) 11, Font.BOLDWEIGHT_BOLD);
+        style.setFont(headerFont);
+        return style;
+    }
+
+    private CellStyle getFooterDateStyle() {
+        CellStyle style = wb.createCellStyle();
+        style.setAlignment(CellStyle.ALIGN_RIGHT);
+        style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
         Font headerFont = makeFont((short) 11, Font.BOLDWEIGHT_BOLD);
         style.setFont(headerFont);
         return style;

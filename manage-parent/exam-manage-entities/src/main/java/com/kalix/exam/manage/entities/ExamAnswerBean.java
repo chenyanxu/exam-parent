@@ -4,10 +4,11 @@ import com.kalix.framework.core.api.persistence.PersistentEntity;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import java.util.Date;
 
 @Entity
-@Table(name = "exam_answer")
+@Table(name = "exam_answer",uniqueConstraints = @UniqueConstraint(columnNames = {"examId","quesId","userId"}))
 public class ExamAnswerBean extends PersistentEntity {
     private Long examId; // 考试Id
     private Long paperId;  // 试卷Id
