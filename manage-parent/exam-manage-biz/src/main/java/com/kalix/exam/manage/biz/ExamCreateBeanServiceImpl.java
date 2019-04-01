@@ -244,7 +244,7 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
         String sql = "select c.name,c.idcards,c.examcardnumber,a.totalscore,b.subject,a.examid" +
                 " from exam_examinee a, exam_create b, sys_user c" +
                 " where c.id= a.userid and a.examid=b.id and a.userid=c.id" +
-                " and a.state='已考' and b.subjectval= '"+subjectVal+"'";
+                " and a.state='已考' and b.subjectval= '"+subjectVal+"' order by c.examcardnumber";
         List<ExamResultsDto> examResultsDtoList = dao.findByNativeSql(sql, ExamResultsDto.class);
         return examResultsDtoList;
     }

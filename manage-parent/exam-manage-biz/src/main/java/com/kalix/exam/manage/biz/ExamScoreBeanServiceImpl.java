@@ -23,6 +23,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
     private final String secondCheckState = "已复审";
     private final String notOverReadState = "未批";
     private final String overReadState = "已批";
+    private final String overReading = "批阅中";
 
     private IExamTeacherBeanService examTeacherBeanService;
 
@@ -96,9 +97,13 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
             sql += " and b.subjectval = '" + subjectCode + "'";
         }
 
-        List<ExamAnswerDto> examAnswerTempList = dao.findByNativeSql(sql, ExamAnswerDto.class);
+        String currentSql = sql + " and d.readoverby=" + userId;
+        List<ExamAnswerDto> examAnswerTempList = dao.findByNativeSql(currentSql, ExamAnswerDto.class);
         if (examAnswerTempList == null || examAnswerTempList.isEmpty()) {
-            return null;
+            examAnswerTempList = dao.findByNativeSql(sql, ExamAnswerDto.class);
+            if (examAnswerTempList == null || examAnswerTempList.isEmpty()) {
+                return null;
+            }
         }
 
         /**
@@ -167,6 +172,13 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
             }
         }
 
+        if (resultDtoList != null && !resultDtoList.isEmpty()) {
+            for (ExamAnswerDto examAnswerDto : resultDtoList) {
+                Long examAnswerId = examAnswerDto.getExamAnswerId();
+                updateTempReadOverPerson(examAnswerId, userId);
+            }
+        }
+
         return resultDtoList;
     }
 
@@ -227,9 +239,14 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
             sql += " and b.subjectval = '" + subjectCode + "'";
         }
 
-        List<ExamAnswerDto> examAnswerTempList = dao.findByNativeSql(sql, ExamAnswerDto.class);
+        String currentSql = sql + " and d.readoverby=" + userId;
+
+        List<ExamAnswerDto> examAnswerTempList = dao.findByNativeSql(currentSql, ExamAnswerDto.class);
         if (examAnswerTempList == null || examAnswerTempList.isEmpty()) {
-            return null;
+            examAnswerTempList = dao.findByNativeSql(sql, ExamAnswerDto.class);
+            if (examAnswerTempList == null || examAnswerTempList.isEmpty()) {
+                return null;
+            }
         }
 
 //        if (examAnswerId == null) {
@@ -249,7 +266,22 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
         answerDto.setExamAnswerScoreItems(examAnswerScoreItemList);
         answerDto.setQuesTotal(totalNum);
         examAnswerList.add(answerDto);
+
+        // 修改临时批阅人状态
+        Long examAnswerId = answerDto.getExamAnswerId();
+        updateTempReadOverPerson(examAnswerId, userId);
         return examAnswerList;
+    }
+
+    /**
+     * 更新临时批阅人
+     * @param examAnswerId
+     * @param userId
+     */
+    private void updateTempReadOverPerson(Long examAnswerId, Long userId) {
+        ExamAnswerBean examAnswerBean = examAnswerBeanService.getEntity(examAnswerId);
+        examAnswerBean.setReadoverBy(userId);
+        examAnswerBeanService.saveEntity(examAnswerBean);
     }
 
     private List<ExamAnswerScoreItemDto> getExamAnswerScoreItemList(Long quesId) {
@@ -350,6 +382,8 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
                     // 考生表检测更新分数
                     updateExamineeScore(examId, studentId);
                 }
+                // 去掉临时批阅状态
+                updateTempReadOverPerson(examAnswerId, null);
             }
             jsonStatus.setSuccess(true);
             jsonStatus.setMsg("提交成功");

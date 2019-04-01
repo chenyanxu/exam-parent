@@ -3,6 +3,7 @@ package com.kalix.exam.manage.export;
 import com.kalix.exam.manage.api.biz.IExamCreateBeanService;
 import com.kalix.exam.manage.api.export.IExamExportService;
 import com.kalix.exam.manage.dto.ExamResultsDto;
+import com.kalix.exam.manage.entities.ExamCreateBean;
 import com.kalix.framework.core.util.SerializeUtil;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.ss.usermodel.Cell;
@@ -17,13 +18,15 @@ import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 public class ExamExportServiceImpl implements IExamExportService {
 
     private SXSSFWorkbook wb = null;
-    private final String title = "2019年上半年吉林省高等教育自学考试\r实践性环节考核成绩单";
+    private String title = "吉林省高等教育自学考试\r实践性环节考核成绩单";
     private IExamCreateBeanService examCreateBeanService;
 
     public void setExamCreateBeanService(IExamCreateBeanService examCreateBeanService) {
@@ -52,7 +55,12 @@ public class ExamExportServiceImpl implements IExamExportService {
         sheet.setColumnWidth(startColumn + 4, 15*256);
         sheet.setColumnWidth(startColumn + 5, 12*256);
         // 创建title
-        createTitle(sheet, startRow, startColumn);
+        Long examId = null;
+        if (examResultsDtoList != null && !examResultsDtoList.isEmpty()) {
+            ExamResultsDto examResultsDto = examResultsDtoList.get(0);
+            examId = examResultsDto.getExamId();
+        }
+        createTitle(sheet, startRow, startColumn, examId);
 
         // 创建header
         createHeader(sheet, startRow, startColumn);
@@ -167,7 +175,8 @@ public class ExamExportServiceImpl implements IExamExportService {
         }
     }
 
-    private void createTitle(SXSSFSheet sheet, Integer startRow, Integer startColumn) {
+    private void createTitle(SXSSFSheet sheet, Integer startRow, Integer startColumn, Long examId) {
+        String title = getExportTitle(examId);
         SXSSFRow titleRow = sheet.createRow(startRow);
         titleRow.setHeightInPoints(54);
         Cell titleCell = titleRow.createCell(startColumn);
@@ -181,6 +190,28 @@ public class ExamExportServiceImpl implements IExamExportService {
         }
         sheet.addMergedRegion(new CellRangeAddress(titleRow.getRowNum(),
                 titleRow.getRowNum(), titleCell.getColumnIndex(), getHeaders().length));
+    }
+
+    private String getExportTitle(Long examId) {
+        ExamCreateBean examCreateBean = null;
+        if (examId != null) {
+            examCreateBean = examCreateBeanService.getEntity(examId);
+        }
+        if (examCreateBean == null) {
+            return title;
+        }
+        Date startDate = examCreateBean.getExamStart();
+        Calendar c = Calendar.getInstance();
+        c.setTime(startDate);
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH) + 1;
+        String term = "";
+        if (month < 6) {
+            term = "上半年";
+        } else {
+            term = "下半年";
+        }
+        return year + "年" + term + title;
     }
 
     private CellStyle getDataStyle() {
