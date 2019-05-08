@@ -2,6 +2,7 @@ package com.kalix.exam.manage.api.biz;
 
 import com.kalix.exam.manage.dto.ExamQuesAttachmentDto;
 import com.kalix.exam.manage.dto.ExamingDto;
+import com.kalix.exam.manage.dto.MaintainResultItemDto;
 import com.kalix.exam.manage.dto.PaperQuesAnswerDto;
 import com.kalix.exam.manage.entities.ExamAnswerBean;
 import com.kalix.framework.core.api.biz.IBizService;
@@ -81,4 +82,25 @@ public interface IExamAnswerBeanService extends IBizService<ExamAnswerBean> {
      * @return
      */
     Boolean checkAnswerUserExist(Long userId, Long examId, Long quesId);
+
+    /**
+     * 获取要维护的考试成绩列表
+     * @param page
+     * @param limit
+     * @param jsonStr
+     * @param sort
+     * @return
+     */
+    JsonData getMaintainResultList(Integer page, Integer limit, String jsonStr, String sort);
+
+    /**
+     * 通过打分Id获取打分项列表
+     * @param page
+     * @param limit
+     * @param examScoreId
+     * @param sort
+     * @return
+     */
+    JsonData getMaintainItemList(Integer page, Integer limit, Long examScoreId, String sort);
+
 }

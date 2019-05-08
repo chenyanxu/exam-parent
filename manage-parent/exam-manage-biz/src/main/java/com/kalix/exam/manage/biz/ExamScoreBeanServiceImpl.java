@@ -13,7 +13,6 @@ import com.kalix.framework.core.impl.biz.ShiroGenericBizServiceImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -80,6 +79,53 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
         }
 
         return getResult(examAnswerList);
+    }
+
+    @Override
+    public JsonStatus updateMaintainScore(MaintainResultItemDto maintainResultItemDto) {
+        try {
+            if (maintainResultItemDto == null) {
+                return JsonStatus.failureResult("修改失败");
+            }
+            // 修改单项分数
+            Long examScoreItemId = maintainResultItemDto.getId();
+            Integer standerItemScore = maintainResultItemDto.getStanderItemScore();
+            ExamScoreItemBean examScoreItemBean = examScoreItemBeanService.getEntity(examScoreItemId);
+            examScoreItemBean.setStanderItemScore(standerItemScore);
+            examScoreItemBeanService.saveEntity(examScoreItemBean);
+
+            // 修改考题分数
+            Long examScoreId = maintainResultItemDto.getExamScoreId();
+            List<ExamAnswerScoreItemDto> examAnswerScoreItems = examScoreItemBeanService.getExamAnswerScoreSuperItemList(examScoreId);
+            if (examAnswerScoreItems != null && !examAnswerScoreItems.isEmpty()) {
+                Integer examScore = 0;
+                for (ExamAnswerScoreItemDto examAnswerScoreItemDto : examAnswerScoreItems) {
+                    examScore += examAnswerScoreItemDto.getStanderItemScore();
+                }
+                ExamScoreBean examScoreBean = dao.get(examScoreId);
+                examScoreBean.setScore(examScore);
+                dao.save(examScoreBean);
+                // 修改答案得分表
+                Long examAnswerId = examScoreBean.getExamAnswerId();
+                ExamAnswerBean examAnswerBean = examAnswerBeanService.getEntity(examAnswerId);
+                examAnswerBean.setScore(examScore);
+                examAnswerBeanService.saveEntity(examAnswerBean);
+                // 修改考生表总分数
+                Long examId = examAnswerBean.getExamId();
+                Long paperId = examAnswerBean.getPaperId();
+                Long userId = examAnswerBean.getUserId();
+                List<ExamAnswerBean> examAnswerBeanList = examAnswerBeanService.getExamUserAnswer(examId, paperId, userId);
+                Integer totalScore = 0;
+                for (ExamAnswerBean answerBean : examAnswerBeanList) {
+                    totalScore += answerBean.getScore();
+                }
+                examExamineeBeanService.updateTotalScore(examId, userId, totalScore);
+            }
+            return JsonStatus.successResult("修改成功");
+        } catch(Exception e) {
+            e.printStackTrace();
+            return JsonStatus.failureResult("修改失败");
+        }
     }
 
     private List<ExamAnswerDto> getAllExamAnswerSuperList(Long userId, String subjectCode, Integer totalNum, String state){

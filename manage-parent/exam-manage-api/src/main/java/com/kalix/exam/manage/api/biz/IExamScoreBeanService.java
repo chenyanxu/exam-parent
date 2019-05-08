@@ -1,6 +1,7 @@
 package com.kalix.exam.manage.api.biz;
 
 import com.kalix.exam.manage.dto.ExamScoreDto;
+import com.kalix.exam.manage.dto.MaintainResultItemDto;
 import com.kalix.exam.manage.entities.ExamScoreBean;
 import com.kalix.framework.core.api.biz.IBizService;
 import com.kalix.framework.core.api.persistence.JsonData;
@@ -28,4 +29,11 @@ public interface IExamScoreBeanService extends IBizService<ExamScoreBean> {
      * @return
      */
     JsonStatus examAnswerForScore(ExamScoreDto examScoreDto);
+
+    /**
+     * 修改成绩打分
+     * @param maintainResultItemDto
+     * @return
+     */
+    JsonStatus updateMaintainScore(MaintainResultItemDto maintainResultItemDto);
 }

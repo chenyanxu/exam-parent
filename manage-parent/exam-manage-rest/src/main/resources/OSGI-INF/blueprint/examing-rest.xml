@@ -18,6 +18,16 @@
                 <to uri="bean:examAnswerBeanService?method=getAllEntityByQuery(${header.page},${header.limit},${header.jsonStr},${header.sort})"/>
             </get>
 
+            <get uri="/maintainresult" id="route-getMaintainResultList" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find all MaintainResultList</description>
+                <to uri="bean:examAnswerBeanService?method=getMaintainResultList(${header.page},${header.limit},${header.jsonStr},${header.sort})"/>
+            </get>
+
+            <get uri="/{examScoreId}/maintainitem" id="route-getMaintainItemList" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find all MaintainItemList</description>
+                <to uri="bean:examAnswerBeanService?method=getMaintainItemList(${header.page},${header.limit},${header.examScoreId},${header.sort})"/>
+            </get>
+
             <get uri="/self" id="route-getAllSelfExaming" outType="com.kalix.framework.core.api.persistence.JsonData">
                 <description>Find all SelfExaming</description>
                 <to uri="bean:examExamineeBeanService?method=getAllSelfExaming(${header.jsonStr})"/>

@@ -28,6 +28,12 @@
                 <to uri="bean:examScoreBeanService?method=examAnswerForScore"/>
             </post>
 
+            <put uri="/{examScoreId}/maintainscores" id="route-updateMaintainscore" type="com.kalix.exam.manage.dto.MaintainResultItemDto"
+                 outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Update Exam Maintain Score</description>
+                <to uri="bean:examScoreBeanService?method=updateMaintainScore"/>
+            </put>
+
         </rest>
 
     </camelContext>

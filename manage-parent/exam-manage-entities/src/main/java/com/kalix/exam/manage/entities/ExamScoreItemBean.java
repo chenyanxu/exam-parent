@@ -11,8 +11,8 @@ public class ExamScoreItemBean extends PersistentEntity {
     private Long examScoreId;
     private Long quesId;
     private Long standerItemId;
-    private Integer standerItemScore;
-    private Integer itemDeductScore;
+    private Integer standerItemScore; // 得分
+    private Integer itemDeductScore;  // 扣分
 
     public Long getExamScoreId() {
         return examScoreId;

@@ -20,4 +20,5 @@ public class ExamScoreItemBeanServiceImpl extends ShiroGenericBizServiceImpl<IEx
     public void saveForBatch(List<ExamScoreItemBean> examScoreItemBeanList) {
         dao.addBatch(examScoreItemBeanList);
     }
+
 }

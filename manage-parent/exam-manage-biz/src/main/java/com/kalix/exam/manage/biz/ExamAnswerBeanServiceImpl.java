@@ -11,6 +11,7 @@ import com.kalix.exam.manage.entities.ExamCreateBean;
 import com.kalix.framework.core.api.persistence.JsonData;
 import com.kalix.framework.core.api.persistence.JsonStatus;
 import com.kalix.framework.core.impl.biz.ShiroGenericBizServiceImpl;
+import com.kalix.framework.core.util.SerializeUtil;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -284,6 +285,99 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
         return false;
     }
 
+    @Override
+    public JsonData getMaintainResultList(Integer page, Integer limit, String jsonStr, String sort) {
+        Map<String, String> jsonMap = SerializeUtil.json2Map(jsonStr);
+        String examineeName = jsonMap.get("%examineeName%");
+        String examcardNumber = jsonMap.get("%examcardNumber%");
+        String examName = jsonMap.get("%examName%");
+        if (examName == null) {
+            examName = "";
+        }
+        List<MaintainResultDto> maintainResultList = getMaintainResultList(page, limit, examineeName, examcardNumber, examName);
+        Integer count = getMaintainResultCount(examineeName, examcardNumber, examName);
+        return getResult(maintainResultList, count);
+    }
+
+    private Integer getMaintainResultCount(String examineeName, String examcardNumber, String examName) {
+        String sql = "select count(1) from exam_answer a" +
+                " INNER JOIN exam_score b on a.id = b.examanswerid" +
+                " INNER JOIN sys_user c on a.userid=c.id" +
+                " INNER JOIN exam_create d on a.examid=d.id" +
+                " where d.name like '%"+examName+"%'";
+        if (examineeName != null && !examineeName.isEmpty()) {
+            sql += " and c.name like '%"+examineeName+"%'";
+        }
+        if (examcardNumber != null && !examcardNumber.isEmpty()) {
+            sql += " and c.examcardnumber like '%"+examcardNumber+"%'";
+        }
+        List<Integer> list = dao.findByNativeSql(sql, Integer.class);
+        if (list == null) {
+            return 0;
+        }
+        return list.get(0);
+    }
+
+    private List<MaintainResultDto> getMaintainResultList(Integer page, Integer limit, String examineeName, String examcardNumber, String examName) {
+        int offset = 0;
+        if (page != null && limit != null && page > 0 && limit > 0) {
+            offset = (page - 1) * limit;
+        }
+        String sql = "select a.id,a.score,b.id as examScoreId,c.NAME as examineeName,c.examcardnumber," +
+                "c.idcards,d.name as examName,d.subject,d.subjectval from exam_answer a" +
+                " INNER JOIN exam_score b on a.id = b.examanswerid" +
+                " INNER JOIN sys_user c on a.userid=c.id" +
+                " INNER JOIN exam_create d on a.examid=d.id" +
+                " where d.name like '%"+examName+"%' and a.readoverstate = '已批' ";
+        if (examineeName != null && !examineeName.isEmpty()) {
+            sql += " and c.name like '%"+examineeName+"%'";
+        }
+        if (examcardNumber != null && !examcardNumber.isEmpty()) {
+            sql += " and c.examcardnumber like '%"+examcardNumber+"%'";
+        }
+        if (page != null && limit != null) {
+            sql += " limit " + limit + " offset " + offset;
+        }
+        List<MaintainResultDto> maintainResultDtoList = dao.findByNativeSql(sql, MaintainResultDto.class);
+        return maintainResultDtoList;
+    }
+
+    @Override
+    public JsonData getMaintainItemList(Integer page, Integer limit, Long examScoreId, String sort) {
+        List<MaintainResultItemDto> maintainResultItemList = getMaintainItemList(page, limit, examScoreId);
+        Integer count = getMaintainItemCount(examScoreId);
+        return getResult(maintainResultItemList, count);
+    }
+
+    private List<MaintainResultItemDto> getMaintainItemList(Integer page, Integer limit, Long examScoreId) {
+        int offset = 0;
+        if (page != null && limit != null && page > 0 && limit > 0) {
+            offset = (page - 1) * limit;
+        }
+        String sql = "select a.id,a.examscoreid,a.standeritemscore,a.itemdeductscore,b.itemscore,b.standeritem,c.stem" +
+                " from exam_score_item a" +
+                " LEFT JOIN enrolment_question_scorestandar b on b.id=a.standeritemid" +
+                " LEFT JOIN enrolment_question_subject c on c.id=a.quesid" +
+                " where a.examscoreid = " + examScoreId;
+        if (page != null && limit != null) {
+            sql += " limit " + limit + " offset " + offset;
+        }
+        List<MaintainResultItemDto> maintainResultItemList = dao.findByNativeSql(sql, MaintainResultItemDto.class);
+        return maintainResultItemList;
+    }
+
+    private Integer getMaintainItemCount(Long examScoreId) {
+        String sql = "select count(1) from exam_score_item a" +
+                " LEFT JOIN enrolment_question_scorestandar b on b.id=a.standeritemid" +
+                " LEFT JOIN enrolment_question_subject c on c.id=a.quesid" +
+                " where a.examscoreid = " + examScoreId;
+        List<Integer> list = dao.findByNativeSql(sql, Integer.class);
+        if (list == null) {
+            return 0;
+        }
+        return list.get(0);
+    }
+
     /**
      * 设置学生考试的提交信息
      * @param examId
@@ -334,6 +428,17 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
             jsonData.setTotalCount(0L);
         } else {
             jsonData.setTotalCount(Long.valueOf(list.size()));
+        }
+        jsonData.setData(list);
+        return jsonData;
+    }
+
+    private JsonData getResult(List<?> list, int count) {
+        JsonData jsonData = new JsonData();
+        if (list == null) {
+            jsonData.setTotalCount(0L);
+        } else {
+            jsonData.setTotalCount(Long.valueOf(count));
         }
         jsonData.setData(list);
         return jsonData;
