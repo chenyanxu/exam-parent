@@ -29,6 +29,11 @@
                 <to uri="bean:examOverReadService?method=overReadPaperStatistic(${header.jsonStr})"/>
             </get>
 
+            <get uri="/markingcount" id="route-getStatistic" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find all Marking Number Count</description>
+                <to uri="bean:examOverReadService?method=getMarkingNumberInfo(${header.page},${header.limit},${header.jsonStr},${header.sort})"/>
+            </get>
+
             <get uri="/subject/{subject}" id="route-getOverReadHisBySubject" outType="com.kalix.framework.core.api.persistence.JsonData">
                 <description>Find all Statistic</description>
                 <to uri="bean:examOverReadService?method=getOverReadQuesBySubject(${header.jsonStr})"/>

@@ -39,4 +39,11 @@ public interface IExamOverReadService extends IService {
      */
     public JsonData getOverReadQuesBySubject(String jsonStr);
 
+    /**
+     * 获取阅卷数信息
+     * @param jsonStr
+     * @return
+     */
+    public JsonData getMarkingNumberInfo(Integer page, Integer limit, String jsonStr, String sort);
+
 }

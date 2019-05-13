@@ -11,6 +11,7 @@ import com.kalix.exam.manage.api.biz.IExamOverReadService;
 import com.kalix.exam.manage.api.dao.IExamAnswerBeanDao;
 import com.kalix.exam.manage.dto.ExamOverReadDto;
 import com.kalix.exam.manage.dto.ExamSubjectDto;
+import com.kalix.exam.manage.dto.MarkingNumCountDto;
 import com.kalix.exam.manage.dto.OverReadStatisticDto;
 import com.kalix.exam.manage.entities.ExamAnswerBean;
 import com.kalix.framework.core.api.persistence.JsonData;
@@ -231,12 +232,82 @@ public class ExamOverReadServiceImpl implements IExamOverReadService {
         return getResult(examOverReadList);
     }
 
+    @Override
+    public JsonData getMarkingNumberInfo(Integer page, Integer limit, String jsonStr, String sort) {
+        Map<String, String> jsonMap = SerializeUtil.json2Map(jsonStr);
+        String examName = jsonMap.get("%examName%");
+        String startDate = jsonMap.get("dateBegin");
+        String endDate = jsonMap.get("dateEnd");
+
+        if (examName == null) {
+            examName = "";
+        }
+        Integer count = getMarkingNumCountDtoCount(examName, startDate, endDate);
+        List<MarkingNumCountDto> markingNumCountDtoList = getMarkingNumCountDtoList(page, limit, examName, startDate, endDate);
+
+        return getResult(markingNumCountDtoList, count);
+    }
+
+    private Integer getMarkingNumCountDtoCount(String examName, String startDate, String endDate) {
+        String sql = "select count(a.userid), b.name, c.subject,c.name as examName, c.examstart from " +
+                "exam_score a LEFT JOIN sys_user b on a.teacherid = b.id LEFT JOIN exam_create c on a.examid = c.id " +
+                "where c.name like '%" + examName + "%' ";
+        if (startDate != null && startDate.trim().length() > 0) {
+            sql += " and c.examstart >= to_date('"+startDate+"','YYYY-MM-DD')";
+        }
+        if (endDate != null && endDate.trim().length() > 0) {
+            sql += " and c.examstart <= to_date('"+endDate+"','YYYY-MM-DD')";
+        }
+        sql += " GROUP BY b.name,c.subject,c.name,c.examstart";
+        List<MarkingNumCountDto> markingNumCountDtoList = dao.findByNativeSql(sql, MarkingNumCountDto.class);
+        if (markingNumCountDtoList == null) {
+            return 0;
+        }
+        return markingNumCountDtoList.size();
+    }
+
+    private List<MarkingNumCountDto> getMarkingNumCountDtoList(Integer page, Integer limit, String examName, String startDate, String endDate) {
+        int offset = 0;
+        if (page != null && limit != null && page > 0 && limit > 0) {
+            offset = (page - 1) * limit;
+        }
+        String sql = "select count(a.userid), b.name, c.subject, c.name as examName, c.examstart from " +
+                "exam_score a LEFT JOIN sys_user b on a.teacherid = b.id LEFT JOIN exam_create c on a.examid = c.id " +
+                "where c.name like '%" + examName + "%' ";
+        if (startDate != null && startDate.trim().length() > 0) {
+            sql += " and c.examstart >= to_date('"+startDate+"','YYYY-MM-DD')";
+        }
+        if (endDate != null && endDate.trim().length() > 0) {
+            sql += " and c.examstart <= to_date('"+endDate+"','YYYY-MM-DD')";
+        }
+
+        //"and c.examstart BETWEEN '2019-04-26' and '2019-04-27'";
+        sql += " GROUP BY b.name,c.subject,c.name,c.examstart";
+        if (page != null && limit != null) {
+            sql += " limit " + limit + " offset " + offset;
+        }
+        List<MarkingNumCountDto> markingNumCountDtoList = dao.findByNativeSql(sql, MarkingNumCountDto.class);
+        return markingNumCountDtoList;
+    }
+
+
     private JsonData getResult(List<?> list) {
         JsonData jsonData = new JsonData();
         if (list == null) {
             jsonData.setTotalCount(0L);
         } else {
             jsonData.setTotalCount(Long.valueOf(list.size()));
+        }
+        jsonData.setData(list);
+        return jsonData;
+    }
+
+    private JsonData getResult(List<?> list, int count) {
+        JsonData jsonData = new JsonData();
+        if (list == null) {
+            jsonData.setTotalCount(0L);
+        } else {
+            jsonData.setTotalCount(Long.valueOf(count));
         }
         jsonData.setData(list);
         return jsonData;
