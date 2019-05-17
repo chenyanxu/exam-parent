@@ -1,5 +1,6 @@
 package com.kalix.exam.manage.api.biz;
 
+import com.kalix.exam.manage.dto.ExamExamineeDto;
 import com.kalix.exam.manage.dto.ExamResultsDto;
 import com.kalix.exam.manage.entities.ExamCreateBean;
 import com.kalix.framework.core.api.biz.IBizService;
@@ -48,4 +49,13 @@ public interface IExamCreateBeanService extends IBizService<ExamCreateBean> {
      * @return
      */
     List<ExamResultsDto> getExamResultDtoList(String subjectVal);
+
+    /**
+     * 通过考试科目及考试时间获取考试Id列表
+     * @param SubjectCode
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    List<ExamExamineeDto> getExamIdsBySubjectCodeAndDate(String SubjectCode, String startDate, String endDate);
 }

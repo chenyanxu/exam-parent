@@ -67,4 +67,10 @@ public interface IExamExamineeBeanService extends IBizService<ExamExamineeBean> 
      */
     JsonData getExamineeUserInfo(Long userId);
 
+    /**
+     * 获取分数段统计信息
+     * @return
+     */
+    JsonData getFractionalStatisticsInfo(String jsonStr);
+
 }

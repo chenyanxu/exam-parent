@@ -233,6 +233,18 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
         return examResultsDtoList;
     }
 
+    @Override
+    public List<ExamExamineeDto> getExamIdsBySubjectCodeAndDate(String SubjectCode, String startDate, String endDate) {
+        String sql = "select a.id as examId,a.subject from exam_create a where a.subjectVal=" + SubjectCode;
+        if (startDate != null && startDate.trim().length() > 0) {
+            sql += " and a.examStart >= to_date('"+startDate+"','YYYY-MM-DD')";
+        }
+        if (endDate != null && endDate.trim().length() > 0) {
+            sql += " and a.examStart <= to_date('"+endDate+"','YYYY-MM-DD')";
+        }
+        return  dao.findByNativeSql(sql, ExamExamineeDto.class);
+    }
+
     private List<ExamTeacherDto> getExamTeacherList(Long examId) {
         String sql = "select a.userid,a.teachertype,b.name from exam_teacher a,sys_user b " +
                 "where a.examid = " + examId + " and a.userid=b.id";

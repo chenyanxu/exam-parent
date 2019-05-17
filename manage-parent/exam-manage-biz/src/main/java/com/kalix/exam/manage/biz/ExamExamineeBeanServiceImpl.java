@@ -1,5 +1,16 @@
 package com.kalix.exam.manage.biz;
 
+import com.github.abel533.echarts.Legend;
+import com.github.abel533.echarts.Tooltip;
+import com.github.abel533.echarts.axis.Axis;
+import com.github.abel533.echarts.axis.AxisLabel;
+import com.github.abel533.echarts.axis.CategoryAxis;
+import com.github.abel533.echarts.axis.ValueAxis;
+import com.github.abel533.echarts.code.Trigger;
+import com.github.abel533.echarts.json.GsonOption;
+import com.github.abel533.echarts.series.Bar;
+import com.github.abel533.echarts.series.Line;
+import com.github.abel533.echarts.series.Series;
 import com.kalix.admin.core.api.biz.IOrganizationBeanService;
 import com.kalix.admin.core.api.biz.IUserBeanService;
 import com.kalix.admin.core.dto.model.OrganizationDTO;
@@ -241,7 +252,6 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
                         .sorted((dto1,dto2)-> dto1.getExamEndTime().compareTo(dto2.getExamEndTime()))
                         .collect(Collectors.toList());
                 examExamineeUserDto = examineeUserNeedList.get(0);
-
             }
         }
         List<ExamExamineeUserDto> examExamineeUserList = new ArrayList<>();
@@ -253,6 +263,166 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
             examExamineeUserList.add(examExamineeUserDto);
         }
         return getResult(examExamineeUserList);
+    }
+
+    @Override
+    public JsonData getFractionalStatisticsInfo(String jsonStr) {
+        // 考试科目
+        Map<String, String> jsonMap = SerializeUtil.json2Map(jsonStr);
+        String subjectCode = jsonMap.get("subjectCode");
+        if (subjectCode == null || "".equals(subjectCode.trim())) {
+            subjectCode = jsonMap.get("%subjectCode%");
+        }
+        // 考试时间
+        String startDate = jsonMap.get("dateBegin");
+        String endDate = jsonMap.get("dateEnd");
+        // 通过考试科目及考试时间查询exam_create获取所有的examId
+        List<ExamExamineeDto> examExamineeDtoList = examCreateBeanService.getExamIdsBySubjectCodeAndDate(subjectCode, startDate, endDate);
+        List<Long> examIds = null;
+        String subject = "";
+        if (examExamineeDtoList != null && !examExamineeDtoList.isEmpty()) {
+            examIds = examExamineeDtoList.stream().map(e->e.getExamId()).collect(Collectors.toList());
+            subject = examExamineeDtoList.get(0).getSubject();
+        }
+        // 通过in(examId)及已考状态 统计分数段人数
+        List<Integer> countDatas = getCountDatas(examIds);
+        // 计算总人数及人数比例
+        Integer totalExaminee = countDatas.stream().mapToInt(e->e).sum();
+        List<Double> scaleDatas = null;
+        if (totalExaminee == 0) {
+            scaleDatas = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0);
+        } else {
+            scaleDatas = countDatas.stream().map(e-> Double.valueOf(e*100/totalExaminee))
+                    .collect(Collectors.toList());
+        }
+        // 通过examId及已考状态 sum查询出总分数
+        Integer sumTotalScore = getSumTotalScore(examIds);
+        // 总分数/总人数 = 平均分
+        Double avgScore = null;
+        if (totalExaminee > 0) {
+            avgScore = Double.valueOf(sumTotalScore/totalExaminee);
+        } else {
+            avgScore = 0.0;
+        }
+
+
+        String title = subject + "考试分数段统计";
+        String subTitle = "";
+
+        // 按分数段统计的人数
+        // List<Integer> countDatas = Arrays.asList(30, 50, 30, 90, 10);
+        // 按分数段统计的人数比例
+        // List<Double> scaleDatas = Arrays.asList(18.1, 20.8, 6.6, 91.4, 19.2);
+
+        String option = getFractionalStatisticsChart(title, subTitle, countDatas, scaleDatas);
+        Map<String, Object> map = new HashMap<>();
+        map.put("option", option);
+        map.put("totalExaminee", totalExaminee);
+        map.put("countDatas", countDatas);
+        map.put("scaleDatas", scaleDatas);
+        map.put("avgScore", avgScore);
+
+        List<Map<String, Object>> fractionalStatistics = new ArrayList<>();
+        fractionalStatistics.add(map);
+        return JsonData.toJsonData(fractionalStatistics);
+    }
+
+    private Integer getSumTotalScore(List<Long> examIds) {
+        if (examIds == null || examIds.isEmpty()) {
+            return 0;
+        }
+        List<String> examIdList = examIds.stream().map(e->String.valueOf(e)).collect(Collectors.toList());
+        String examIdStrs = String.join(",", examIdList);
+        String sql = "select sum(a.totalscore) from exam_examinee a " +
+                "where a.examid in (" + examIdStrs + ") and a.state='已考' ";
+        List<Integer> sumList = dao.findByNativeSql(sql, Integer.class);
+        if (sumList == null || sumList.isEmpty()) {
+            return 0;
+        }
+        Integer sumTotalScore = sumList.get(0);
+        if (sumTotalScore == null) {
+            sumTotalScore = 0;
+        }
+        return sumTotalScore;
+    }
+
+    private List<Integer> getCountDatas(List<Long> examIds) {
+        if (examIds == null || examIds.isEmpty()) {
+            return Arrays.asList(0, 0, 0, 0, 0);
+        }
+        List<String> examIdList = examIds.stream().map(e->String.valueOf(e)).collect(Collectors.toList());
+        String examIdStrs = String.join(",", examIdList);
+        String baseSql = "select count(1) from exam_examinee a " +
+                "where a.examid in (" + examIdStrs + ") and a.state='已考' ";
+
+        Integer c1 = getCountData(baseSql, 90, 100);
+        Integer c2 = getCountData(baseSql, 80, 89);
+        Integer c3 = getCountData(baseSql, 70, 79);
+        Integer c4 = getCountData(baseSql, 60, 69);
+        Integer c5 = getCountData(baseSql, 0, 59);
+
+        return Arrays.asList(c1, c2, c3, c4, c5);
+    }
+
+    private Integer getCountData(String baseSql, Integer minScore, Integer maxScore) {
+        baseSql += " and a.totalscore >= " + minScore + " and a.totalscore <= " + maxScore;
+        List<Integer> countList = dao.findByNativeSql(baseSql, Integer.class);
+        if (countList == null || countList.isEmpty()) {
+            return 0;
+        }
+        return countList.get(0);
+    }
+
+    private String getFractionalStatisticsChart(String title, String subTitle, List<Integer> countDatas, List<Double> scaleDatas) {
+        List<String> legendDatas = Arrays.asList("人数", "比例");
+        List<String> categoryAxisDatas = Arrays.asList("90-100 优", "80-89 良", "70-79 中等", "60-69 及格", "小于60 不及格");
+        List<String> yAxisFormatters = Arrays.asList("{value} 人", "{value} %");
+
+        GsonOption option = new GsonOption();
+        option.title(title); // 标题
+        if (subTitle != null && subTitle.trim().length() > 0) {
+            option.getTitle().setSubtext(subTitle);
+        }
+        Tooltip toolTip = new Tooltip();
+        toolTip.setTrigger(Trigger.axis);
+        option.setTooltip(toolTip);
+        option.setCalculable(true);
+
+        Legend legend = new Legend();
+        legend.setData(legendDatas);
+        option.setLegend(legend);
+
+        CategoryAxis category = new CategoryAxis();
+        category.setData(categoryAxisDatas);
+        option.xAxis(category);
+
+        List<Axis> valueAxisList = new ArrayList<>();
+        for (int i = 0; i < legendDatas.size(); i++) {
+            ValueAxis valueAxis = new ValueAxis();
+            valueAxis.setName(legendDatas.get(i));
+            AxisLabel axisLabel = new AxisLabel();
+            axisLabel.setFormatter(yAxisFormatters.get(i));
+            valueAxis.setAxisLabel(axisLabel);
+            if (i == 0) {
+                valueAxis.setSplitNumber(1);
+            }
+            valueAxisList.add(valueAxis);
+        }
+        option.yAxis(valueAxisList);
+
+        List<Series> seriesList = new ArrayList<>();
+        Bar bar = new Bar();
+        bar.setName(legendDatas.get(0));
+        bar.setData(countDatas);
+        seriesList.add(bar);
+
+        Line line = new Line();
+        line.setName(legendDatas.get(1));
+        line.setData(scaleDatas);
+        seriesList.add(line);
+        option.setSeries(seriesList);
+
+        return option.toString();
     }
 
     private String getExamDateStr(Date examStart) {

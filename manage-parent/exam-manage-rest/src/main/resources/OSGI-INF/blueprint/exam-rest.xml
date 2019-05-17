@@ -68,6 +68,11 @@
                 <description>Find all Exam OrgTeacherTree</description>
                 <to uri="bean:examTeacherBeanService?method=getExamOrgTree(${header.examId})"/>
             </get>
+
+            <get uri="/fractionalstatistics" id="route-fractionalstatistics" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find all Exam fractionalstatistics</description>
+                <to uri="bean:examExamineeBeanService?method=getFractionalStatisticsInfo(${header.jsonStr})"/>
+            </get>
         </rest>
 
         <rest path="/examcreates/{id}" consumes="application/json;charset=utf-8" produces="application/json">
