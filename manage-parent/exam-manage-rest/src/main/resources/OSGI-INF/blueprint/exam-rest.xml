@@ -73,6 +73,23 @@
                 <description>Find all Exam fractionalstatistics</description>
                 <to uri="bean:examExamineeBeanService?method=getFractionalStatisticsInfo(${header.jsonStr})"/>
             </get>
+
+            <get uri="/examineerooms" id="route-getExamineeRooms" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find all Examinee Room Info</description>
+                <to uri="bean:examExamineeBeanService?method=getExamineeRoomsInfo(${header.page},${header.limit},${header.jsonStr},${header.sort})"/>
+            </get>
+
+            <put uri="/examineerooms/{id}" id="route-updateExamineeRooms" type="com.kalix.exam.manage.dto.ExamineeRoomDto"
+                 outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Updates a ExamineeRoom Info</description>
+                <to uri="bean:examExamineeBeanService?method=updateExamineeRoomInfo"/>
+            </put>
+
+            <post uri="/examineeroomimport" id="route-importExamineeRoom" type="com.kalix.middleware.excel.api.model.exam.manage.ExamineeRoomInfoDto"
+                  outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Import a Examinee Room</description>
+                <to uri="bean:examExamineeBeanService?method=saveExamineeRoomInfo"/>
+            </post>
         </rest>
 
         <rest path="/examcreates/{id}" consumes="application/json;charset=utf-8" produces="application/json">

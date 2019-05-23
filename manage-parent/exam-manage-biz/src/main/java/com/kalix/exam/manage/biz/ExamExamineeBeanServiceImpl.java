@@ -19,18 +19,17 @@ import com.kalix.exam.manage.api.biz.IExamCreateBeanService;
 import com.kalix.exam.manage.api.biz.IExamExamineeBeanService;
 import com.kalix.exam.manage.api.biz.IExamQuesBeanService;
 import com.kalix.exam.manage.api.dao.IExamExamineeBeanDao;
-import com.kalix.exam.manage.dto.ExamExamineeDto;
-import com.kalix.exam.manage.dto.ExamExamineeUserDto;
-import com.kalix.exam.manage.dto.ExamOrgDto;
-import com.kalix.exam.manage.dto.ExamSubjectDto;
+import com.kalix.exam.manage.dto.*;
 import com.kalix.exam.manage.entities.ExamCreateBean;
 import com.kalix.exam.manage.entities.ExamExamineeBean;
 import com.kalix.framework.core.api.persistence.JsonData;
 import com.kalix.framework.core.api.persistence.JsonStatus;
 import com.kalix.framework.core.impl.biz.ShiroGenericBizServiceImpl;
 import com.kalix.framework.core.util.SerializeUtil;
+import com.kalix.middleware.excel.api.model.exam.manage.ExamineeRoomInfoDto;
 
 import javax.persistence.Transient;
+import javax.transaction.Transactional;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -327,6 +326,123 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
         return JsonData.toJsonData(fractionalStatistics);
     }
 
+    @Override
+    public JsonData getExamineeRoomsInfo(Integer page, Integer limit, String jsonStr, String sort) {
+        Map<String, String> jsonMap = SerializeUtil.json2Map(jsonStr);
+        String subject = jsonMap.get("subjectVal");
+        String startDate = jsonMap.get("dateBegin");
+        // String endDate = jsonMap.get("dateEnd");
+        String state = jsonMap.get("examState");
+        if (subject == null || startDate == null) {
+                // || endDate == null) {
+            return getResult(null, 0);
+        }
+
+        Integer count = getExamineeRoomsCount(subject, startDate, state);
+        List<ExamineeRoomDto> examineeRoomDtoList = getExamineeRoomsInfo(page, limit, subject, startDate, state);
+
+        return getResult(examineeRoomDtoList, count);
+    }
+
+    @Override
+    public JsonStatus updateExamineeRoomInfo(ExamineeRoomDto examineeRoomDto) {
+        try {
+            Long id = examineeRoomDto.getId();
+            String examRoom = examineeRoomDto.getExamRoom();
+            Integer examRoomNo = examineeRoomDto.getExamRoomNo();
+            ExamExamineeBean examExamineeBean = dao.get(id);
+            examExamineeBean.setExamRoom(examRoom);
+            examExamineeBean.setExamRoomNo(examRoomNo);
+            dao.save(examExamineeBean);
+            return JsonStatus.successResult("修改成功");
+        } catch(Exception e) {
+            e.printStackTrace();
+            return JsonStatus.failureResult("修改失败");
+        }
+    }
+
+    @Override
+    @Transactional
+    public JsonStatus saveExamineeRoomInfo(ExamineeRoomInfoDto examineeRoomDto) {
+        if (examineeRoomDto == null) {
+            return JsonStatus.failureResult("无保存数据");
+        }
+        try {
+            ExamExamineeBean examExamineeBean = getExamExamineeByRoomInfoDto(examineeRoomDto);
+            if (examExamineeBean == null || examExamineeBean.getId() <= 0) {
+                return JsonStatus.failureResult("保存数据不正确");
+            }
+            examExamineeBean.setExamRoom(examineeRoomDto.getExamRoom());
+            examExamineeBean.setExamRoomNo(Integer.parseInt(examineeRoomDto.getExamRoomNo().trim()));
+            dao.save(examExamineeBean);
+            return JsonStatus.successResult("保存成功");
+        } catch(Exception e) {
+            e.printStackTrace();
+            return JsonStatus.failureResult("保存失败");
+        }
+    }
+
+    private ExamExamineeBean getExamExamineeByRoomInfoDto(ExamineeRoomInfoDto examineeRoomDto) {
+        String examCardNumber = examineeRoomDto.getExamCardNumber();
+        String idCards = examineeRoomDto.getIdCards();
+        String name = examineeRoomDto.getName();
+        String examStart = examineeRoomDto.getExamStart();
+        String subjectVal = examineeRoomDto.getSubjectVal();
+        String sql = "select a.* from exam_examinee a INNER JOIN exam_create b ON a.examid=b.id INNER JOIN sys_user c ON a.userid = c.id " +
+                "where b.examstart = to_timestamp('"+examStart+"','YYYY-MM-DD hh24:mi:ss') " +
+                "and b.subjectval = '"+subjectVal+"' and c.name='"+name+"' and c.idcards='"+idCards+"' and c.examcardnumber='"+examCardNumber+"'";
+        List<ExamExamineeBean> examExamineeBeans = dao.findByNativeSql(sql, ExamExamineeBean.class);
+        if (examExamineeBeans == null || examExamineeBeans.isEmpty()) {
+            return null;
+        }
+        return examExamineeBeans.get(0);
+    }
+
+    public List<ExamineeRoomDto> getExamineeRoomsInfo(Integer page, Integer limit, String subject, String startDate, String state) {
+        int offset = 0;
+        if (page != null && limit != null && page > 0 && limit > 0) {
+            offset = (page - 1) * limit;
+        }
+        String sql = "select a.id,a.examid,a.userid,c.name,c.examcardnumber,c.idcards,a.state,a.examroom,a.examroomno from exam_examinee a " +
+                "INNER JOIN exam_create b ON a.examid = b.id INNER JOIN sys_user c ON a.userid = c.id " +
+                "where b.subjectval = '" + subject + "'";
+        if (startDate != null && startDate.trim().length() > 0) {
+            sql += " and b.examstart = to_timestamp('"+startDate+"','YYYY-MM-DD hh24:mi:ss')";
+        }
+//        if (endDate != null && endDate.trim().length() > 0) {
+//            sql += " and b.examstart <= to_date('"+endDate+"','YYYY-MM-DD')";
+//        }
+        if (state != null) {
+            sql += " and a.state = '"+state+"'";
+        }
+        sql += " order by c.examcardnumber";
+        if (page != null && limit != null) {
+            sql += " limit " + limit + " offset " + offset;
+        }
+        List<ExamineeRoomDto> examineeRoomDtoList =  dao.findByNativeSql(sql, ExamineeRoomDto.class);
+        return examineeRoomDtoList;
+    }
+
+    private Integer getExamineeRoomsCount(String subject, String startDate, String state) {
+        String sql = "select count(1) from exam_examinee a " +
+                "INNER JOIN exam_create b ON a.examid = b.id INNER JOIN sys_user c ON a.userid = c.id " +
+                "where b.subjectval = '" + subject + "'";
+        if (startDate != null && startDate.trim().length() > 0) {
+            sql += " and b.examstart = to_timestamp('"+startDate+"','YYYY-MM-DD hh24:mi:ss')";
+        }
+//        if (endDate != null && endDate.trim().length() > 0) {
+//            sql += " and b.examstart <= to_date('"+endDate+"','YYYY-MM-DD')";
+//        }
+        if (state != null) {
+            sql += " and a.state = '"+state+"'";
+        }
+        List<Integer> examineeRoomsCount = dao.findByNativeSql(sql, Integer.class);
+        if (examineeRoomsCount == null) {
+            return 0;
+        }
+        return examineeRoomsCount.get(0);
+    }
+
     private Integer getSumTotalScore(List<Long> examIds) {
         if (examIds == null || examIds.isEmpty()) {
             return 0;
@@ -457,6 +573,17 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
             jsonData.setTotalCount(0L);
         } else {
             jsonData.setTotalCount(Long.valueOf(list.size()));
+        }
+        jsonData.setData(list);
+        return jsonData;
+    }
+
+    private JsonData getResult(List<?> list, int count) {
+        JsonData jsonData = new JsonData();
+        if (list == null) {
+            jsonData.setTotalCount(0L);
+        } else {
+            jsonData.setTotalCount(Long.valueOf(count));
         }
         jsonData.setData(list);
         return jsonData;

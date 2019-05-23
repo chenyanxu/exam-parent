@@ -140,6 +140,9 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
     @Override
     public JsonStatus updateStartExamingState(ExamingDto examingDto) {
         JsonStatus jsonStatus = new JsonStatus();
+        if (examingDto == null) {
+            return jsonStatus;
+        }
         try {
             Long userId = examingDto.getUserId();
             Long examId = examingDto.getExamId();

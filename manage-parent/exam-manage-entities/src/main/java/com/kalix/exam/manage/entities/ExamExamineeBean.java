@@ -16,6 +16,8 @@ public class ExamExamineeBean extends PersistentEntity {
     private Long examId; // 考试Id
     private Integer totalScore; // 考试成绩
     private Long orgId; // 考生所在机构Id
+    private String examRoom; // 考场
+    private Integer examRoomNo; // 考场坐号
 
     public Long getUserId() {
         return userId;
@@ -71,5 +73,21 @@ public class ExamExamineeBean extends PersistentEntity {
 
     public void setOrgId(Long orgId) {
         this.orgId = orgId;
+    }
+
+    public String getExamRoom() {
+        return examRoom;
+    }
+
+    public void setExamRoom(String examRoom) {
+        this.examRoom = examRoom;
+    }
+
+    public Integer getExamRoomNo() {
+        return examRoomNo;
+    }
+
+    public void setExamRoomNo(Integer examRoomNo) {
+        this.examRoomNo = examRoomNo;
     }
 }

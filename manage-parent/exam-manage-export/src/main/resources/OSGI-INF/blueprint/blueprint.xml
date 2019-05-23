@@ -13,5 +13,15 @@
     <bean id="examExportServiceImpl" class="com.kalix.exam.manage.export.ExamExportServiceImpl">
         <property name="examCreateBeanService" ref="examCreateBeanService"/>
     </bean>
+
+    <!--考生导出服务-->
+    <reference id="examExamineeBeanService" interface="com.kalix.exam.manage.api.biz.IExamExamineeBeanService"/>
+
+    <service id="examineeExportService" interface="com.kalix.exam.manage.api.export.IExamineeExportService" ref="examineeExportServiceImpl">
+    </service>
+
+    <bean id="examineeExportServiceImpl" class="com.kalix.exam.manage.export.ExamineeExportServiceImpl">
+        <property name="examExamineeBeanService" ref="examExamineeBeanService"/>
+    </bean>
 </blueprint>
 

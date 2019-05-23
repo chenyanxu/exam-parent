@@ -1,13 +1,14 @@
 package com.kalix.exam.manage.api.biz;
 
 import com.kalix.exam.manage.dto.ExamExamineeDto;
-import com.kalix.exam.manage.dto.ExamExamineeUserDto;
 import com.kalix.exam.manage.dto.ExamOrgDto;
 import com.kalix.exam.manage.dto.ExamSubjectDto;
+import com.kalix.exam.manage.dto.ExamineeRoomDto;
 import com.kalix.exam.manage.entities.ExamExamineeBean;
 import com.kalix.framework.core.api.biz.IBizService;
 import com.kalix.framework.core.api.persistence.JsonData;
 import com.kalix.framework.core.api.persistence.JsonStatus;
+import com.kalix.middleware.excel.api.model.exam.manage.ExamineeRoomInfoDto;
 
 import java.util.List;
 import java.util.Map;
@@ -73,4 +74,38 @@ public interface IExamExamineeBeanService extends IBizService<ExamExamineeBean> 
      */
     JsonData getFractionalStatisticsInfo(String jsonStr);
 
+    /**
+     * 获取考生考场信息
+     * @param page
+     * @param limit
+     * @param jsonStr
+     * @param sort
+     * @return
+     */
+    JsonData getExamineeRoomsInfo(Integer page, Integer limit, String jsonStr, String sort);
+
+    /**
+     * 获取考生考场信息
+     * @param page
+     * @param limit
+     * @param subject
+     * @param startDate
+     * @param state
+     * @return
+     */
+    List<ExamineeRoomDto> getExamineeRoomsInfo(Integer page, Integer limit, String subject, String startDate, String state);
+
+    /**
+     * 修改考生考场信息
+     * @param examineeRoomDto
+     * @return
+     */
+    JsonStatus updateExamineeRoomInfo(ExamineeRoomDto examineeRoomDto);
+
+    /**
+     * 保存导入的考场信息
+     * @param examineeRoomDto
+     * @return
+     */
+    JsonStatus saveExamineeRoomInfo(ExamineeRoomInfoDto examineeRoomDto);
 }
