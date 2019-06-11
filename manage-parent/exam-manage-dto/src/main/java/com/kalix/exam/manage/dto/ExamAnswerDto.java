@@ -21,6 +21,7 @@ public class ExamAnswerDto extends BaseDTO {
     private Integer score;  // 教师评分
     private Integer passScore; // 及格线
     private String teacherType; // 批阅人角色
+    private Long readOverBy; // 当前批阅人
     private List<ExamAnswerScoreItemDto> examAnswerScoreItems; // 评分项（初审，复审用户使用）
 
     public Integer getQuesTotal() {
@@ -157,5 +158,13 @@ public class ExamAnswerDto extends BaseDTO {
 
     public void setTeacherType(String teacherType) {
         this.teacherType = teacherType;
+    }
+
+    public Long getReadOverBy() {
+        return readOverBy;
+    }
+
+    public void setReadOverBy(Long readOverBy) {
+        this.readOverBy = readOverBy;
     }
 }

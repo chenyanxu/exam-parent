@@ -272,7 +272,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
     private List<ExamAnswerDto> getAllExamAnswerList(Long userId, String subjectCode, Integer totalNum, String state) {
         String sql = "select a.examid as examId,a.teachertype as teacherType,b.subject,b.subjectval as subjectVal,b.passScore," +
                 " d.id as examAnswerId,d.answer,d.quesid as quesId,d.perscore,d.userid as studentId," +
-                " e.stem,e.subtype" +
+                " e.stem,e.subtype,d.readoverby" +
                 " from exam_teacher a,exam_create b,exam_answer d," +
                 " enrolment_question_subject e" +
                 " where a.examid = b.id and d.examid = a.examid " +
@@ -285,15 +285,29 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
             sql += " and b.subjectval = '" + subjectCode + "'";
         }
 
-        String currentSql = sql + " and d.readoverby=" + userId;
 
+        String currentSql = sql + " and d.readoverby=" + userId;
         List<ExamAnswerDto> examAnswerTempList = dao.findByNativeSql(currentSql, ExamAnswerDto.class);
         if (examAnswerTempList == null || examAnswerTempList.isEmpty()) {
-            examAnswerTempList = dao.findByNativeSql(sql, ExamAnswerDto.class);
+            currentSql = sql + " and d.readoverby is NULL";
+            examAnswerTempList = dao.findByNativeSql(currentSql, ExamAnswerDto.class);
             if (examAnswerTempList == null || examAnswerTempList.isEmpty()) {
                 return null;
             }
+//            else {
+//                ExamAnswerDto answerDto = examAnswerTempList.get(0);
+//                Long readOverBy = answerDto.getReadOverBy();
+//                // 说明其他人在阅卷
+//                if (readOverBy != null) {
+//                    return null;
+//                }
+//            }
         }
+
+//        List<ExamAnswerDto> examAnswerTempList = dao.findByNativeSql(sql, ExamAnswerDto.class);
+//        if (examAnswerTempList == null || examAnswerTempList.isEmpty()) {
+//            return null;
+//        }
 
 //        if (examAnswerId == null) {
 //            for (int i = 0; i < examAnswerTempList.size(); i++) {
@@ -305,12 +319,17 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
 //                cacheManager.save("exam_answer_" + subjectVal + "_" + seqNum, answerId, 86400);
 //            }
 //        }
-        List<ExamAnswerDto> examAnswerList = new ArrayList<>();
         ExamAnswerDto answerDto = examAnswerTempList.get(0);
+//        Long readOverBy = answerDto.getReadOverBy();
+//        // 说明其他人在阅卷
+//        if (readOverBy != null && !readOverBy.equals(userId)) {
+//            return null;
+//        }
         Long quesId = answerDto.getQuesId();
         List<ExamAnswerScoreItemDto> examAnswerScoreItemList = getExamAnswerScoreItemList(quesId);
         answerDto.setExamAnswerScoreItems(examAnswerScoreItemList);
         answerDto.setQuesTotal(totalNum);
+        List<ExamAnswerDto> examAnswerList = new ArrayList<>();
         examAnswerList.add(answerDto);
 
         // 修改临时批阅人状态
