@@ -143,10 +143,11 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
             sql += " and b.subjectval = '" + subjectCode + "'";
         }
 
-        String currentSql = sql + " and d.readoverby=" + userId;
+        String currentSql = sql + " and d.readoverthirdby=" + userId;
         List<ExamAnswerDto> examAnswerTempList = dao.findByNativeSql(currentSql, ExamAnswerDto.class);
         if (examAnswerTempList == null || examAnswerTempList.isEmpty()) {
-            examAnswerTempList = dao.findByNativeSql(sql, ExamAnswerDto.class);
+            currentSql = sql + " and d.readoverthirdby is NULL";
+            examAnswerTempList = dao.findByNativeSql(currentSql, ExamAnswerDto.class);
             if (examAnswerTempList == null || examAnswerTempList.isEmpty()) {
                 return null;
             }
@@ -221,7 +222,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
         if (resultDtoList != null && !resultDtoList.isEmpty()) {
             for (ExamAnswerDto examAnswerDto : resultDtoList) {
                 Long examAnswerId = examAnswerDto.getExamAnswerId();
-                updateTempReadOverPerson(examAnswerId, userId);
+                updateTempReadOverPerson(examAnswerId, userId, state);
             }
         }
 
@@ -284,24 +285,28 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
         if (subjectCode != null && !subjectCode.trim().isEmpty()) {
             sql += " and b.subjectval = '" + subjectCode + "'";
         }
-
-
-        String currentSql = sql + " and d.readoverby=" + userId;
-        List<ExamAnswerDto> examAnswerTempList = dao.findByNativeSql(currentSql, ExamAnswerDto.class);
-        if (examAnswerTempList == null || examAnswerTempList.isEmpty()) {
-            currentSql = sql + " and d.readoverby is NULL";
+        List<ExamAnswerDto> examAnswerTempList = null;
+        if (notOverReadState.equals(state)) {
+            String currentSql = sql + " and d.readoverby=" + userId;
             examAnswerTempList = dao.findByNativeSql(currentSql, ExamAnswerDto.class);
             if (examAnswerTempList == null || examAnswerTempList.isEmpty()) {
-                return null;
+                currentSql = sql + " and d.readoverby is NULL";
+                examAnswerTempList = dao.findByNativeSql(currentSql, ExamAnswerDto.class);
+                if (examAnswerTempList == null || examAnswerTempList.isEmpty()) {
+                    return null;
+                }
             }
-//            else {
-//                ExamAnswerDto answerDto = examAnswerTempList.get(0);
-//                Long readOverBy = answerDto.getReadOverBy();
-//                // 说明其他人在阅卷
-//                if (readOverBy != null) {
-//                    return null;
-//                }
-//            }
+        }
+        if (firstCheckState.equals(state)) {
+            String currentSql = sql + " and d.readoversecondby=" + userId;
+            examAnswerTempList = dao.findByNativeSql(currentSql, ExamAnswerDto.class);
+            if (examAnswerTempList == null || examAnswerTempList.isEmpty()) {
+                currentSql = sql + " and d.readoversecondby is NULL";
+                examAnswerTempList = dao.findByNativeSql(currentSql, ExamAnswerDto.class);
+                if (examAnswerTempList == null || examAnswerTempList.isEmpty()) {
+                    return null;
+                }
+            }
         }
 
 //        List<ExamAnswerDto> examAnswerTempList = dao.findByNativeSql(sql, ExamAnswerDto.class);
@@ -334,7 +339,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
 
         // 修改临时批阅人状态
         Long examAnswerId = answerDto.getExamAnswerId();
-        updateTempReadOverPerson(examAnswerId, userId);
+        updateTempReadOverPerson(examAnswerId, userId, state);
         return examAnswerList;
     }
 
@@ -343,9 +348,17 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
      * @param examAnswerId
      * @param userId
      */
-    private void updateTempReadOverPerson(Long examAnswerId, Long userId) {
+    private void updateTempReadOverPerson(Long examAnswerId, Long userId, String state) {
         ExamAnswerBean examAnswerBean = examAnswerBeanService.getEntity(examAnswerId);
-        examAnswerBean.setReadoverBy(userId);
+        if (notOverReadState.equals(state)) {
+            examAnswerBean.setReadoverBy(userId);
+        }
+        if (firstCheckState.equals(state)) {
+            examAnswerBean.setReadoverSecondBy(userId);
+        }
+        if (secondCheckState.equals(state)) {
+            examAnswerBean.setReadoverThirdBy(userId);
+        }
         examAnswerBeanService.saveEntity(examAnswerBean);
     }
 
@@ -448,7 +461,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
                     updateExamineeScore(examId, studentId);
                 }
                 // 去掉临时批阅状态
-                updateTempReadOverPerson(examAnswerId, null);
+                // updateTempReadOverPerson(examAnswerId, null);
             }
             jsonStatus.setSuccess(true);
             jsonStatus.setMsg("提交成功");

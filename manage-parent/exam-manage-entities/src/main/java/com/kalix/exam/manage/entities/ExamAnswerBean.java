@@ -20,7 +20,9 @@ public class ExamAnswerBean extends PersistentEntity {
     private Long userId;  // 考生Id
     private Integer score;  // 得分
     private String readoverState; // 批阅状态
-    private Long readoverBy;  // 批阅人
+    private Long readoverBy;  // 初阅人
+    private Long readoverSecondBy; // 复阅人
+    private Long readoverThirdBy; // 终阅人（组长）
     private Date readoverOn;  // 批阅时间
     private Integer titleNum;  // 标题号
     private Integer quesNum;  // 题序号
@@ -113,6 +115,22 @@ public class ExamAnswerBean extends PersistentEntity {
 
     public void setReadoverBy(Long readoverBy) {
         this.readoverBy = readoverBy;
+    }
+
+    public Long getReadoverSecondBy() {
+        return readoverSecondBy;
+    }
+
+    public void setReadoverSecondBy(Long readoverSecondBy) {
+        this.readoverSecondBy = readoverSecondBy;
+    }
+
+    public Long getReadoverThirdBy() {
+        return readoverThirdBy;
+    }
+
+    public void setReadoverThirdBy(Long readoverThirdBy) {
+        this.readoverThirdBy = readoverThirdBy;
     }
 
     public Date getReadoverOn() {
