@@ -268,10 +268,8 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
     public JsonData getFractionalStatisticsInfo(String jsonStr) {
         // 考试科目
         Map<String, String> jsonMap = SerializeUtil.json2Map(jsonStr);
-        String subjectCode = jsonMap.get("subjectCode");
-        if (subjectCode == null || "".equals(subjectCode.trim())) {
-            subjectCode = jsonMap.get("%subjectCode%");
-        }
+        String subjectCode = jsonMap.get("subjectVal");
+
         // 考试时间
         String startDate = jsonMap.get("dateBegin");
         String endDate = jsonMap.get("dateEnd");
