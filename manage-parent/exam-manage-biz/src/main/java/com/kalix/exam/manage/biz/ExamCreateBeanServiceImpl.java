@@ -244,6 +244,8 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
             // String[] endDateArr = endDate.split(" ");
             sql += " and a.examStart <= to_date('"+endDate+"','YYYY-MM-DD')";
         }
+//        System.out.println("sql=================");
+//        System.out.println(sql);
         return  dao.findByNativeSql(sql, ExamExamineeDto.class);
     }
 

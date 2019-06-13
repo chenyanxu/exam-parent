@@ -480,6 +480,8 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
 
     private Integer getCountData(String baseSql, Integer minScore, Integer maxScore) {
         baseSql += " and a.totalscore >= " + minScore + " and a.totalscore <= " + maxScore;
+//        System.out.println("baseSql======================");
+//        System.out.println(baseSql);
         List<Integer> countList = dao.findByNativeSql(baseSql, Integer.class);
         if (countList == null || countList.isEmpty()) {
             return 0;
@@ -532,6 +534,7 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
 
         Line line = new Line();
         line.setName(legendDatas.get(1));
+        line.setyAxisIndex(1);
         line.setData(scaleDatas);
         seriesList.add(line);
         option.setSeries(seriesList);
