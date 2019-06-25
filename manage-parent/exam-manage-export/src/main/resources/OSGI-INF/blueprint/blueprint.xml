@@ -23,5 +23,13 @@
     <bean id="examineeExportServiceImpl" class="com.kalix.exam.manage.export.ExamineeExportServiceImpl">
         <property name="examExamineeBeanService" ref="examExamineeBeanService"/>
     </bean>
+
+    <!--考场对照单导出服务-->
+    <service id="examineeControlSheetService" interface="com.kalix.exam.manage.api.export.IExamineeControlSheetService" ref="examineeControlSheetServiceImpl">
+    </service>
+
+    <bean id="examineeControlSheetServiceImpl" class="com.kalix.exam.manage.export.ExamineeControlSheetServiceImpl">
+        <property name="examExamineeBeanService" ref="examExamineeBeanService"/>
+    </bean>
 </blueprint>
 

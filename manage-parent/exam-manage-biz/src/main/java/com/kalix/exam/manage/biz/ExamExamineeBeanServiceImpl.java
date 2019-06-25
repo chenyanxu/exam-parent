@@ -40,6 +40,7 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
     private IExamCreateBeanService examCreateBeanService;
     private IOrganizationBeanService organizationBeanService;
     private IExamQuesBeanService examQuesBeanService;
+    private final Integer PER_ROOM_COUNT = 26;
 
 
     public void setUserBeanService(IUserBeanService userBeanService) {
@@ -89,6 +90,21 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
                 setExamineeUserId(examId, orgIds, userIds, examExamineans);
             }
             if (examExamineans.size() > 0) {
+                // 按用户Id先排序
+                // examExamineans.sort((e1,e2) -> e1.getUserId().intValue() - e2.getUserId().intValue());
+                // 设置考场和座号（默认26人一个考场）
+                int totalSize = examExamineans.size();
+                int pageSize = PER_ROOM_COUNT;
+                int cNum = 0;
+                for (int i = 0; i < totalSize; i++) {
+                    if (i%pageSize == 0) {
+                        cNum++;
+                    }
+                    examExamineans.get(i).setExamRoomNo((i%pageSize+1));
+                    examExamineans.get(i).setExamRoom("第" + cNum + "考场");
+                    System.out.println("UserId:" + examExamineans.get(i).getUserId());
+                }
+
                 // 删除examId相关信息
                 deleteByExamId(examId);
                 // 批量添加分配的考生
@@ -361,6 +377,88 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
 
     @Override
     @Transactional
+    public JsonStatus saveExamineeRoomInfo(ExamineeRoomDto examineeRoomDto) {
+        String subjectVal = examineeRoomDto.getSubjectCode();
+        String startDate = examineeRoomDto.getDateBegin();
+        String examineeName = examineeRoomDto.getName();
+        String idCards = examineeRoomDto.getIdCards();
+        String examCardNumber = examineeRoomDto.getExamCardNumber();
+        String examRoom = examineeRoomDto.getExamRoom();
+        Integer examRoomNo = examineeRoomDto.getExamRoomNo();
+
+        // 获取考试信息
+        List<ExamCreateBean> examList = examCreateBeanService.getExamBySubjectCodeAndStartDate(subjectVal, startDate);
+        if(examList == null || examList.isEmpty()) {
+            return JsonStatus.failureResult("请先创建一个考试");
+        }
+        ExamCreateBean examCreateBean = examList.get(0);
+
+        // 获取考生信息
+        List<UserBean> userBeans = userBeanService.getUsersByNameIdCardAndExamNum(examineeName, idCards, examCardNumber);
+        if (userBeans == null || userBeans.isEmpty()) {
+            return JsonStatus.failureResult("请先创建考生的用户信息");
+        }
+        Long userId = userBeans.get(0).getId();
+
+        // 获取考生机构信息
+        List<Long> orgIdList = userBeanService.getOrgIdsByUserId(userId);
+        if (orgIdList == null || orgIdList.isEmpty()) {
+            return JsonStatus.failureResult("请先在该考试机构下添加用户");
+        }
+        // 通过考试Id获取已有的机构Id
+        Long examId = examCreateBean.getId();
+        List<ExamExamineeBean> examExamineeList = getExamineeListByExamId(examId);
+        if (examExamineeList == null || examExamineeList.isEmpty()) {
+            return JsonStatus.failureResult("请在创建考试用例中分配考生");
+        }
+        List<Long> examOrgIds = examExamineeList.stream().map(e->e.getOrgId()).distinct().collect(Collectors.toList());
+        Long examNeedOrgId = null;
+        for (Long orgId : orgIdList) {
+            for (Long examOrgId : examOrgIds) {
+                if (orgId != null && examOrgId != null && orgId.equals(examOrgId)) {
+                    examNeedOrgId = examOrgId;
+                    break;
+                }
+            }
+            if (examNeedOrgId != null) {
+                break;
+            }
+        }
+        if (examNeedOrgId == null) {
+            return JsonStatus.failureResult("请先在该考试机构下添加用户");
+        }
+        // 验证考场及座号信息
+        List<ExamExamineeBean> examExamineeFilters = examExamineeList.stream().filter(e->
+                e.getExamRoom().equals(examRoom)&&e.getExamRoomNo().equals(examRoomNo)
+        ).collect(Collectors.toList());
+        if (examExamineeFilters != null && !examExamineeFilters.isEmpty()) {
+            return JsonStatus.failureResult("考场及座号重复，请重新添加");
+        }
+
+        try {
+            // 保存考生信息
+            ExamExamineeBean examExamineeBean = new ExamExamineeBean();
+            examExamineeBean.setExamId(examId);
+            examExamineeBean.setOrgId(examNeedOrgId);
+            examExamineeBean.setUserId(userId);
+            examExamineeBean.setState("未考");
+            examExamineeBean.setExamRoom(examRoom);
+            examExamineeBean.setExamRoomNo(examRoomNo);
+            dao.save(examExamineeBean);
+            return JsonStatus.successResult("保存成功");
+        } catch(Exception e) {
+            e.printStackTrace();
+            return JsonStatus.failureResult("保存失败");
+        }
+    }
+
+    private List<ExamExamineeBean> getExamineeListByExamId(Long examId) {
+        String sql = "select * from exam_examinee where examid=" + examId;
+        return dao.findByNativeSql(sql, ExamExamineeBean.class);
+    }
+
+    @Override
+    @Transactional
     public JsonStatus saveExamineeRoomInfo(ExamineeRoomInfoDto examineeRoomDto) {
         if (examineeRoomDto == null) {
             return JsonStatus.failureResult("无保存数据");
@@ -378,6 +476,14 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
             e.printStackTrace();
             return JsonStatus.failureResult("保存失败");
         }
+    }
+
+    @Override
+    public List<ExamineeControlSheetDto> getExamineeControlSheetInfos(String subjectVal, String startDate) {
+        String sql = "SELECT b.subject,b.examStart,b.duration,C.NAME,C.examcardnumber,C.idcards,A.examroom,A.examroomno FROM exam_examinee A " +
+                " INNER JOIN exam_create b ON A.examid = b.ID INNER JOIN sys_user C ON A.userid = C.ID " +
+                " WHERE b.subjectval = '"+subjectVal+"' AND b.examstart = to_timestamp('"+startDate+"','YYYY-MM-DD hh24:mi:ss')";
+        return dao.findByNativeSql(sql, ExamineeControlSheetDto.class);
     }
 
     private ExamExamineeBean getExamExamineeByRoomInfoDto(ExamineeRoomInfoDto examineeRoomDto) {
@@ -413,7 +519,7 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
         if (state != null) {
             sql += " and a.state = '"+state+"'";
         }
-        sql += " order by c.examcardnumber";
+        sql += " order by c.id";
         if (page != null && limit != null) {
             sql += " limit " + limit + " offset " + offset;
         }

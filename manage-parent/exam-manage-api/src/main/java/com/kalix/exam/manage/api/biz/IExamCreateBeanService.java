@@ -58,4 +58,12 @@ public interface IExamCreateBeanService extends IBizService<ExamCreateBean> {
      * @return
      */
     List<ExamExamineeDto> getExamIdsBySubjectCodeAndDate(String SubjectCode, String startDate, String endDate);
+
+    /**
+     * 通过考试科目及考试开始时间获取考试信息
+     * @param subjectCode
+     * @param startDate
+     * @return
+     */
+    List<ExamCreateBean> getExamBySubjectCodeAndStartDate(String subjectCode, String startDate);
 }

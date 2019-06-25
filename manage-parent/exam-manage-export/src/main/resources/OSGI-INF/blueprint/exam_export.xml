@@ -24,4 +24,14 @@
             <entry key="servlet-name" value="ExamineeExportServlet"/>
         </service-properties>
     </service>
+
+    <bean id="examineeControlSheetServlet" class="com.kalix.exam.manage.export.ExamineeControlSheetServlet">
+    </bean>
+    <service interface="javax.servlet.Servlet" ref="examineeControlSheetServlet">
+        <service-properties>
+            <entry key="alias" value="/camel/servlet/examControlSheetExport" />
+            <entry key="matchOnUriPrefix" value="true" />
+            <entry key="servlet-name" value="ExamineeControlSheetServlet"/>
+        </service-properties>
+    </service>
 </blueprint>

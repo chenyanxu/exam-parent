@@ -90,6 +90,12 @@
                 <description>Import a Examinee Room</description>
                 <to uri="bean:examExamineeBeanService?method=saveExamineeRoomInfo"/>
             </post>
+
+            <post uri="/examineeadd" id="route-examineeAddUser" type="com.kalix.exam.manage.dto.ExamineeRoomDto"
+                  outType="com.kalix.framework.core.api.persistence.JsonStatus">
+                <description>Add a Examinee User Info</description>
+                <to uri="bean:examExamineeBeanService?method=saveExamineeRoomInfo"/>
+            </post>
         </rest>
 
         <rest path="/examcreates/{id}" consumes="application/json;charset=utf-8" produces="application/json">

@@ -19,6 +19,8 @@ public class ExamineeRoomDto extends BaseDTO {
     private String state; // 参考状态
     private String examRoom; // 考场
     private Integer examRoomNo; // 考场坐号
+    private String subjectCode; // 考试科目
+    private String dateBegin; // 考试时间
 
     public Long getExamId() {
         return examId;
@@ -82,5 +84,21 @@ public class ExamineeRoomDto extends BaseDTO {
 
     public void setExamRoomNo(Integer examRoomNo) {
         this.examRoomNo = examRoomNo;
+    }
+
+    public String getSubjectCode() {
+        return subjectCode;
+    }
+
+    public void setSubjectCode(String subjectCode) {
+        this.subjectCode = subjectCode;
+    }
+
+    public String getDateBegin() {
+        return dateBegin;
+    }
+
+    public void setDateBegin(String dateBegin) {
+        this.dateBegin = dateBegin;
     }
 }

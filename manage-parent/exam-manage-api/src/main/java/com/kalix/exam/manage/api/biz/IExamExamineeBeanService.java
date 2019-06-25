@@ -1,9 +1,6 @@
 package com.kalix.exam.manage.api.biz;
 
-import com.kalix.exam.manage.dto.ExamExamineeDto;
-import com.kalix.exam.manage.dto.ExamOrgDto;
-import com.kalix.exam.manage.dto.ExamSubjectDto;
-import com.kalix.exam.manage.dto.ExamineeRoomDto;
+import com.kalix.exam.manage.dto.*;
 import com.kalix.exam.manage.entities.ExamExamineeBean;
 import com.kalix.framework.core.api.biz.IBizService;
 import com.kalix.framework.core.api.persistence.JsonData;
@@ -103,9 +100,24 @@ public interface IExamExamineeBeanService extends IBizService<ExamExamineeBean> 
     JsonStatus updateExamineeRoomInfo(ExamineeRoomDto examineeRoomDto);
 
     /**
+     * 添加考生考场信息
+     * @param examineeRoomDto
+     * @return
+     */
+    JsonStatus saveExamineeRoomInfo(ExamineeRoomDto examineeRoomDto);
+
+    /**
      * 保存导入的考场信息
      * @param examineeRoomDto
      * @return
      */
     JsonStatus saveExamineeRoomInfo(ExamineeRoomInfoDto examineeRoomDto);
+
+    /**
+     * 获取考场对照单数据列表
+     * @param subjectVal
+     * @param startDate
+     * @return
+     */
+    List<ExamineeControlSheetDto> getExamineeControlSheetInfos(String subjectVal, String startDate);
 }
