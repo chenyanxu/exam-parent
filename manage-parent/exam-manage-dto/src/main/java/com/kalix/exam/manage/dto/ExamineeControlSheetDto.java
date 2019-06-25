@@ -19,6 +19,7 @@ public class ExamineeControlSheetDto extends BaseDTO {
     private String examRoom; // 考场
     private Integer examRoomNo; // 座号
     private String photoPath; // 照片位置
+    private String examTimeStr; // 考试时间串
 
     public String getSubject() {
         return subject;
@@ -90,5 +91,13 @@ public class ExamineeControlSheetDto extends BaseDTO {
 
     public void setPhotoPath(String photoPath) {
         this.photoPath = photoPath;
+    }
+
+    public String getExamTimeStr() {
+        return examTimeStr;
+    }
+
+    public void setExamTimeStr(String examTimeStr) {
+        this.examTimeStr = examTimeStr;
     }
 }

@@ -295,7 +295,7 @@ public class ExamineeControlSheetServiceImpl implements IExamineeControlSheetSer
         style.setAlignment(CellStyle.ALIGN_LEFT);
         style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
         makeBorder(style);
-        Font contentFont = makeFont((short) 9, Font.BOLDWEIGHT_NORMAL);
+        Font contentFont = makeFont((short) 8, Font.BOLDWEIGHT_NORMAL);
         style.setFont(contentFont);
         return style;
     }
@@ -306,7 +306,7 @@ public class ExamineeControlSheetServiceImpl implements IExamineeControlSheetSer
         style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
         style.setWrapText(true);
         makeBorder(style);
-        Font infoFont = makeFont((short) 9, Font.BOLDWEIGHT_NORMAL);
+        Font infoFont = makeFont((short) 8, Font.BOLDWEIGHT_NORMAL);
         style.setFont(infoFont);
         return style;
     }
