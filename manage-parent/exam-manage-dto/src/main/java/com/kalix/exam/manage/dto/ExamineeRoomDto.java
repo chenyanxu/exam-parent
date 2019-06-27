@@ -21,6 +21,7 @@ public class ExamineeRoomDto extends BaseDTO {
     private Integer examRoomNo; // 考场坐号
     private String subjectCode; // 考试科目
     private String dateBegin; // 考试时间
+    private String fileName; // 上传附件名
 
     public Long getExamId() {
         return examId;
@@ -100,5 +101,13 @@ public class ExamineeRoomDto extends BaseDTO {
 
     public void setDateBegin(String dateBegin) {
         this.dateBegin = dateBegin;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }

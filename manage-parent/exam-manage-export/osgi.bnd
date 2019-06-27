@@ -33,4 +33,5 @@ Import-Package: com.kalix.framework.core.util,\
                 org.apache.xmlbeans.*,\
                 org.w3c.dom.*,\
                 javax.imageio.*,\
+                javax.net.*,\
                 javax.net.ssl.*

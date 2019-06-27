@@ -39,5 +39,13 @@
     <bean id="examineeNumberCardInfoServiceImpl" class="com.kalix.exam.manage.export.ExamineeNumberCardInfoServiceImpl">
         <property name="examExamineeBeanService" ref="examExamineeBeanService"/>
     </bean>
+
+    <!--附件提交监控-->
+    <service id="examFtpMonitorService" interface="com.kalix.exam.manage.api.biz.IExamFtpMonitorService" ref="examFtpMonitorServiceImpl">
+    </service>
+
+    <bean id="examFtpMonitorServiceImpl" class="com.kalix.exam.manage.export.ExamFtpMonitorServiceImpl">
+        <property name="examExamineeBeanService" ref="examExamineeBeanService"/>
+    </bean>
 </blueprint>
 

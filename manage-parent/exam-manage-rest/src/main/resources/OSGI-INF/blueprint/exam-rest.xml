@@ -6,6 +6,7 @@
     <reference id="examCreateBeanService" interface="com.kalix.exam.manage.api.biz.IExamCreateBeanService"/>
     <reference id="examExamineeBeanService" interface="com.kalix.exam.manage.api.biz.IExamExamineeBeanService"/>
     <reference id="examTeacherBeanService" interface="com.kalix.exam.manage.api.biz.IExamTeacherBeanService"/>
+    <reference id="examFtpMonitorService" interface="com.kalix.exam.manage.api.biz.IExamFtpMonitorService"/>
     <camelContext id="examCreateCamel" xmlns="http://camel.apache.org/schema/blueprint">
         <restConfiguration component="servlet" bindingMode="json">
             <dataFormatProperty key="prettyPrint" value="${rest.pretty}"/>
@@ -77,6 +78,11 @@
             <get uri="/examineerooms" id="route-getExamineeRooms" outType="com.kalix.framework.core.api.persistence.JsonData">
                 <description>Find all Examinee Room Info</description>
                 <to uri="bean:examExamineeBeanService?method=getExamineeRoomsInfo(${header.page},${header.limit},${header.jsonStr},${header.sort})"/>
+            </get>
+
+            <get uri="/examftpmonitors" id="route-getExamFtpMonitors" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find all Exam Ftp Monitor Info</description>
+                <to uri="bean:examFtpMonitorService?method=getExamFileCommitInfos(${header.page},${header.limit},${header.jsonStr},${header.sort})"/>
             </get>
 
             <put uri="/examineerooms/{id}" id="route-updateExamineeRooms" type="com.kalix.exam.manage.dto.ExamineeRoomDto"
