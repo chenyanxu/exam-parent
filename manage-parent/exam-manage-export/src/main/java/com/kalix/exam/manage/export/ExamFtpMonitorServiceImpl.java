@@ -7,6 +7,7 @@ import com.kalix.exam.manage.export.utils.FtpUtils;
 import com.kalix.framework.core.api.persistence.JsonData;
 import com.kalix.framework.core.util.SerializeUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +36,24 @@ public class ExamFtpMonitorServiceImpl implements IExamFtpMonitorService {
         return getResult(examineeRoomDtoPageList, count);
     }
 
+    private List<String> getFtpFileNames(Long examId, List<String> fileNames) {
+        if (fileNames == null || fileNames.isEmpty()) {
+            return null;
+        }
+        final String examIdStr = String.valueOf(examId);
+        return fileNames.stream().filter(e-> {
+            if (e.indexOf("-") != -1) {
+                String[] fileArr = e.split("-");
+                if (fileArr.length == 2) {
+                    String[] nameArr = fileArr[1].split("\\.");
+                    if (examIdStr.equals(nameArr[0])) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }).collect(Collectors.toList());
+    }
     private List<ExamineeRoomDto> getExamFileInfos(Integer page, Integer limit, String commitState, List<String> fileNames, List<ExamineeRoomDto> examineeRoomDtoList) {
         if ("2".equals(commitState) && (fileNames == null || fileNames.isEmpty())) {
             return null;
@@ -75,9 +94,12 @@ public class ExamFtpMonitorServiceImpl implements IExamFtpMonitorService {
     }
 
     private List<ExamineeRoomDto> filterExamineeRoomDtoList(List<ExamineeRoomDto> examineeRoomDtoList, String commitState, List<String> fileNames) {
+        ExamineeRoomDto examineeRoomDto = examineeRoomDtoList.get(0);
+        Long examId = examineeRoomDto.getExamId();
+        final List<String> ftpFiles = getFtpFileNames(examId, fileNames);
         examineeRoomDtoList = examineeRoomDtoList.stream().map(e -> {
             String fileName = e.getIdCards() + "-" + e.getExamId();
-            Optional<String> ftpFileNameOpt = fileNames.stream().filter(f -> (f.toUpperCase().indexOf(fileName.toUpperCase()) != -1)).findFirst();
+            Optional<String> ftpFileNameOpt = ftpFiles.stream().filter(f -> (f.toUpperCase().indexOf(fileName.toUpperCase()) != -1)).findFirst();
             if (ftpFileNameOpt.isPresent()) {
                 e.setFileName(ftpFileNameOpt.get());
             }
@@ -96,6 +118,7 @@ public class ExamFtpMonitorServiceImpl implements IExamFtpMonitorService {
     private JsonData getResult(List<?> list, int count) {
         JsonData jsonData = new JsonData();
         if (list == null) {
+            list = new ArrayList();
             jsonData.setTotalCount(0L);
         } else {
             jsonData.setTotalCount(Long.valueOf(count));
