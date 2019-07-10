@@ -102,9 +102,10 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
                     }
                     examExamineans.get(i).setExamRoomNo((i%pageSize+1));
                     examExamineans.get(i).setExamRoom("第" + cNum + "考场");
-                    System.out.println("UserId:" + examExamineans.get(i).getUserId());
+                    // System.out.println("UserId:" + examExamineans.get(i).getUserId());
                 }
-
+                // 初始化考生密码
+                userBeanService.updateUserPasswordByCardId(userIds);
                 // 删除examId相关信息
                 deleteByExamId(examId);
                 // 批量添加分配的考生
@@ -436,6 +437,9 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
         }
 
         try {
+            // 初始化考试密码
+            List<Long> userIds = Arrays.asList(userId);
+            userBeanService.updateUserPasswordByCardId(userIds);
             // 保存考生信息
             ExamExamineeBean examExamineeBean = new ExamExamineeBean();
             examExamineeBean.setExamId(examId);
