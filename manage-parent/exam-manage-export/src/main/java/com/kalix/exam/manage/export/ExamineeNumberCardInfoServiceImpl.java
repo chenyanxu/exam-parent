@@ -60,6 +60,7 @@ public class ExamineeNumberCardInfoServiceImpl implements IExamineeNumberCardInf
         sheet.setColumnWidth(startColumn + 4, 11*256);
         sheet.setColumnWidth(startColumn + 5, 11*256);
         sheet.setColumnWidth(startColumn + 6, 9*256);
+        sheet.setColumnWidth(startColumn + 7, 30*256);
 
         // 创建header
         createHeader(sheet, startRow, startColumn);
@@ -94,6 +95,8 @@ public class ExamineeNumberCardInfoServiceImpl implements IExamineeNumberCardInf
             createCellData(dataRow, startColumn + 5, examineeControlSheetDto.getExamRoom());
             // 座号
             createCellData(dataRow, startColumn + 6, String.valueOf(examineeControlSheetDto.getExamRoomNo()));
+            // 考试科目
+            createCellData(dataRow, startColumn + 7, String.valueOf(examineeControlSheetDto.getSubject()));
         }
     }
 
@@ -136,7 +139,7 @@ public class ExamineeNumberCardInfoServiceImpl implements IExamineeNumberCardInf
     }
 
     private String[] getHeaders() {
-        return new String[] {"姓名", "准考证号", "身份证号", "考试时间", "场次", "考场", "座号"};
+        return new String[] {"姓名", "准考证号", "身份证号", "考试时间", "场次", "考场", "座号", "考试科目"};
     }
 
     private String getExamTimeScope(ExamineeControlSheetDto examineeControlSheetDto) {
