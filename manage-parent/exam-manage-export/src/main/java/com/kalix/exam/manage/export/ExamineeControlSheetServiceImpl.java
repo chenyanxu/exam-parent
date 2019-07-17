@@ -28,7 +28,7 @@ public class ExamineeControlSheetServiceImpl implements IExamineeControlSheetSer
     private SXSSFWorkbook wb = null;
     private IExamExamineeBeanService examExamineeBeanService;
     private String title = "吉林省高等教育自学考试考场对照单";
-    private Integer columnSize = 6;
+    private Integer columnSize = 7;
 
     public void setExamExamineeBeanService(IExamExamineeBeanService examExamineeBeanService) {
         this.examExamineeBeanService = examExamineeBeanService;
@@ -70,7 +70,7 @@ public class ExamineeControlSheetServiceImpl implements IExamineeControlSheetSer
 
                         Integer startRow = 0;
                         Integer startColumn = 1;
-                        sheet.setColumnWidth(0, 12*256);
+                        sheet.setColumnWidth(0, 8*256);
                         for (int i=0; i<columnSize; i++) {
                             sheet.setColumnWidth(startColumn + i, 10*256);
                         }

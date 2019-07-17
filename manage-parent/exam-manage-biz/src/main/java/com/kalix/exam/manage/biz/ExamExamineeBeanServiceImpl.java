@@ -19,6 +19,7 @@ import com.kalix.exam.manage.api.biz.IExamCreateBeanService;
 import com.kalix.exam.manage.api.biz.IExamExamineeBeanService;
 import com.kalix.exam.manage.api.biz.IExamQuesBeanService;
 import com.kalix.exam.manage.api.dao.IExamExamineeBeanDao;
+import com.kalix.exam.manage.biz.utils.ExamBaseConfigUtil;
 import com.kalix.exam.manage.dto.*;
 import com.kalix.exam.manage.entities.ExamCreateBean;
 import com.kalix.exam.manage.entities.ExamExamineeBean;
@@ -93,6 +94,7 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
                 // 按用户Id先排序
                 // examExamineans.sort((e1,e2) -> e1.getUserId().intValue() - e2.getUserId().intValue());
                 // 设置考场和座号（默认26人一个考场）
+                /**
                 int totalSize = examExamineans.size();
                 int pageSize = PER_ROOM_COUNT;
                 int cNum = 0;
@@ -103,6 +105,15 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
                     examExamineans.get(i).setExamRoomNo((i%pageSize+1));
                     examExamineans.get(i).setExamRoom("第" + cNum + "考场");
                     // System.out.println("UserId:" + examExamineans.get(i).getUserId());
+                }
+                 **/
+                for (ExamExamineeBean test : examExamineans) {
+                    System.out.println("UserId:" + test.getUserId() + " RoomNum:" + test.getExamRoom() + "RoomNo:" + test.getExamRoomNo());
+                }
+                System.out.println("---------------------------------------");
+                setExamineeRoomAndNo(examExamineans);
+                for (ExamExamineeBean test : examExamineans) {
+                    System.out.println("UserId:" + test.getUserId() + " RoomNum:" + test.getExamRoom() + "RoomNo:" + test.getExamRoomNo());
                 }
                 // 初始化考生密码
                 userBeanService.updateUserPasswordByCardId(userIds);
@@ -121,10 +132,47 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
                 jsonStatus.setFailure(true);
             }
         } catch(Exception e) {
+            e.printStackTrace();
             jsonStatus.setMsg("考生分配失败");
             jsonStatus.setFailure(true);
         }
         return jsonStatus;
+    }
+
+    private void setExamineeRoomAndNo(List<ExamExamineeBean> examExamineans) {
+        if (examExamineans == null || examExamineans.isEmpty()) {
+            return;
+        }
+        LinkedHashMap<String, String> roomPersonConfigs = ExamBaseConfigUtil.getAllRoomPersonConfigs();
+        int totalNum = examExamineans.size();
+        int startNum = 0;
+        List<ExamExamineeBean> tempList = null;
+        for (Map.Entry<String, String> entry : roomPersonConfigs.entrySet()) {
+            String roomNumStr = entry.getKey();
+            String persons = entry.getValue();
+            if (roomNumStr == null || "".equals(roomNumStr) || persons == null || "".equals(persons)) {
+                return;
+            }
+            int roomNum = Integer.parseInt(roomNumStr);
+            int personNum = Integer.parseInt(persons);
+
+            if (totalNum <= personNum) {
+                tempList = examExamineans.subList(startNum, startNum + totalNum);
+                for (int i = 0; i < totalNum; i++) {
+                    tempList.get(i).setExamRoomNo(i+1);
+                    tempList.get(i).setExamRoom("第" + roomNum + "考场");
+                }
+                break;
+            } else {
+                tempList = examExamineans.subList(startNum, startNum + personNum);
+                for (int i = 0; i < personNum; i++) {
+                    tempList.get(i).setExamRoomNo(i+1);
+                    tempList.get(i).setExamRoom("第" + roomNum + "考场");
+                }
+                startNum += personNum;
+                totalNum -= personNum;
+            }
+        }
     }
 
     private void setExamineeUserId(Long examId, String orgId, List<Long> userIds, List<ExamExamineeBean> examExamineans) {
