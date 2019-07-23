@@ -15,6 +15,7 @@ Import-Package: com.kalix.framework.core.util,\
                 com.kalix.framework.core.impl.biz,\
                 com.kalix.framework.core.api.system,\
                 com.kalix.exam.manage.dto,\
+                com.kalix.exam.manage.entities,\
                 com.kalix.exam.manage.api.export,\
                 com.kalix.exam.manage.api.biz,\
                 com.kalix.exam.system.dict.api.biz,\
