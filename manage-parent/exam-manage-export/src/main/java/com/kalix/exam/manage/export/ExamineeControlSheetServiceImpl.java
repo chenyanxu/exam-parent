@@ -101,6 +101,7 @@ public class ExamineeControlSheetServiceImpl implements IExamineeControlSheetSer
         SXSSFRow photoRow = null;
         SXSSFRow infoRow = null;
         SXSSFRow signRow = null;
+        SXSSFRow blankRow = null;
         for (int i=0; i<examineeControlSheetList.size(); i++) {
             ExamineeControlSheetDto examineeControlSheetDto = examineeControlSheetList.get(i);
             if (i%columnSize == 0 && i > 0) {
@@ -110,6 +111,7 @@ public class ExamineeControlSheetServiceImpl implements IExamineeControlSheetSer
                 photoRow = sheet.createRow(photoStartRow);
                 infoRow = sheet.createRow(photoStartRow+1);
                 signRow = sheet.createRow(photoStartRow+2);
+                blankRow = sheet.createRow(photoStartRow+3);
             }
             // 照片
             createPhotoInfo(sheet, photoRow, photoStartRow, startColumn + (i%columnSize), examineeControlSheetDto.getPhotoPath());
@@ -117,6 +119,8 @@ public class ExamineeControlSheetServiceImpl implements IExamineeControlSheetSer
             createExamineeInfo(infoRow, startColumn + (i%columnSize), examineeControlSheetDto);
             // 签字框
             createSignInfo(signRow, startColumn + (i%columnSize));
+            // 空白行
+            createBlankRow(blankRow);
         }
     }
 
@@ -127,6 +131,13 @@ public class ExamineeControlSheetServiceImpl implements IExamineeControlSheetSer
         Cell signCell = signRow.createCell(startColumn);
         signCell.setCellStyle(getSignStyle());
         signCell.setCellValue("签字:");
+    }
+
+    private void createBlankRow(SXSSFRow blankRow) {
+        if (blankRow == null) {
+            return;
+        }
+        blankRow.setHeightInPoints(7);
     }
 
     private void createExamineeInfo(SXSSFRow infoRow, Integer startColumn,ExamineeControlSheetDto examineeControlSheetDto) {
@@ -188,7 +199,7 @@ public class ExamineeControlSheetServiceImpl implements IExamineeControlSheetSer
 
     private void createTitle(SXSSFSheet sheet, Integer startRow, Integer startColumn, String title) {
         SXSSFRow titleRow = sheet.createRow(startRow);
-        titleRow.setHeightInPoints(34);
+        titleRow.setHeightInPoints(20);
         Cell titleCell = titleRow.createCell(startColumn);
         titleCell.setCellStyle(getTitleStyle());
         titleCell.setCellValue(new XSSFRichTextString(title));
