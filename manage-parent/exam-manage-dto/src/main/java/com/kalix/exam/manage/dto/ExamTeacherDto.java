@@ -2,6 +2,8 @@ package com.kalix.exam.manage.dto;
 
 import com.kalix.framework.core.api.web.model.BaseDTO;
 
+import java.util.Date;
+
 public class ExamTeacherDto extends BaseDTO {
     private String name; // 教师姓名
     private Long userId; // 教师Id
@@ -13,6 +15,7 @@ public class ExamTeacherDto extends BaseDTO {
     private String teacherType; // 0:阅卷教师 1:复审教师
     private String teacherTypeName; // 教师类型描述
     private Float scoreWeight; // 给分权重
+    private Date examStart; // 考试开始时间
 
     public String getName() {
         return name;
@@ -92,5 +95,13 @@ public class ExamTeacherDto extends BaseDTO {
 
     public void setScoreWeight(Float scoreWeight) {
         this.scoreWeight = scoreWeight;
+    }
+
+    public Date getExamStart() {
+        return examStart;
+    }
+
+    public void setExamStart(Date examStart) {
+        this.examStart = examStart;
     }
 }

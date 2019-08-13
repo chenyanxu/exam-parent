@@ -19,7 +19,7 @@
             <!-- this is a rest GET to find Examscores -->
             <get uri="/forscore" id="route-getExamscoresForscore" outType="com.kalix.framework.core.api.persistence.JsonData">
                 <description>Find examscores forscore</description>
-                <to uri="bean:examScoreBeanService?method=getExamAnswerForScore(${header.userId},${header.subjectVal},${header.teacherType})"/>
+                <to uri="bean:examScoreBeanService?method=getExamAnswerForScore(${header.userId},${header.subjectVal},${header.teacherType},${header.examId})"/>
             </get>
 
             <post uri="/score" id="route-ExamscoresScore" type="com.kalix.exam.manage.dto.ExamScoreDto"

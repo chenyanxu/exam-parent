@@ -16,6 +16,10 @@ import com.kalix.framework.core.api.persistence.JsonStatus;
 import com.kalix.framework.core.impl.biz.ShiroGenericBizServiceImpl;
 import com.kalix.framework.core.util.SerializeUtil;
 
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class ExamTeacherBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamTeacherBeanDao,ExamTeacherBean> implements IExamTeacherBeanService {
@@ -134,8 +138,9 @@ public class ExamTeacherBeanServiceImpl extends ShiroGenericBizServiceImpl<IExam
     public JsonData getAllExamTeachers(Integer page, Integer limit, String jsonStr, String sort) {
         Map<String, String> jsonMap = SerializeUtil.json2Map(jsonStr);
         String name = jsonMap.get("%name%");
-        List<ExamTeacherDto> examTeacherDtoList = getAllExamTeachers(page, limit, name);
-        Integer count = getAllExamTeachersCount(page, limit, name);
+        String startDate = jsonMap.get("dateBegin");
+        List<ExamTeacherDto> examTeacherDtoList = getAllExamTeachersList(page, limit, name, startDate);
+        Integer count = getAllExamTeachersCount(page, limit, name, startDate);
         return getResult(examTeacherDtoList, count);
     }
 
@@ -147,18 +152,44 @@ public class ExamTeacherBeanServiceImpl extends ShiroGenericBizServiceImpl<IExam
 
     @Override
     public List<ExamTeacherDto> getTeacherDtoByUserId(Long userId) {
+        LocalDateTime nowTime = LocalDateTime.now();
+        // String nowDate = nowTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+        LocalDateTime marchDateTime = LocalDateTime.of(nowTime.getYear(), Month.MARCH, 1, 0, 0);
+        String marchDate = marchDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        long marchTime = marchDateTime.toEpochSecond(ZoneOffset.of("+8"));
+        long marchTimeMills =  marchTime*1000;
+
+        LocalDateTime septemberDateTime = LocalDateTime.of(nowTime.getYear(), Month.SEPTEMBER, 1, 0, 0);
+        String septemberDate = septemberDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        long septemberTime = septemberDateTime.toEpochSecond(ZoneOffset.of("+8"));
+        long septemberTimeMills = septemberTime*1000;
+
+        long nowTimeMills = System.currentTimeMillis();
+        // 按当前时间过滤 当前时间大于3小于9月份以及大于9月份的数据
         String sql = "select a.id,c.name,a.userid,a.examid,b.name as examName,b.subject,b.subjectval,a.orgid," +
-                " a.teachertype,d.label as teacherTypeName,a.scoreweight" +
+                " a.teachertype,d.label as teacherTypeName,a.scoreweight,b.examstart" +
                 " from exam_teacher a " +
                 " left JOIN exam_create b on a.examid = b.id" +
                 " left JOIN sys_user c on c.id = a.userid" +
                 " left JOIN exam_dict d on a.teachertype = d.value and d.type='阅卷教师'" +
                 " where a.userid=" + userId;
+        if (nowTimeMills > marchTimeMills && marchTimeMills < septemberTimeMills) {
+            sql += " and b.examstart > to_timestamp('"+marchDate+"','YYYY-MM-DD hh24:mi:ss')";
+        } else if (nowTimeMills > septemberTimeMills) {
+            sql += " and b.examstart > to_timestamp('"+septemberDate+"','YYYY-MM-DD hh24:mi:ss')";
+        }
         List<ExamTeacherDto> ExamTeacherDtoList = dao.findByNativeSql(sql, ExamTeacherDto.class);
         return ExamTeacherDtoList;
     }
 
-    private List<ExamTeacherDto> getAllExamTeachers(Integer page, Integer limit, String name) {
+    private long getDateTimeMills(int year, Month month) {
+        LocalDateTime marchDate = LocalDateTime.of(year, Month.MARCH, 1, 0, 0);
+        long marchTime = marchDate.toEpochSecond(ZoneOffset.of("+8"));
+        return marchTime*1000;
+    }
+
+    private List<ExamTeacherDto> getAllExamTeachersList(Integer page, Integer limit, String name, String startDate) {
         int offset = 0;
         if (page != null && limit != null && page > 0 && limit > 0) {
             offset = (page - 1) * limit;
@@ -168,9 +199,12 @@ public class ExamTeacherBeanServiceImpl extends ShiroGenericBizServiceImpl<IExam
                 " from exam_teacher a " +
                 " left JOIN exam_create b on a.examid = b.id" +
                 " left JOIN sys_user c on c.id = a.userid" +
-                " left JOIN exam_dict d on a.teachertype = d.value and d.type='阅卷教师'";
+                " left JOIN exam_dict d on a.teachertype = d.value and d.type='阅卷教师' where 1=1 ";
         if (name != null && !name.isEmpty()) {
-            sql += " where c.name like'%"+name+"%'";
+            sql += " and c.name like'%"+name+"%'";
+        }
+        if (startDate != null && startDate.trim().length() > 0) {
+            sql += " and b.examstart = to_timestamp('"+startDate+"','YYYY-MM-DD hh24:mi:ss')";
         }
         if (page != null && limit != null) {
             sql += " limit " + limit + " offset " + offset;
@@ -179,14 +213,17 @@ public class ExamTeacherBeanServiceImpl extends ShiroGenericBizServiceImpl<IExam
         return ExamTeacherDtoList;
     }
 
-    private Integer getAllExamTeachersCount(Integer page, Integer limit, String name) {
+    private Integer getAllExamTeachersCount(Integer page, Integer limit, String name, String startDate) {
         String sql = "select count(1) " +
                 " from exam_teacher a " +
                 " left JOIN exam_create b on a.examid = b.id" +
                 " left JOIN sys_user c on c.id = a.userid" +
-                " left JOIN exam_dict d on a.teachertype = d.value and d.type='阅卷教师'";
+                " left JOIN exam_dict d on a.teachertype = d.value and d.type='阅卷教师' where 1=1 ";
         if (name != null && !name.isEmpty()) {
-            sql += " where c.name like'%"+name+"%'";
+            sql += " and c.name like'%"+name+"%'";
+        }
+        if (startDate != null && startDate.trim().length() > 0) {
+            sql += " and b.examstart = to_timestamp('"+startDate+"','YYYY-MM-DD hh24:mi:ss')";
         }
         List<Integer> list = dao.findByNativeSql(sql, Integer.class);
         if (list == null) {

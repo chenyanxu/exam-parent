@@ -21,7 +21,7 @@ public interface IExamScoreBeanService extends IBizService<ExamScoreBean> {
      * @param userId
      * @return
      */
-    JsonData getExamAnswerForScore(Long userId, String subjectVal, String teacherType);
+    JsonData getExamAnswerForScore(Long userId, String subjectVal, String teacherType, Long examId);
 
     /**
      * 考题打分

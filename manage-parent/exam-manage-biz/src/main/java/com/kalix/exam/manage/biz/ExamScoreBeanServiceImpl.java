@@ -58,24 +58,41 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
     public JsonData getAllExamSubjectsByTeacherId(Long userId) {
         // 教师角色查询
         List<ExamTeacherDto> examTeacherList = examTeacherBeanService.getTeacherDtoByUserId(userId);
-        return getResult(examTeacherList);
+
+        List<ExamTeacherDto> needExamTeacherList = new ArrayList<>();
+        if (examTeacherList != null && !examTeacherList.isEmpty()) {
+            Map<String, List<ExamTeacherDto>> map = examTeacherList.stream().collect(Collectors.groupingBy(ExamTeacherDto::getSubject));
+            for (Map.Entry<String, List<ExamTeacherDto>> entry : map.entrySet()) {
+                List<ExamTeacherDto> teacherExamList = entry.getValue();
+                if (teacherExamList.size() == 1) {
+                    needExamTeacherList.add(teacherExamList.get(0));
+                } else if (teacherExamList.size() > 1) {
+                    // 按考试时间排序，去除最近的一条
+                    teacherExamList.sort((t1, t2)-> t1.getExamStart().compareTo(t2.getExamStart()));
+                    needExamTeacherList.add(teacherExamList.get(teacherExamList.size()-1));
+                }
+            }
+        }
+
+        return getResult(needExamTeacherList);
     }
 
+    // 需要添加examId过滤
     @Override
-    public JsonData getExamAnswerForScore(Long userId, String subjectVal, String teacherType) {
+    public JsonData getExamAnswerForScore(Long userId, String subjectVal, String teacherType, Long examId) {
         // 试题总数获取
-        Integer totalNum = getExamAnswerCount(userId, subjectVal);
+        Integer totalNum = getExamAnswerCount(userId, subjectVal, examId);
         List<ExamAnswerDto> examAnswerList = null;
         // 试题查询
         if ("1".equals(teacherType)) {
             // 初审用户
-            examAnswerList = getAllExamAnswerList(userId, subjectVal, totalNum, notOverReadState);
+            examAnswerList = getAllExamAnswerList(userId, subjectVal, totalNum, notOverReadState, examId);
         } else if ("2".equals(teacherType)) {
             // 复审用户
-            examAnswerList = getAllExamAnswerList(userId, subjectVal, totalNum, firstCheckState);
+            examAnswerList = getAllExamAnswerList(userId, subjectVal, totalNum, firstCheckState, examId);
         } else if ("3".equals(teacherType)) {
             // 组长
-            examAnswerList = getAllExamAnswerSuperList(userId, subjectVal, totalNum, secondCheckState);
+            examAnswerList = getAllExamAnswerSuperList(userId, subjectVal, totalNum, secondCheckState, examId);
         }
 
         return getResult(examAnswerList);
@@ -128,7 +145,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
         }
     }
 
-    private List<ExamAnswerDto> getAllExamAnswerSuperList(Long userId, String subjectCode, Integer totalNum, String state){
+    private List<ExamAnswerDto> getAllExamAnswerSuperList(Long userId, String subjectCode, Integer totalNum, String state, Long examId){
         String sql = "select a.examid as examId,a.teachertype as teacherType,b.subject,b.subjectval as subjectVal,b.passScore," +
                 " d.id as examAnswerId,d.answer,d.quesid as quesId,d.perscore,d.userid as studentId," +
                 " e.stem,e.subtype,f.id as examScoreId,f.score " +
@@ -136,7 +153,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
                 " enrolment_question_subject e,exam_score f " +
                 " where a.examid = b.id and d.examid = a.examid " +
                 " and e.id = d.quesid and f.examid=a.examid and f.userid=d.userid and f.teacherid= a.userid" +
-                " and d.readOverState='" + state + "'" +
+                " and d.readOverState='" + state + "' and a.examid = " + examId +
                 " and a.teachertype != '3' ";
 
         if (subjectCode != null && !subjectCode.trim().isEmpty()) {
@@ -235,9 +252,9 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
      * @param subjectCode
      * @return
      */
-    private Integer getExamAnswerCount(Long userId, String subjectCode) {
+    private Integer getExamAnswerCount(Long userId, String subjectCode, Long examId) {
         Integer totalNum = null;
-        totalNum = getExamAnswerCount(userId);
+        totalNum = getExamAnswerCount(userId, examId);
         /**
         String examAnswerCountStr = cacheManager.get("exam_answer_" + subjectCode + "_count");
         if (examAnswerCountStr == null || examAnswerCountStr.isEmpty()) {
@@ -270,7 +287,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
      * @param userId
      * @return
      */
-    private List<ExamAnswerDto> getAllExamAnswerList(Long userId, String subjectCode, Integer totalNum, String state) {
+    private List<ExamAnswerDto> getAllExamAnswerList(Long userId, String subjectCode, Integer totalNum, String state, Long examId) {
         String sql = "select a.examid as examId,a.teachertype as teacherType,b.subject,b.subjectval as subjectVal,b.passScore," +
                 " d.id as examAnswerId,d.answer,d.quesid as quesId,d.perscore,d.userid as studentId," +
                 " e.stem,e.subtype,d.readoverby" +
@@ -279,7 +296,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
                 " where a.examid = b.id and d.examid = a.examid " +
                 " and e.id = d.quesid" +
                 " and d.readOverState='" + state + "'" +
-                " and a.userid = " + userId;
+                " and a.userid = " + userId + " a.examid = " + examId;
 
 
         if (subjectCode != null && !subjectCode.trim().isEmpty()) {
@@ -391,11 +408,11 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
      * @param userId
      * @return
      */
-    private Integer getExamAnswerCount(Long userId) {
+    private Integer getExamAnswerCount(Long userId, Long examId) {
         String sql = "select count(1) from exam_teacher a,exam_create b,sys_user c," +
                 "exam_answer d,enrolment_question_subject e" +
                 " where a.examid = b.id and a.userid = c.id and d.quesid=e.id" +
-                " and a.userid = " + userId;
+                " and a.userid = " + userId + " and a.examid = " + examId;
         List<Integer> count = dao.findByNativeSql(sql, Integer.class);
         if (count == null || count.isEmpty()) {
             return 0;
