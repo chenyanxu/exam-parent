@@ -15,6 +15,7 @@ public class FtpUtils {
     private static String FTP_USERNAME = null;
     private static String FTP_PASSWORD = null;
     private static String FTP_BASEPATH = null;
+    private static String FTP_IDENTITY_PHOTOPATH = null;
 
     /**
      * Ftp登录连接
@@ -68,14 +69,21 @@ public class FtpUtils {
     }
 
     public static List<String> getFtpFileNames() {
+        return getFtpFileNames(FTP_BASEPATH);
+    }
+
+    public static List<String> getFtpIdentityPhotos() {
+        return getFtpFileNames(FTP_IDENTITY_PHOTOPATH);
+    }
+
+    private static List<String> getFtpFileNames(String path) {
         List<String> ftpFileNames = null;
         FTPClient ftpClient = null;
         try {
-            // ftpClient = connect("172.18.135.183", 21, "stu", "123");
             ftpClient = connect();
             Boolean isConnected = checkConnected(ftpClient);
             if (isConnected) {
-                ftpFileNames = getFtpFileNames(ftpClient, FTP_BASEPATH);
+                ftpFileNames = getFtpFileNames(ftpClient, path);
             }
             return ftpFileNames;
         } finally {
@@ -112,5 +120,6 @@ public class FtpUtils {
         FTP_USERNAME = (String) ConfigUtil.getConfigProp("FTP_USERNAME", examFtpConfigName);
         FTP_PASSWORD = (String) ConfigUtil.getConfigProp("FTP_PASSWORD", examFtpConfigName);
         FTP_BASEPATH = (String) ConfigUtil.getConfigProp("FTP_BASEPATH", examFtpConfigName);
+        FTP_IDENTITY_PHOTOPATH = (String) ConfigUtil.getConfigProp("FTP_IDENTITY_PHOTOPATH", examFtpConfigName);
     }
 }

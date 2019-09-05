@@ -85,6 +85,11 @@
                 <to uri="bean:examFtpMonitorService?method=getExamFileCommitInfos(${header.page},${header.limit},${header.jsonStr},${header.sort})"/>
             </get>
 
+            <get uri="/examftpphotos" id="route-getExamFtpPhotos" outType="com.kalix.framework.core.api.persistence.JsonData">
+                <description>Find all Exam Ftp Photo Info</description>
+                <to uri="bean:examFtpMonitorService?method=getExamIdentityPhotoInfos(${header.page},${header.limit},${header.jsonStr},${header.sort})"/>
+            </get>
+
             <put uri="/examineerooms/{id}" id="route-updateExamineeRooms" type="com.kalix.exam.manage.dto.ExamineeRoomDto"
                  outType="com.kalix.framework.core.api.persistence.JsonStatus">
                 <description>Updates a ExamineeRoom Info</description>

@@ -36,6 +36,77 @@ public class ExamFtpMonitorServiceImpl implements IExamFtpMonitorService {
         return getResult(examineeRoomDtoPageList, count);
     }
 
+    @Override
+    public JsonData getExamIdentityPhotoInfos(Integer page, Integer limit, String jsonStr, String sort) {
+        Map<String, String> jsonMap = SerializeUtil.json2Map(jsonStr);
+        String subject = jsonMap.get("subjectVal");
+        String startDate = jsonMap.get("dateBegin");
+
+        List<String> fileNames = FtpUtils.getFtpIdentityPhotos();
+        List<ExamineeRoomDto> examineeRoomDtoList = examExamineeBeanService.getExamineeRoomsInfo(null, null, subject, startDate, null);
+
+        Integer count = getExamIdentityPhotoCounts(fileNames, examineeRoomDtoList);
+
+        List<ExamineeRoomDto> examineeRoomDtoPageList = getExamIdentityPhotoInfos(page, limit, fileNames, examineeRoomDtoList);
+        return getResult(examineeRoomDtoPageList, count);
+    }
+
+    private List<ExamineeRoomDto> getExamIdentityPhotoInfos(Integer page, Integer limit, List<String> fileNames, List<ExamineeRoomDto> examineeRoomDtoList) {
+        if (fileNames == null || fileNames.isEmpty()) {
+            return null;
+        }
+
+        if (examineeRoomDtoList != null && !examineeRoomDtoList.isEmpty()) {
+            examineeRoomDtoList = filterExamineePhotoList(examineeRoomDtoList, fileNames);
+            return getPagedExamineeRoomDtoList(examineeRoomDtoList, page, limit);
+        } else {
+            return null;
+        }
+    }
+
+    private Integer getExamIdentityPhotoCounts(List<String> fileNames, List<ExamineeRoomDto> examineeRoomDtoList) {
+        if (examineeRoomDtoList != null && !examineeRoomDtoList.isEmpty()) {
+            examineeRoomDtoList = filterExamineePhotoList(examineeRoomDtoList, fileNames);
+            return examineeRoomDtoList.size();
+        } else {
+            return 0;
+        }
+    }
+
+    private List<ExamineeRoomDto> filterExamineePhotoList(List<ExamineeRoomDto> examineeRoomDtoList, List<String> fileNames) {
+        ExamineeRoomDto examineeRoomDto = examineeRoomDtoList.get(0);
+        Long examId = examineeRoomDto.getExamId();
+        final List<String> ftpFiles = getFtpPhotoNames(examId, fileNames);
+        examineeRoomDtoList = examineeRoomDtoList.stream().map(e -> {
+            String fileName = e.getExamId() + "-" + e.getIdCards();
+            Optional<String> ftpFileNameOpt = ftpFiles.stream().filter(f -> (f.toUpperCase().indexOf(fileName.toUpperCase()) != -1)).findFirst();
+            if (ftpFileNameOpt.isPresent()) {
+                e.setFileName(ftpFileNameOpt.get());
+            }
+            return e;
+        }).collect(Collectors.toList());
+
+        return examineeRoomDtoList;
+    }
+
+    private List<String> getFtpPhotoNames(Long examId, List<String> fileNames) {
+        if (fileNames == null || fileNames.isEmpty()) {
+            return null;
+        }
+        final String examIdStr = String.valueOf(examId);
+        return fileNames.stream().filter(e-> {
+            if (e.indexOf("-") != -1) {
+                String[] fileArr = e.split("-");
+                if (fileArr.length == 2) {
+                    if (fileArr[0].endsWith(examIdStr)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }).collect(Collectors.toList());
+    }
+
     private List<String> getFtpFileNames(Long examId, List<String> fileNames) {
         if (fileNames == null || fileNames.isEmpty()) {
             return null;
