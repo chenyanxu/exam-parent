@@ -189,16 +189,18 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
     public JsonData getExamResults(String jsonStr) {
         Map<String, String> jsonMap = SerializeUtil.json2Map(jsonStr);
         String subjectVal = jsonMap.get("subjectVal");
+        String startDate = jsonMap.get("dateBegin");
         List<ExamResultsDto> examResultsDtoList = null;
-        if (subjectVal != null && !subjectVal.isEmpty()) {
-            examResultsDtoList = getExamResultDtoList(subjectVal);
+        if (subjectVal != null && !subjectVal.isEmpty()
+                && startDate != null && !startDate.isEmpty()) {
+            examResultsDtoList = getExamResultDtoList(subjectVal, startDate);
         }
         return getResult(examResultsDtoList);
     }
 
     @Override
-    public List<ExamResultsDto> getExamResultDtoList(String subjectVal) {
-        List<ExamResultsDto> examResultsDtoList = getExamResultsList(subjectVal);
+    public List<ExamResultsDto> getExamResultDtoList(String subjectVal, String startDate) {
+        List<ExamResultsDto> examResultsDtoList = getExamResultsList(subjectVal, startDate);
         if (examResultsDtoList != null && !examResultsDtoList.isEmpty()) {
             ExamResultsDto examResultsDto = examResultsDtoList.get(0);
             Long examId = examResultsDto.getExamId();
@@ -262,11 +264,15 @@ public class ExamCreateBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamC
         return examTeacherDtoList;
     }
 
-    private List<ExamResultsDto> getExamResultsList(String subjectVal) {
+    private List<ExamResultsDto> getExamResultsList(String subjectVal, String startDate) {
         String sql = "select c.name,c.idcards,c.examcardnumber,a.totalscore,b.subject,a.examid" +
                 " from exam_examinee a, exam_create b, sys_user c" +
                 " where c.id= a.userid and a.examid=b.id and a.userid=c.id" +
-                " and a.state='已考' and b.subjectval= '"+subjectVal+"' order by c.examcardnumber";
+                " and a.state='已考' and b.subjectval= '"+subjectVal+"' ";
+        if (startDate != null && startDate.trim().length() > 0) {
+            sql += " and b.examstart = to_timestamp('"+startDate+"','YYYY-MM-DD hh24:mi:ss')";
+        }
+        sql +=" order by c.examcardnumber";
         List<ExamResultsDto> examResultsDtoList = dao.findByNativeSql(sql, ExamResultsDto.class);
         return examResultsDtoList;
     }

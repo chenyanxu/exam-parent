@@ -48,7 +48,7 @@ public interface IExamCreateBeanService extends IBizService<ExamCreateBean> {
      * @param subjectVal
      * @return
      */
-    List<ExamResultsDto> getExamResultDtoList(String subjectVal);
+    List<ExamResultsDto> getExamResultDtoList(String subjectVal, String startDate);
 
     /**
      * 通过考试科目及考试时间获取考试Id列表

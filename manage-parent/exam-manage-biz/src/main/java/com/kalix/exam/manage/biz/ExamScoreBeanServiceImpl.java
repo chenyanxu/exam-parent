@@ -296,7 +296,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
                 " where a.examid = b.id and d.examid = a.examid " +
                 " and e.id = d.quesid" +
                 " and d.readOverState='" + state + "'" +
-                " and a.userid = " + userId + " a.examid = " + examId;
+                " and a.userid = " + userId + " and a.examid = " + examId;
 
 
         if (subjectCode != null && !subjectCode.trim().isEmpty()) {
@@ -421,7 +421,7 @@ public class ExamScoreBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamSc
     }
 
     @Override
-    public JsonStatus examAnswerForScore(ExamScoreDto examScoreDto) {
+    public synchronized JsonStatus examAnswerForScore(ExamScoreDto examScoreDto) {
         JsonStatus jsonStatus = new JsonStatus();
         try {
             Boolean isCommited = checkCommitScore(examScoreDto.getExamId(), examScoreDto.getStudentId(), examScoreDto.getExamAnswerId());

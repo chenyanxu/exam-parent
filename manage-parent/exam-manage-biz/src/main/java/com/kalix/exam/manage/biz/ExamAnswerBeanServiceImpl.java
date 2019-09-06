@@ -165,7 +165,7 @@ public class ExamAnswerBeanServiceImpl extends ShiroGenericBizServiceImpl<IExamA
      * @return
      */
     @Override
-    public JsonStatus commitExaming(ExamingDto examingDto) {
+    public synchronized JsonStatus commitExaming(ExamingDto examingDto) {
         JsonStatus jsonStatus = new JsonStatus();
         try {
             Long examId = examingDto.getExamId();

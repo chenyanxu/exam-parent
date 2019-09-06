@@ -37,8 +37,9 @@ public class ExamExportServiceImpl implements IExamExportService {
     public void doExport(String jsonStr, HttpServletResponse response) {
         Map<String, String> jsonMap = SerializeUtil.json2Map(jsonStr);
         String subjectVal = jsonMap.get("subjectVal");
+        String startDate = jsonMap.get("dateBegin");
 
-        List<ExamResultsDto> examResultsDtoList = examCreateBeanService.getExamResultDtoList(subjectVal);
+        List<ExamResultsDto> examResultsDtoList = examCreateBeanService.getExamResultDtoList(subjectVal, startDate);
 //        if (examResultsDtoList == null || examResultsDtoList.isEmpty()) {
 //            return;
 //        }
