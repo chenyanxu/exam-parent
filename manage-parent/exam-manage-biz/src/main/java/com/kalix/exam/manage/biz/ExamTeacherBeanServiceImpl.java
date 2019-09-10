@@ -174,7 +174,7 @@ public class ExamTeacherBeanServiceImpl extends ShiroGenericBizServiceImpl<IExam
                 " left JOIN sys_user c on c.id = a.userid" +
                 " left JOIN exam_dict d on a.teachertype = d.value and d.type='阅卷教师'" +
                 " where a.userid=" + userId;
-        if (nowTimeMills > marchTimeMills && marchTimeMills < septemberTimeMills) {
+        if (nowTimeMills > marchTimeMills && nowTimeMills < septemberTimeMills) {
             sql += " and b.examstart > to_timestamp('"+marchDate+"','YYYY-MM-DD hh24:mi:ss')";
         } else if (nowTimeMills > septemberTimeMills) {
             sql += " and b.examstart > to_timestamp('"+septemberDate+"','YYYY-MM-DD hh24:mi:ss')";
