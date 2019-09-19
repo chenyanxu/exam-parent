@@ -32,6 +32,9 @@ import com.kalix.middleware.excel.api.model.exam.manage.ExamineeRoomInfoDto;
 import javax.persistence.Transient;
 import javax.transaction.Transactional;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -288,11 +291,15 @@ public class ExamExamineeBeanServiceImpl extends ShiroGenericBizServiceImpl<IExa
 
     @Override
     public JsonData getExamineeUserInfo(Long userId) {
+        LocalDate nowData = LocalDate.now();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String nowDateStr = dtf.format(nowData);
         //Long userId = shiroService.getCurrentUserId();
         String sql = "select a.id as examId,a.name as examName,a.subject,a.examStart,a.duration,a.paperId,c.name as userName,c.idCards" +
                 " from exam_create a,exam_examinee b,sys_user c where b.examid=a.id and b.userid=c.id" +
                 " and  b.userid=" + userId +
-                " and b.state in ('未考','考试中')";
+                " and b.state in ('未考','考试中')" +
+                " and a.examstart >= to_date('"+nowDateStr+"', 'YYYY-MM-DD')";
         List<ExamExamineeUserDto> examineeUserDtos = dao.findByNativeSql(sql, ExamExamineeUserDto.class);
         ExamExamineeUserDto examExamineeUserDto = null;
         List<ExamExamineeUserDto> examineeUserNeedList = null;
